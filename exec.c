@@ -211,6 +211,12 @@ char** adjusted_environment(const char* filename, char* const envp[]) {
             int at_start_len = strlen(at_start);
             char* at_orig = orig.values[at_original];
             int at_orig_len = strlen(at_orig);
+
+            // TODO HACK: do not copy over empty vars
+            if ( strlen(at_orig) == 0 ) {
+                continue;
+            }
+
             if ( !strncmp(line+name_size+1, startup.values[at_startup], val_size) ) {
                 // nothing changed since startup, restore old value
                 environment_append_item(new_env, line, name_size, at_orig, at_orig_len);
