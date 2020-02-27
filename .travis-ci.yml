@@ -2,7 +2,11 @@
 language: c
 compiler: gcc
 os: linux
-dist: Trusty
+dist: trusty
+
+matrix:
+  - env:
+      - ARCH=x86_64
 
 install:
   - apt-get install -y cmake
