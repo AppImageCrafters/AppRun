@@ -5,7 +5,8 @@ os: linux
 dist: trusty
 
 matrix:
-  - env:
+  include:
+    - env:
       - ARCH=x86_64
 
 script:
