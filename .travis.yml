@@ -10,26 +10,29 @@ matrix:
     - env:
       - TARGET_ARCH=x86_64
       - TARGET_DEB_ARCH=amd64
-      install: false
+      - SETUP_FOREING_ARCH_REPOSITORY=False
     - env:
       - TARGET_ARCH=i386
       - TARGET_DEB_ARCH=i386
-      install:
-       - sudo apt-get install -y gcc-multilib
+      - SETUP_FOREING_ARCH_REPOSITORY=False
+      - CFLAGS=-m32
     - env:
       - TARGET_ARCH=aarch64
       - TARGET_DEB_ARCH=arm64
+      - SETUP_FOREING_ARCH_REPOSITORY=True
     - env:
       - TARGET_ARCH=gnueabihf
       - TARGET_DEB_ARCH=armhf
-
+      - SETUP_FOREING_ARCH_REPOSITORY=True
 install:
-  - sudo dpkg --add-architecture $TARGET_DEB_ARCH
-  - echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports xenial main restricted multiverse universe" | sudo tee /etc/apt/sources.list.d/ubuntu-ports.list
-  - echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports xenial-updates main restricted multiverse universe" | sudo tee /etc/apt/sources.list.d/ubuntu-ports.list
-  - echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports xenial-security main restricted multiverse universe" | sudo tee /etc/apt/sources.list.d/ubuntu-ports.list
-  - sudo apt-get update -y
-  - sudo apt-get install -y crossbuild-essential-$TARGET_DEB_ARCH
+  - 'if [ "$SETUP_FOREING_ARCH_REPOSITORY" == "True" ]; then
+      sudo dpkg --add-architecture $TARGET_DEB_ARCH;
+      echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports xenial main restricted multiverse universe" | sudo tee /etc/apt/sources.list.d/ubuntu-ports.list;
+      echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports xenial-updates main restricted multiverse universe" | sudo tee /etc/apt/sources.list.d/ubuntu-ports.list;
+      echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports xenial-security main restricted multiverse universe" | sudo tee /etc/apt/sources.list.d/ubuntu-ports.list;
+      sudo apt-get update -y;
+      sudo apt-get install -y crossbuild-essential-$TARGET_DEB_ARCH;
+    fi'
 
 script:
   - cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="cmake/${TARGET_ARCH}-toolchain.cmake"
@@ -42,8 +45,8 @@ after_success:
   # get the tag version
 
   - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
-  - mv src/libappimage_exec_wrapper.so libappimage_exec_wrapper-$TARGET_DEB_ARCH.so
-  - bash upload.sh libappimage_exec_wrapper-$TARGET_DEB_ARCH.so
+  - mv src/libappimage_exec_wrapper.so libappimage_exec_wrapper-$TARGET_ARCH.so
+  - bash upload.sh libappimage_exec_wrapper-$TARGET_ARCH.so
 
 branches:
   except:
