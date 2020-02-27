@@ -11,6 +11,7 @@ set(CMAKE_CXX_COMPILER_ARG1 "-m32")
 
 # where is the target environment
 SET(CMAKE_FIND_ROOT_PATH /usr/lib/i386-linux-gnu)
+set(CMAKE_IGNORE_PATH /usr/lib/x86_64-linux-gnu/ /usr/lib/x86_64-linux-gnu/lib/)
 
 # search for programs in the build host directories
 SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
