@@ -14,9 +14,9 @@ matrix:
         - TARGET_ARCH=aarch64
         - TARGET_DEB_ARCH=arm64
 install:
-  - 'if [ "$(dpkg-architecture -q DEB_HOST_GNU_CPU)" != "$TARGET_ARCH" ]; then
+  - 'if [ "$(uname -m)" != "$TARGET_ARCH" ]; then
       echo "deb http://ports.ubuntu.com/ubuntu-ports trusty main restricted multiverse universe" | sudo tee /etc/apt/sources.list.d/ubuntu-ports.list
-      sudo dpkg --add-architecture $TARGET_DEB_ARCH;
+      echo "foreign-architecture $TARGET_DEB_ARCH" | sudo tee /etc/dpkg/dpkg.cfg.d/multiarch
       sudo apt-get update -y;
       sudo apt-get install -y gcc-multilib crossbuild-essential-$TARGET_DEB_ARCH;
     fi'
