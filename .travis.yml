@@ -8,9 +8,6 @@ matrix:
   - env:
       - ARCH=x86_64
 
-install:
-  - apt-get install -y cmake
-
 script:
   - cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="${TARGET_ARCH}-toolchain.cmake"
   - make -j$(nproc)
