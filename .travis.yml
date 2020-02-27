@@ -16,6 +16,10 @@ matrix:
       - TARGET_DEB_ARCH=i386
       - SETUP_FOREING_ARCH_REPOSITORY=False
       - CFLAGS=-m32
+      install:
+        - sudo dpkg --add-architecture i386
+        - apt-get update -y
+        - sudo apt-get install -y g++-multilib pkg-config-i686-linux-gnu
     - env:
       - TARGET_ARCH=aarch64
       - TARGET_DEB_ARCH=arm64
