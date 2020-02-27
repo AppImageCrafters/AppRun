@@ -16,7 +16,10 @@ matrix:
 install:
   - 'if [ "$(uname -m)" != "$TARGET_ARCH" ]; then
       echo "foreign-architecture $TARGET_DEB_ARCH" | sudo tee /etc/dpkg/dpkg.cfg.d/multiarch;
+      rm /etc/apt/sources.list.d/ubuntu-ports.list /etc/apt/sources.list.d/ubuntu-ports.list.d/*
       echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports trusty main restricted multiverse universe" | sudo tee /etc/apt/sources.list.d/ubuntu-ports.list;
+      echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports trusty-updates main restricted multiverse universe" | sudo tee /etc/apt/sources.list.d/ubuntu-ports.list;
+      echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports trusty-security main restricted multiverse universe" | sudo tee /etc/apt/sources.list.d/ubuntu-ports.list;
       sudo apt-get update -y;
       sudo apt-get install -y gcc-multilib crossbuild-essential-$TARGET_DEB_ARCH pkg-config-$TARGET_ARCH-linux-gnu;
     fi'
