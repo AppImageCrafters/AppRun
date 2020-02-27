@@ -1,5 +1,5 @@
 # language target
-language: cpp
+language: c
 compiler: gcc
 os: linux
 dist: Trusty
@@ -13,33 +13,37 @@ addons:
 matrix:
   include:
     - os: linux
-      addons:
-        apt:
-          packages:
-            - crossbuild-essential-arm64
       env:
         - TARGET_ARCH="aarch64"
-    - os: linux
       addons:
         apt:
+          update: true
           packages:
-            - crossbuild-essential-armhf
+        - crossbuild-essential-arm64
+    - os: linux
       env:
         - TARGET_ARCH="armhf"
-    - os: linux
       addons:
         apt:
+          update: true
           packages:
-            - crossbuild-essential-i386
+          - crossbuild-essential-armhf
+    - os: linux
       env:
         - TARGET_ARCH="i386"
-    - os: linux
       addons:
         apt:
+          update: true
           packages:
-            - gcc
+          - crossbuild-essential-i386
+    - os: linux
       env:
         - TARGET_ARCH="x86_64"
+      addons:
+        apt:
+          update: true
+          packages:
+          - gcc
 
 script:
   - cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="${TARGET_ARCH}-toolchain.cmake"
