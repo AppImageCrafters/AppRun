@@ -18,8 +18,8 @@ matrix:
       - CFLAGS=-m32
       install:
         - sudo dpkg --add-architecture i386
-        - apt-get update -y
-        - sudo apt-get install -y g++-multilib pkg-config-i686-linux-gnu
+        - sudo apt-get update -y
+        - sudo apt-get install -y g++-multilib
     - env:
       - TARGET_ARCH=aarch64
       - TARGET_DEB_ARCH=arm64
