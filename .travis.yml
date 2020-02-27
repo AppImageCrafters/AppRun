@@ -49,8 +49,8 @@ after_success:
   # get the tag version
 
   - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
-  - mv src/libappimage_exec_wrapper.so libappimage_exec_wrapper-$TARGET_ARCH.so
-  - bash upload.sh libappimage_exec_wrapper-$TARGET_ARCH.so
+  - mv src/libappimage_exec_wrapper.so libappimage_exec_wrapper-$TARGET_DEB_ARCH.so
+  - bash upload.sh libappimage_exec_wrapper-$TARGET_DEB_ARCH.so
 
 branches:
   except:
