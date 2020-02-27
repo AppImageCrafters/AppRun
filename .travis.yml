@@ -21,7 +21,7 @@ matrix:
       - TARGET_DEB_ARCH=arm64
       - SETUP_FOREING_ARCH_REPOSITORY=True
     - env:
-      - TARGET_ARCH=armhf
+      - TARGET_ARCH=gnueabihf
       - TARGET_DEB_ARCH=armhf
       - SETUP_FOREING_ARCH_REPOSITORY=True
 install:
