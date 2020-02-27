@@ -10,7 +10,7 @@ matrix:
       - ARCH=x86_64
 
 script:
-  - cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="${TARGET_ARCH}-toolchain.cmake"
+  - cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="cmake/${TARGET_ARCH}-toolchain.cmake"
   - make -j$(nproc)
 
 # make the AppImage bundle
@@ -25,5 +25,5 @@ after_success:
 
 branches:
   except:
-    - # Do not build tags that we create when we upload to GitHub Releases
+    # Do not build tags that we create when we upload to GitHub Releases
     - /^(?i:continuous.*)$/
