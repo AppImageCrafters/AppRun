@@ -8,7 +8,13 @@ matrix:
   include:
     - env:
       - TARGET_ARCH=x86_64
-
+    - env:
+        - TARGET_ARCH=aarch64
+      addons:
+        apt:
+          update: true
+          packages:
+            - crossbuild-essential-arm64
 script:
   - cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="cmake/${TARGET_ARCH}-toolchain.cmake"
   - make -j$(nproc)
@@ -20,7 +26,6 @@ after_success:
   # get the tag version
 
   - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
-  - export GITHUB_TOKEN="$OAUTHTOKEN"
   - bash upload.sh src/libappimage_exec_wrapper.so
 
 branches:
