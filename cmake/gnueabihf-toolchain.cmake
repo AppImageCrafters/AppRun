@@ -4,11 +4,11 @@ SET(CMAKE_SYSTEM_NAME Linux)
 SET(CMAKE_SYSTEM_VERSION 1)
 
 # specify the cross compiler
-SET(CMAKE_C_COMPILER   /usr/bin/armhf-linux-gnu-gcc)
-SET(CMAKE_CXX_COMPILER /usr/bin/armhf-linux-gnu-g++)
+SET(CMAKE_C_COMPILER   /usr/bin/gnueabihf-linux-gnu-gcc)
+SET(CMAKE_CXX_COMPILER /usr/bin/gnueabihf-linux-gnu-g++)
 
 # where is the target environment
-SET(CMAKE_FIND_ROOT_PATH /usr/lib/armhf-linux-gnu /usr/lib/armhf-linux-gnu/cmake/)
+SET(CMAKE_FIND_ROOT_PATH /usr/lib/gnueabihf-linux-gnu /usr/lib/gnueabihf-linux-gnu/cmake/)
 
 # search for programs in the build host directories
 SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
