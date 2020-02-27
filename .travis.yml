@@ -15,7 +15,7 @@ matrix:
         - TARGET_DEB_ARCH=arm64
 install:
   - 'if [ "$(uname -m)" != "$TARGET_ARCH" ]; then
-      echo "foreign-architecture $TARGET_DEB_ARCH" | sudo tee /etc/dpkg/dpkg.cfg.d/multiarch;
+      sudo dpkg --add-architecture $TARGET_DEB_ARCH;
       echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports xenial main restricted multiverse universe" | sudo tee /etc/apt/sources.list.d/ubuntu-ports.list;
       echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports xenial-updates main restricted multiverse universe" | sudo tee /etc/apt/sources.list.d/ubuntu-ports.list;
       echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports xenial-security main restricted multiverse universe" | sudo tee /etc/apt/sources.list.d/ubuntu-ports.list;
