@@ -5,32 +5,24 @@ os: linux
 dist: xenial
 sudo: required
 
-arch:
-  - amd64
-  - arm64
-
 matrix:
   include:
     - env:
       - TARGET_ARCH=x86_64
       - TARGET_DEB_ARCH=amd64
       - SETUP_FOREING_ARCH_REPOSITORY=False
-      arch: amd64
     - env:
       - TARGET_ARCH=i386
       - TARGET_DEB_ARCH=i386
       - SETUP_FOREING_ARCH_REPOSITORY=False
-      arch: amd64
     - env:
       - TARGET_ARCH=aarch64
       - TARGET_DEB_ARCH=arm64
       - SETUP_FOREING_ARCH_REPOSITORY=True
-      arch: arm64
     - env:
       - TARGET_ARCH=armhf
       - TARGET_DEB_ARCH=armhf
       - SETUP_FOREING_ARCH_REPOSITORY=True
-      arch: arm64
 install:
   - 'if [ "$SETUP_FOREING_ARCH_REPOSITORY" == "True" ]; then
       sudo dpkg --add-architecture $TARGET_DEB_ARCH;
