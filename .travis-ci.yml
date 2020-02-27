@@ -4,46 +4,8 @@ compiler: gcc
 os: linux
 dist: Trusty
 
-addons:
-  apt:
-    packages:
-      - cmake
-      - cmake-data
-
-matrix:
-  include:
-    - os: linux
-      env:
-        - TARGET_ARCH="aarch64"
-      addons:
-        apt:
-          update: true
-          packages:
-        - crossbuild-essential-arm64
-    - os: linux
-      env:
-        - TARGET_ARCH="armhf"
-      addons:
-        apt:
-          update: true
-          packages:
-          - crossbuild-essential-armhf
-    - os: linux
-      env:
-        - TARGET_ARCH="i386"
-      addons:
-        apt:
-          update: true
-          packages:
-          - crossbuild-essential-i386
-    - os: linux
-      env:
-        - TARGET_ARCH="x86_64"
-      addons:
-        apt:
-          update: true
-          packages:
-          - gcc
+install:
+  - apt-get install -y cmake
 
 script:
   - cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="${TARGET_ARCH}-toolchain.cmake"
