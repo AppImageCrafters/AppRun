@@ -1,0 +1,3 @@
+add_test(NAME TEST_CLEAN_ENV
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/test_clean_env.sh $<TARGET_FILE:appimage_exec_wrapper>
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

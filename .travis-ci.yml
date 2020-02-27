@@ -1,0 +1,61 @@
+# language target
+language: cpp
+compiler: gcc
+os: linux
+dist: Trusty
+
+addons:
+  apt:
+    packages:
+      - cmake
+      - cmake-data
+
+matrix:
+  include:
+    - os: linux
+      addons:
+        apt:
+          packages:
+            - crossbuild-essential-arm64
+      env:
+        - TARGET_ARCH="aarch64"
+    - os: linux
+      addons:
+        apt:
+          packages:
+            - crossbuild-essential-armhf
+      env:
+        - TARGET_ARCH="armhf"
+    - os: linux
+      addons:
+        apt:
+          packages:
+            - crossbuild-essential-i386
+      env:
+        - TARGET_ARCH="i386"
+    - os: linux
+      addons:
+        apt:
+          packages:
+            - gcc
+      env:
+        - TARGET_ARCH="x86_64"
+
+script:
+  - cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="${TARGET_ARCH}-toolchain.cmake"
+  - make -j$(nproc)
+
+# make the AppImage bundle
+after_success:
+  # listing the result
+  - ls -lh src/*.so
+  # get the tag version
+
+  - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+  - export GITHUB_TOKEN="$OAUTHTOKEN"
+  - bash upload.sh src/libappimage_exec_wrapper.so
+
+branches:
+  except:
+    - # Do not build tags that we create when we upload to GitHub Releases
+    - /^(?i:continuous.*)$/
