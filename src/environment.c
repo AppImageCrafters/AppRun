@@ -36,39 +36,39 @@ char* APPDIR = "APPDIR";
 typedef struct {
     char** names;
     char** values;
-} environment;
+} appdir_runtime_environment_t;
 
-environment environment_alloc(size_t envc) {
-    environment env;
+appdir_runtime_environment_t appdir_runtime_environment_alloc(size_t envc) {
+    appdir_runtime_environment_t env;
     env.names = calloc(envc+1, sizeof(char*));
     env.values = calloc(envc+1, sizeof(char*));
     return env;
 }
 
-char** stringlist_alloc(int size) {
+char** appdir_runtime_stringlist_alloc(int size) {
     char** ret = calloc(size, sizeof(char*));
     return ret;
 }
 
-int environment_len(const environment env) {
+int appdir_runtime_environment_len(const appdir_runtime_environment_t env) {
     return appdir_runtime_string_list_len(env.names);
 }
 
-void environment_free(environment env) {
+void appdir_runtime_environment_free(appdir_runtime_environment_t env) {
     appdir_runtime_string_list_free(env.names);
     appdir_runtime_string_list_free(env.values);
 }
 
-void environment_append_item(environment env, char* name, int name_size, char* val, int val_size) {
-    int count = environment_len(env);
+void appdir_runtime_environment_append_item(appdir_runtime_environment_t env, char* name, int name_size, char* val, int val_size) {
+    int count = appdir_runtime_environment_len(env);
     env.names[count] = calloc(name_size+1, sizeof(char));
     env.values[count] = calloc(val_size+1, sizeof(char));
     strncpy(env.names[count], name, name_size);
     strncpy(env.values[count], val, val_size);
 }
 
-int environment_find_name(environment env, char* name, int name_size) {
-    int count = environment_len(env);
+int appdir_runtime_environment_find_name(appdir_runtime_environment_t env, char* name, int name_size) {
+    int count = appdir_runtime_environment_len(env);
     for ( int i = 0; i < count; i++ ) {
         if ( !strncmp(env.names[i], name, name_size) ) {
             return i;
@@ -77,9 +77,9 @@ int environment_find_name(environment env, char* name, int name_size) {
     return -1;
 }
 
-char** environment_to_stringlist(environment env) {
-    int len = environment_len(env);
-    char** ret = stringlist_alloc(len+1);
+char** appdir_runtime_environment_to_stringlist(appdir_runtime_environment_t env) {
+    int len = appdir_runtime_environment_len(env);
+    char** ret = appdir_runtime_stringlist_alloc(len + 1);
     for ( int i = 0; i < len; i++ ) {
         char* name = env.names[i];
         char* value = env.values[i];
@@ -101,8 +101,8 @@ char** appdir_runtime_adjusted_environment(const char* filename, char* const* en
 
     char* appdir = NULL;
 
-    environment orig = environment_alloc(envc);
-    environment startup = environment_alloc(envc);
+    appdir_runtime_environment_t orig = appdir_runtime_environment_alloc(envc);
+    appdir_runtime_environment_t startup = appdir_runtime_environment_alloc(envc);
     int orig_prefix_len = strlen(APPIMAGE_ORIG_PREFIX);
     int startup_prefix_len = strlen(APPIMAGE_STARTUP_PREFIX);
     for ( int i = 0; i < envc; i++ ) {
@@ -111,12 +111,12 @@ char** appdir_runtime_adjusted_environment(const char* filename, char* const* en
         int val_size = strlen(line)-name_size-1;
 
         if ( !strncmp(line, APPIMAGE_ORIG_PREFIX, orig_prefix_len) ) {
-            environment_append_item(orig, line+orig_prefix_len, name_size-orig_prefix_len,
-                                    line+name_size+1, val_size);
+            appdir_runtime_environment_append_item(orig, line + orig_prefix_len, name_size - orig_prefix_len,
+                                                   line + name_size + 1, val_size);
         }
         if ( !strncmp(line, APPIMAGE_STARTUP_PREFIX, startup_prefix_len) ) {
-            environment_append_item(startup, line+startup_prefix_len, name_size-startup_prefix_len,
-                                    line+name_size+1, val_size);
+            appdir_runtime_environment_append_item(startup, line + startup_prefix_len, name_size - startup_prefix_len,
+                                                   line + name_size + 1, val_size);
         }
         if ( !strncmp(line, APPDIR, strlen(APPDIR)) ) {
             appdir = calloc(val_size+1, sizeof(char));
@@ -124,7 +124,7 @@ char** appdir_runtime_adjusted_environment(const char* filename, char* const* en
         }
     }
 
-    environment new_env = environment_alloc(envc);
+    appdir_runtime_environment_t new_env = appdir_runtime_environment_alloc(envc);
     if ( appdir && strncmp(filename, appdir, strlen(appdir)) ) {
         // we have a value for $APPDIR and are leaving it -- perform replacement
         for ( int i = 0; i < envc; i++ ) {
@@ -141,11 +141,11 @@ char** appdir_runtime_adjusted_environment(const char* filename, char* const* en
             char* value = line+name_size+1;
             int value_len = strlen(value);
 
-            int at_startup = environment_find_name(startup, line, name_size);
-            int at_original = environment_find_name(orig, line, name_size);
+            int at_startup = appdir_runtime_environment_find_name(startup, line, name_size);
+            int at_original = appdir_runtime_environment_find_name(orig, line, name_size);
             if ( at_startup == -1 || at_original == -1 ) {
                 // no information, just keep it
-                environment_append_item(new_env, line, name_size, value, value_len);
+                appdir_runtime_environment_append_item(new_env, line, name_size, value, value_len);
                 continue;
             }
 
@@ -161,7 +161,7 @@ char** appdir_runtime_adjusted_environment(const char* filename, char* const* en
 
             if ( !strncmp(line+name_size+1, startup.values[at_startup], val_size) ) {
                 // nothing changed since startup, restore old value
-                environment_append_item(new_env, line, name_size, at_orig, at_orig_len);
+                appdir_runtime_environment_append_item(new_env, line, name_size, at_orig, at_orig_len);
                 continue;
             }
 
@@ -189,31 +189,31 @@ char** appdir_runtime_adjusted_environment(const char* filename, char* const* en
                 }
             }
             if ( !use_value ) {
-                environment_append_item(new_env, line, name_size, value, value_len);
+                appdir_runtime_environment_append_item(new_env, line, name_size, value, value_len);
             }
             else {
-                environment_append_item(new_env, line, name_size, use_value, strlen(use_value));
+                appdir_runtime_environment_append_item(new_env, line, name_size, use_value, strlen(use_value));
                 free(use_value);
             }
         }
     }
 
     char** ret = NULL;
-    if ( environment_len(new_env) > 0 ) {
-        ret = environment_to_stringlist(new_env);
+    if (appdir_runtime_environment_len(new_env) > 0 ) {
+        ret = appdir_runtime_environment_to_stringlist(new_env);
     }
     else {
         // nothing changed
-        ret = stringlist_alloc(envc+1);
+        ret = appdir_runtime_stringlist_alloc(envc + 1);
         for ( int i = 0; i < envc; i++ ) {
             int len = strlen(envp[i]);
             ret[i] = calloc(len+1, sizeof(char));
             strncpy(ret[i], envp[i], len);
         }
     }
-    environment_free(orig);
-    environment_free(startup);
-    environment_free(new_env);
+    appdir_runtime_environment_free(orig);
+    appdir_runtime_environment_free(startup);
+    appdir_runtime_environment_free(new_env);
     free(appdir);
     return ret;
 }
