@@ -92,7 +92,7 @@ char** environment_to_stringlist(environment env) {
     return ret;
 }
 
-char** adjusted_environment(const char* filename, char* const envp[]) {
+char** appdir_runtime_adjusted_environment(const char* filename, char* const* envp) {
     if ( !envp ) {
         return NULL;
     }

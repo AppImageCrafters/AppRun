@@ -27,6 +27,6 @@
 #ifndef APPDIR_RUMTIME_ENVIRONMENT_H
 #define APPDIR_RUMTIME_ENVIRONMENT_H
 
-char** adjusted_environment(const char* filename, char* const envp[]);
+char** appdir_runtime_adjusted_environment(const char* filename, char* const* envp);
 
 #endif //APPDIR_RUMTIME_ENVIRONMENT_H

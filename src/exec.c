@@ -75,7 +75,7 @@ typedef int (*execvpe_func_t)(const char *file, char *const argv[], char *const 
 static execvpe_func_t old_execvpe = NULL;
 
 int execve(const char* filename, char* const argv[], char* const envp[]) {
-    char** new_envp = adjusted_environment(filename, envp);
+    char** new_envp = appdir_runtime_adjusted_environment(filename, envp);
     old_execve = dlsym(RTLD_NEXT, "execve");
     int ret = old_execve(filename, argv, new_envp);
     appdir_runtime_string_list_free(new_envp);
@@ -83,7 +83,7 @@ int execve(const char* filename, char* const argv[], char* const envp[]) {
 }
 
 int execv(const char* filename, char* const argv[]) {
-    char** new_envp = adjusted_environment(filename, environ);
+    char** new_envp = appdir_runtime_adjusted_environment(filename, environ);
     old_execve = dlsym(RTLD_NEXT, "execve");
     int ret = old_execve(filename, argv, new_envp);
     appdir_runtime_string_list_free(new_envp);
@@ -92,7 +92,7 @@ int execv(const char* filename, char* const argv[]) {
 
 int execvpe(const char* filename, char* const argv[], char* const envp[]) {
     // TODO: might not be full path
-    char** new_envp = adjusted_environment(filename, envp);
+    char** new_envp = appdir_runtime_adjusted_environment(filename, envp);
     old_execvpe = dlsym(RTLD_NEXT, "execvpe");
     int ret = old_execvpe(filename, argv, new_envp);
     appdir_runtime_string_list_free(new_envp);
@@ -101,7 +101,7 @@ int execvpe(const char* filename, char* const argv[], char* const envp[]) {
 
 int execvp(const char* filename, char* const argv[]) {
     // TODO: might not be full path
-    char** new_envp = adjusted_environment(filename, environ);
+    char** new_envp = appdir_runtime_adjusted_environment(filename, environ);
     old_execvpe = dlsym(RTLD_NEXT, "execvpe");
     int ret = old_execvpe(filename, argv, new_envp);
     appdir_runtime_string_list_free(new_envp);
