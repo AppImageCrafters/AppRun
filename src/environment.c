@@ -29,6 +29,7 @@
 
 #include "environment.h"
 #include "shared.h"
+
 char* APPIMAGE_ORIG_PREFIX = "APPIMAGE_ORIGINAL_";
 char* APPIMAGE_STARTUP_PREFIX = "APPIMAGE_STARTUP_";
 char* APPDIR = "APPDIR";
@@ -40,8 +41,8 @@ typedef struct {
 
 appdir_runtime_environment_t appdir_runtime_environment_alloc(size_t envc) {
     appdir_runtime_environment_t env;
-    env.names = calloc(envc+1, sizeof(char*));
-    env.values = calloc(envc+1, sizeof(char*));
+    env.names = calloc(envc + 1, sizeof(char*));
+    env.values = calloc(envc + 1, sizeof(char*));
     return env;
 }
 
@@ -59,18 +60,20 @@ void appdir_runtime_environment_free(appdir_runtime_environment_t env) {
     appdir_runtime_string_list_free(env.values);
 }
 
-void appdir_runtime_environment_append_item(appdir_runtime_environment_t env, char* name, int name_size, char* val, int val_size) {
+void
+appdir_runtime_environment_append_item(appdir_runtime_environment_t env, char* name, unsigned long name_size, char* val,
+                                       unsigned long val_size) {
     int count = appdir_runtime_environment_len(env);
-    env.names[count] = calloc(name_size+1, sizeof(char));
-    env.values[count] = calloc(val_size+1, sizeof(char));
+    env.names[count] = calloc(name_size + 1, sizeof(char));
+    env.values[count] = calloc(val_size + 1, sizeof(char));
     strncpy(env.names[count], name, name_size);
     strncpy(env.values[count], val, val_size);
 }
 
-int appdir_runtime_environment_find_name(appdir_runtime_environment_t env, char* name, int name_size) {
+int appdir_runtime_environment_find_name(appdir_runtime_environment_t env, char* name, unsigned long name_size) {
     int count = appdir_runtime_environment_len(env);
-    for ( int i = 0; i < count; i++ ) {
-        if ( !strncmp(env.names[i], name, name_size) ) {
+    for (int i = 0; i < count; i++) {
+        if (!strncmp(env.names[i], name, name_size)) {
             return i;
         }
     }
@@ -80,11 +83,11 @@ int appdir_runtime_environment_find_name(appdir_runtime_environment_t env, char*
 char** appdir_runtime_environment_to_stringlist(appdir_runtime_environment_t env) {
     int len = appdir_runtime_environment_len(env);
     char** ret = appdir_runtime_stringlist_alloc(len + 1);
-    for ( int i = 0; i < len; i++ ) {
+    for (int i = 0; i < len; i++) {
         char* name = env.names[i];
         char* value = env.values[i];
-        int result_len = strlen(name) + strlen(value) + 1;
-        ret[i] = calloc(result_len+1, sizeof(char));
+        unsigned int result_len = strlen(name) + strlen(value) + 1;
+        ret[i] = calloc(result_len + 1, sizeof(char));
         strcat(ret[i], name);
         strcat(ret[i], "=");
         strcat(ret[i], value);
@@ -93,7 +96,7 @@ char** appdir_runtime_environment_to_stringlist(appdir_runtime_environment_t env
 }
 
 char** appdir_runtime_adjusted_environment(const char* filename, char* const* envp) {
-    if ( !envp ) {
+    if (!envp) {
         return NULL;
     }
 
@@ -103,63 +106,62 @@ char** appdir_runtime_adjusted_environment(const char* filename, char* const* en
 
     appdir_runtime_environment_t orig = appdir_runtime_environment_alloc(envc);
     appdir_runtime_environment_t startup = appdir_runtime_environment_alloc(envc);
-    int orig_prefix_len = strlen(APPIMAGE_ORIG_PREFIX);
-    int startup_prefix_len = strlen(APPIMAGE_STARTUP_PREFIX);
-    for ( int i = 0; i < envc; i++ ) {
+    unsigned long orig_prefix_len = strlen(APPIMAGE_ORIG_PREFIX);
+    unsigned long startup_prefix_len = strlen(APPIMAGE_STARTUP_PREFIX);
+    for (int i = 0; i < envc; i++) {
         char* line = envp[i];
-        int name_size = strchr(line, '=')-line;
-        int val_size = strlen(line)-name_size-1;
+        long name_size = strchr(line, '=') - line;
+        unsigned long val_size = strlen(line) - name_size - 1;
 
-        if ( !strncmp(line, APPIMAGE_ORIG_PREFIX, orig_prefix_len) ) {
+        if (!strncmp(line, APPIMAGE_ORIG_PREFIX, orig_prefix_len)) {
             appdir_runtime_environment_append_item(orig, line + orig_prefix_len, name_size - orig_prefix_len,
                                                    line + name_size + 1, val_size);
         }
-        if ( !strncmp(line, APPIMAGE_STARTUP_PREFIX, startup_prefix_len) ) {
+        if (!strncmp(line, APPIMAGE_STARTUP_PREFIX, startup_prefix_len)) {
             appdir_runtime_environment_append_item(startup, line + startup_prefix_len, name_size - startup_prefix_len,
                                                    line + name_size + 1, val_size);
         }
-        if ( !strncmp(line, APPDIR, strlen(APPDIR)) ) {
-            appdir = calloc(val_size+1, sizeof(char));
-            strncpy(appdir, line+name_size+1, val_size);
+        if (!strncmp(line, APPDIR, strlen(APPDIR))) {
+            appdir = calloc(val_size + 1, sizeof(char));
+            strncpy(appdir, line + name_size + 1, val_size);
         }
     }
 
     appdir_runtime_environment_t new_env = appdir_runtime_environment_alloc(envc);
-    if ( appdir && strncmp(filename, appdir, strlen(appdir)) ) {
+    if (appdir && strncmp(filename, appdir, strlen(appdir))) {
         // we have a value for $APPDIR and are leaving it -- perform replacement
-        for ( int i = 0; i < envc; i++ ) {
+        for (int i = 0; i < envc; i++) {
             char* line = envp[i];
-            if ( !strncmp(line, APPIMAGE_ORIG_PREFIX, strlen(APPIMAGE_ORIG_PREFIX)) ||
-                 !strncmp(line, APPIMAGE_STARTUP_PREFIX, strlen(APPIMAGE_STARTUP_PREFIX)) )
-            {
+            if (!strncmp(line, APPIMAGE_ORIG_PREFIX, strlen(APPIMAGE_ORIG_PREFIX)) ||
+                !strncmp(line, APPIMAGE_STARTUP_PREFIX, strlen(APPIMAGE_STARTUP_PREFIX))) {
                 // we are not interested in the backup vars here, don't copy them over
                 continue;
             }
 
-            int name_size = strchr(line, '=')-line;
-            int val_size = strlen(line)-name_size-1;
-            char* value = line+name_size+1;
-            int value_len = strlen(value);
+            long name_size = strchr(line, '=') - line;
+            unsigned long val_size = strlen(line) - name_size - 1;
+            char* value = line + name_size + 1;
+            unsigned long value_len = strlen(value);
 
             int at_startup = appdir_runtime_environment_find_name(startup, line, name_size);
             int at_original = appdir_runtime_environment_find_name(orig, line, name_size);
-            if ( at_startup == -1 || at_original == -1 ) {
+            if (at_startup == -1 || at_original == -1) {
                 // no information, just keep it
                 appdir_runtime_environment_append_item(new_env, line, name_size, value, value_len);
                 continue;
             }
 
             char* at_start = startup.values[at_startup];
-            int at_start_len = strlen(at_start);
+            unsigned long at_start_len = strlen(at_start);
             char* at_orig = orig.values[at_original];
-            int at_orig_len = strlen(at_orig);
+            unsigned long at_orig_len = strlen(at_orig);
 
             // TODO HACK: do not copy over empty vars
-            if ( strlen(at_orig) == 0 ) {
+            if (strlen(at_orig) == 0) {
                 continue;
             }
 
-            if ( !strncmp(line+name_size+1, startup.values[at_startup], val_size) ) {
+            if (!strncmp(line + name_size + 1, startup.values[at_startup], val_size)) {
                 // nothing changed since startup, restore old value
                 appdir_runtime_environment_append_item(new_env, line, name_size, at_orig, at_orig_len);
                 continue;
@@ -167,31 +169,28 @@ char** appdir_runtime_adjusted_environment(const char* filename, char* const* en
 
             int chars_added = value_len > at_start_len;
             char* use_value = NULL;
-            if ( chars_added > 0 ) {
+            if (chars_added > 0) {
                 // something was added to the current value
                 // take _original_ value of the env var and append/prepend the same thing
                 use_value = calloc(strlen(at_orig) + chars_added + 1, sizeof(char));
-                if ( !strncmp(value, at_start, at_start_len) ) {
+                if (!strncmp(value, at_start, at_start_len)) {
                     // append case
                     strcat(use_value, value);
                     strcat(use_value, at_orig + strlen(value));
-                }
-                else if ( !strncmp(value+(value_len-at_start_len), at_start, at_start_len) ) {
+                } else if (!strncmp(value + (value_len - at_start_len), at_start, at_start_len)) {
                     // prepend case
                     strcat(use_value, at_orig + strlen(value));
                     strcat(use_value, value);
-                }
-                else {
+                } else {
                     // none of the above methods matched
                     // assume the value changed completely and simply keep what the application set
                     free(use_value);
                     use_value = NULL;
                 }
             }
-            if ( !use_value ) {
+            if (!use_value) {
                 appdir_runtime_environment_append_item(new_env, line, name_size, value, value_len);
-            }
-            else {
+            } else {
                 appdir_runtime_environment_append_item(new_env, line, name_size, use_value, strlen(use_value));
                 free(use_value);
             }
@@ -199,15 +198,14 @@ char** appdir_runtime_adjusted_environment(const char* filename, char* const* en
     }
 
     char** ret = NULL;
-    if (appdir_runtime_environment_len(new_env) > 0 ) {
+    if (appdir_runtime_environment_len(new_env) > 0) {
         ret = appdir_runtime_environment_to_stringlist(new_env);
-    }
-    else {
+    } else {
         // nothing changed
         ret = appdir_runtime_stringlist_alloc(envc + 1);
-        for ( int i = 0; i < envc; i++ ) {
-            int len = strlen(envp[i]);
-            ret[i] = calloc(len+1, sizeof(char));
+        for (int i = 0; i < envc; i++) {
+            unsigned long len = strlen(envp[i]);
+            ret[i] = calloc(len + 1, sizeof(char));
             strncpy(ret[i], envp[i], len);
         }
     }
