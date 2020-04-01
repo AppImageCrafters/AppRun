@@ -30,8 +30,8 @@
 #include "environment.h"
 #include "shared.h"
 
-char const* const APPDIR_RUNTIME_APPIMAGE_ORIG_PREFIX = "APPIMAGE_ORIGINAL_";
-char const* const APPDIR_RUNTIME_APPIMAGE_STARTUP_PREFIX = "APPIMAGE_STARTUP_";
+char const* const APPDIR_RUNTIME_ENV_ORIG_PREFIX = "APPIMAGE_ORIGINAL_";
+char const* const APPDIR_RUNTIME_ENV_STARTUP_PREFIX = "APPIMAGE_STARTUP_";
 char const* const APPDIR_RUNTIME_ENV = "APPDIR";
 
 typedef struct {
@@ -101,18 +101,18 @@ char** appdir_runtime_adjusted_environment(const char* filename, char* const* en
 
     appdir_runtime_environment_t orig = appdir_runtime_environment_alloc(envc);
     appdir_runtime_environment_t startup = appdir_runtime_environment_alloc(envc);
-    unsigned long orig_prefix_len = strlen(APPDIR_RUNTIME_APPIMAGE_ORIG_PREFIX);
-    unsigned long startup_prefix_len = strlen(APPDIR_RUNTIME_APPIMAGE_STARTUP_PREFIX);
+    unsigned long orig_prefix_len = strlen(APPDIR_RUNTIME_ENV_ORIG_PREFIX);
+    unsigned long startup_prefix_len = strlen(APPDIR_RUNTIME_ENV_STARTUP_PREFIX);
     for (int i = 0; i < envc; i++) {
         char* line = envp[i];
         long name_size = strchr(line, '=') - line;
         unsigned long val_size = strlen(line) - name_size - 1;
 
-        if (!strncmp(line, APPDIR_RUNTIME_APPIMAGE_ORIG_PREFIX, orig_prefix_len)) {
+        if (!strncmp(line, APPDIR_RUNTIME_ENV_ORIG_PREFIX, orig_prefix_len)) {
             appdir_runtime_environment_append_item(orig, line + orig_prefix_len, name_size - orig_prefix_len,
                                                    line + name_size + 1, val_size);
         }
-        if (!strncmp(line, APPDIR_RUNTIME_APPIMAGE_STARTUP_PREFIX, startup_prefix_len)) {
+        if (!strncmp(line, APPDIR_RUNTIME_ENV_STARTUP_PREFIX, startup_prefix_len)) {
             appdir_runtime_environment_append_item(startup, line + startup_prefix_len, name_size - startup_prefix_len,
                                                    line + name_size + 1, val_size);
         }
@@ -127,8 +127,8 @@ char** appdir_runtime_adjusted_environment(const char* filename, char* const* en
         // we have a value for $APPDIR and are leaving it -- perform replacement
         for (int i = 0; i < envc; i++) {
             char* line = envp[i];
-            if (!strncmp(line, APPDIR_RUNTIME_APPIMAGE_ORIG_PREFIX, strlen(APPDIR_RUNTIME_APPIMAGE_ORIG_PREFIX)) ||
-                !strncmp(line, APPDIR_RUNTIME_APPIMAGE_STARTUP_PREFIX, strlen(APPDIR_RUNTIME_APPIMAGE_STARTUP_PREFIX))) {
+            if (!strncmp(line, APPDIR_RUNTIME_ENV_ORIG_PREFIX, strlen(APPDIR_RUNTIME_ENV_ORIG_PREFIX)) ||
+                !strncmp(line, APPDIR_RUNTIME_ENV_STARTUP_PREFIX, strlen(APPDIR_RUNTIME_ENV_STARTUP_PREFIX))) {
                 // we are not interested in the backup vars here, don't copy them over
                 continue;
             }

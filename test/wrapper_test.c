@@ -26,20 +26,38 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <string.h>
 
+#include "../src/environment.h"
+#include "../src/interpreter.h"
 #include "tests_shared.h"
 
-void setup_appdir(const char* appdir_path) {
-    setenv("APPDIR", appdir_path, 1);
-    setenv("APPIMAGE_ORIGINAL_APPDIR", "", 1);
-    setenv("APPIMAGE_STARTUP_APPDIR", appdir_path, 1);
+void set_private_env(char const* const name, char const* const value) {
+    setenv(name, value, 1);
+
+    unsigned int original_var_name_size = strlen(name) + strlen(APPDIR_RUNTIME_ENV_ORIG_PREFIX) + 1;
+    char* original_var_name = calloc(original_var_name_size, sizeof(char));
+
+    strcat(original_var_name, APPDIR_RUNTIME_ENV_ORIG_PREFIX);
+    strcat(original_var_name, name);
+
+    setenv(original_var_name, "", 1);
+    free(original_var_name);
+
+    unsigned startup_var_name_size = strlen(name) + strlen(APPDIR_RUNTIME_ENV_STARTUP_PREFIX) + 1;
+    char* startup_var_name = calloc(startup_var_name_size, sizeof(char));
+
+    strcat(startup_var_name, APPDIR_RUNTIME_ENV_STARTUP_PREFIX);
+    strcat(startup_var_name, name);
+
+    setenv(startup_var_name, value, 1);
+    free(startup_var_name);
 }
 
 void test_restore_original_env_for_external_binaries() {
     fprintf(stderr, "Test restore original environment when calling external binaries: ");
 
-    setup_appdir("/tmp");
+    set_private_env(APPDIR_RUNTIME_ENV, "/tmp");
 
     // grep fails if nothing matches
     assert_command_fails(system("/usr/bin/printenv APPDIR >> /dev/null"));
@@ -51,7 +69,7 @@ void test_restore_original_env_for_external_binaries() {
 void test_keep_appdir_env_for_internal_binaries() {
     fprintf(stderr, "Test keep APPDIR environment when calling internal binaries: ");
 
-    setup_appdir("/usr/bin");
+    set_private_env(APPDIR_RUNTIME_ENV, "/usr/bin");
 
     // grep fails if nothing matches
     assert_command_succeed(system("/usr/bin/printenv APPDIR >> /dev/null"));
@@ -74,11 +92,40 @@ void setup_wrapper() {
     setenv("APPIMAGE_STARTUP_LD_PRELOAD", wrapper_path, 0);
 }
 
+void test_prefix_interpreter_for_internal_binaries() {
+    fprintf(stderr, "Test prefix INTERPRETER when calling internal binaries: ");
+
+    set_private_env(APPDIR_RUNTIME_ENV, "/bin");
+    set_private_env(APPDIR_RUNTIME_INTERPRETER_ENV, "/bin/echo");
+
+    // grep fails if nothing matches
+    assert_command_succeed(system("/bin/false >> /dev/null"));
+    assert_command_succeed(system("/bin/false >> /dev/null"));
+
+    fprintf(stderr, "Ok\n");
+}
+
+void test_dont_prefix_interpreter_for_external_binaries() {
+    fprintf(stderr, "Test dont prefix INTERPRETER when calling external binaries: ");
+
+    set_private_env(APPDIR_RUNTIME_ENV, "/usr/bin");
+    set_private_env(APPDIR_RUNTIME_INTERPRETER_ENV, "/bin/echo");
+
+    // grep fails if nothing matches
+    assert_command_fails(system("/bin/false"));
+    assert_command_fails(system("/bin/false"));
+
+    fprintf(stderr, "Ok\n");
+}
+
 int main(int argc, char** argv) {
     setup_wrapper();
 
     test_restore_original_env_for_external_binaries();
     test_keep_appdir_env_for_internal_binaries();
+
+    test_prefix_interpreter_for_internal_binaries();
+    test_dont_prefix_interpreter_for_external_binaries();
 
     return 0;
 }

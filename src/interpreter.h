@@ -29,6 +29,8 @@
 
 #include <stdbool.h>
 
+char const* const APPDIR_RUNTIME_INTERPRETER_ENV;
+
 typedef struct {
     char* file;
     char** args;

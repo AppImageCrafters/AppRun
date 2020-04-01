@@ -47,11 +47,14 @@ variable (e.g. "PATH"):
 
 #include "shared.h"
 #include "environment.h"
+#include "interpreter.h"
 
-typedef ssize_t (*execve_func_t)(const char* filename, char* const argv[], char* const envp[]);
+typedef ssize_t (* execve_func_t)(const char* filename, char* const argv[], char* const envp[]);
+
 static execve_func_t old_execve = NULL;
 
-typedef ssize_t (*execvp_func_t)(const char* filename, char* const argv[]);
+typedef ssize_t (* execvp_func_t)(const char* filename, char* const argv[]);
+
 static execvp_func_t old_execvp = NULL;
 
 // TODO implement me: execl, execlp, execle; but it's annoying work and nothing seems to use them
@@ -64,42 +67,60 @@ static execvp_func_t old_execvp = NULL;
 // typedef int (*execle_func_t)(const char *path, const char *arg, char * const envp[]);
 // static execle_func_t old_execle = NULL;
 
-typedef int (*execv_func_t)(const char *path, char *const argv[]);
+typedef int (* execv_func_t)(const char* path, char* const argv[]);
+
 static execv_func_t old_execv = NULL;
 
-typedef int (*execvpe_func_t)(const char *file, char *const argv[], char *const envp[]);
+typedef int (* execvpe_func_t)(const char* file, char* const argv[], char* const envp[]);
+
 static execvpe_func_t old_execvpe = NULL;
 
 int execve(const char* filename, char* const argv[], char* const envp[]) {
     char** new_envp = appdir_runtime_adjusted_environment(filename, envp);
+    appdir_runtime_exec_args_t* new_exec_args = appdir_runtime_adjusted_exec_args(filename, argv);
+
     old_execve = dlsym(RTLD_NEXT, "execve");
-    int ret = old_execve(filename, argv, new_envp);
+    int ret = old_execve(new_exec_args->file, new_exec_args->args, new_envp);
+
     appdir_runtime_string_list_free(new_envp);
+    appdir_runtime_exec_args_free(new_exec_args);
     return ret;
 }
 
 int execv(const char* filename, char* const argv[]) {
     char** new_envp = appdir_runtime_adjusted_environment(filename, environ);
+    appdir_runtime_exec_args_t* new_exec_args = appdir_runtime_adjusted_exec_args(filename, argv);
+
     old_execve = dlsym(RTLD_NEXT, "execve");
-    int ret = old_execve(filename, argv, new_envp);
+    int ret = old_execve(new_exec_args->file, new_exec_args->args, new_envp);
+
     appdir_runtime_string_list_free(new_envp);
+    appdir_runtime_exec_args_free(new_exec_args);
     return ret;
 }
 
 int execvpe(const char* filename, char* const argv[], char* const envp[]) {
     // TODO: might not be full path
     char** new_envp = appdir_runtime_adjusted_environment(filename, envp);
+    appdir_runtime_exec_args_t* new_exec_args = appdir_runtime_adjusted_exec_args(filename, argv);
+
     old_execvpe = dlsym(RTLD_NEXT, "execvpe");
-    int ret = old_execvpe(filename, argv, new_envp);
+    int ret = old_execvpe(new_exec_args->file, new_exec_args->args, new_envp);
+
     appdir_runtime_string_list_free(new_envp);
+    appdir_runtime_exec_args_free(new_exec_args);
     return ret;
 }
 
 int execvp(const char* filename, char* const argv[]) {
     // TODO: might not be full path
     char** new_envp = appdir_runtime_adjusted_environment(filename, environ);
+    appdir_runtime_exec_args_t* new_exec_args = appdir_runtime_adjusted_exec_args(filename, argv);
+
     old_execvpe = dlsym(RTLD_NEXT, "execvpe");
-    int ret = old_execvpe(filename, argv, new_envp);
+    int ret = old_execvpe(new_exec_args->file, new_exec_args->args, new_envp);
+
     appdir_runtime_string_list_free(new_envp);
+    appdir_runtime_exec_args_free(new_exec_args);
     return ret;
 }

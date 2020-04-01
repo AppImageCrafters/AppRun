@@ -1,5 +1,5 @@
 add_executable(wrapper_test wrapper_test.c tests_shared.c)
-target_link_libraries(wrapper_test dl)
+target_link_libraries(wrapper_test appimage_exec_wrapper dl)
 
 add_dependencies(wrapper_test appimage_exec_wrapper)
 

@@ -27,6 +27,10 @@
 #ifndef APPDIR_RUMTIME_ENVIRONMENT_H
 #define APPDIR_RUMTIME_ENVIRONMENT_H
 
+extern char const* const APPDIR_RUNTIME_ENV_ORIG_PREFIX;
+extern char const* const APPDIR_RUNTIME_ENV_STARTUP_PREFIX;
+extern char const* const APPDIR_RUNTIME_ENV;
+
 char** appdir_runtime_adjusted_environment(const char* filename, char* const* envp);
 
 #endif //APPDIR_RUMTIME_ENVIRONMENT_H
