@@ -1,4 +1,4 @@
-add_library(appimage_exec_wrapper SHARED exec.c environment.c shared.c)
+add_library(appimage_exec_wrapper SHARED exec.c environment.c interpreter.c shared.c)
 target_link_libraries(appimage_exec_wrapper dl)
 
 install(
