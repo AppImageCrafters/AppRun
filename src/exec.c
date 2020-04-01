@@ -44,10 +44,6 @@ variable (e.g. "PATH"):
 
 #include <unistd.h>
 #include <dlfcn.h>
-#include <stdio.h>
-#include <string.h>
-#include <malloc.h>
-#include <stdlib.h>
 
 #include "shared.h"
 #include "environment.h"
