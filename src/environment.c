@@ -45,21 +45,13 @@ environment environment_alloc(size_t envc) {
     return env;
 }
 
-int arr_len(char* const x[]) {
-    int len = 0;
-    while ( x[len] != 0 ) {
-        len++;
-    }
-    return len;
-}
-
 char** stringlist_alloc(int size) {
     char** ret = calloc(size, sizeof(char*));
     return ret;
 }
 
 int environment_len(const environment env) {
-    return arr_len(env.names);
+    return appdir_runtime_string_list_len(env.names);
 }
 
 void environment_free(environment env) {
@@ -105,7 +97,7 @@ char** adjusted_environment(const char* filename, char* const envp[]) {
         return NULL;
     }
 
-    int envc = arr_len(envp);
+    int envc = appdir_runtime_string_list_len(envp);
 
     char* appdir = NULL;
 
