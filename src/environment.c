@@ -128,7 +128,7 @@ char** appdir_runtime_adjusted_environment(const char* filename, char* const* en
     }
 
     appdir_runtime_environment_t new_env = appdir_runtime_environment_alloc(envc);
-    if (appdir && strncmp(filename, appdir, strlen(appdir))) {
+    if (appdir && strncmp(filename, appdir, strlen(appdir)) != 0) {
         // we have a value for $APPDIR and are leaving it -- perform replacement
         for (int i = 0; i < envc; i++) {
             char* line = envp[i];
