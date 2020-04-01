@@ -53,14 +53,6 @@ int arr_len(char* const x[]) {
     return len;
 }
 
-void stringlist_free(char* const envp[]) {
-    if ( envp ) {
-        for ( int i = 0; i < arr_len(envp); i++ ) {
-            free(envp[i]);
-        }
-    }
-}
-
 char** stringlist_alloc(int size) {
     char** ret = calloc(size, sizeof(char*));
     return ret;
@@ -71,8 +63,8 @@ int environment_len(const environment env) {
 }
 
 void environment_free(environment env) {
-    stringlist_free(env.names);
-    stringlist_free(env.values);
+    appdir_runtime_string_list_free(env.names);
+    appdir_runtime_string_list_free(env.values);
 }
 
 void environment_append_item(environment env, char* name, int name_size, char* val, int val_size) {
