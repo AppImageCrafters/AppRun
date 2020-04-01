@@ -30,9 +30,9 @@
 #include "environment.h"
 #include "shared.h"
 
-char* APPDIR_RUNTIME_APPIMAGE_ORIG_PREFIX = "APPIMAGE_ORIGINAL_";
-char* APPDIR_RUNTIME_APPIMAGE_STARTUP_PREFIX = "APPIMAGE_STARTUP_";
-char* APPDIR_RUNTIME_ENV = "APPDIR";
+char const* const APPDIR_RUNTIME_APPIMAGE_ORIG_PREFIX = "APPIMAGE_ORIGINAL_";
+char const* const APPDIR_RUNTIME_APPIMAGE_STARTUP_PREFIX = "APPIMAGE_STARTUP_";
+char const* const APPDIR_RUNTIME_ENV = "APPDIR";
 
 typedef struct {
     char** names;
