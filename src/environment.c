@@ -46,11 +46,6 @@ appdir_runtime_environment_t appdir_runtime_environment_alloc(size_t envc) {
     return env;
 }
 
-char** appdir_runtime_stringlist_alloc(int size) {
-    char** ret = calloc(size, sizeof(char*));
-    return ret;
-}
-
 int appdir_runtime_environment_len(const appdir_runtime_environment_t env) {
     return appdir_runtime_string_list_len(env.names);
 }
@@ -82,7 +77,7 @@ int appdir_runtime_environment_find_name(appdir_runtime_environment_t env, char*
 
 char** appdir_runtime_environment_to_stringlist(appdir_runtime_environment_t env) {
     int len = appdir_runtime_environment_len(env);
-    char** ret = appdir_runtime_stringlist_alloc(len + 1);
+    char** ret = appdir_runtime_string_list_alloc(len + 1);
     for (int i = 0; i < len; i++) {
         char* name = env.names[i];
         char* value = env.values[i];
@@ -202,7 +197,7 @@ char** appdir_runtime_adjusted_environment(const char* filename, char* const* en
         ret = appdir_runtime_environment_to_stringlist(new_env);
     } else {
         // nothing changed
-        ret = appdir_runtime_stringlist_alloc(envc + 1);
+        ret = appdir_runtime_string_list_alloc(envc + 1);
         for (int i = 0; i < envc; i++) {
             unsigned long len = strlen(envp[i]);
             ret[i] = calloc(len + 1, sizeof(char));

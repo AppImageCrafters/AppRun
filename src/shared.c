@@ -47,3 +47,8 @@ void appdir_runtime_string_list_free(char* const* string_list) {
         }
     }
 }
+
+char** appdir_runtime_string_list_alloc(int size) {
+    char** ret = calloc(size, sizeof(char*));
+    return ret;
+}
