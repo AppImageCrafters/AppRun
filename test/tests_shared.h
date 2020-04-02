@@ -29,11 +29,17 @@
 
 void bailout();
 
-void assert_true(int value);
+#define assert_true(value) \
+    if (!value) \
+        bailout()
 
-void assert_false(int value);
+#define assert_false(value) \
+    if (value) \
+        bailout()
 
-void assert_eq(int a, int b);
+#define assert_eq(a, b) \
+    if (a != b) \
+        bailout()
 
 void assert_str_eq(const char* str1, const char* str2);
 

@@ -49,21 +49,6 @@ void bailout() {
     exit(1);
 }
 
-void assert_true(int value) {
-    if (!value)
-        bailout();
-}
-
-void assert_false(int value) {
-    if (value)
-        bailout();
-}
-
-void assert_eq(int a, int b) {
-    if (a != b)
-        bailout();
-}
-
 void assert_command_succeed(int ret) {
     if (ret != 0)
         bailout();
