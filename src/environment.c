@@ -210,3 +210,53 @@ char** appdir_runtime_adjusted_environment(const char* filename, char* const* en
     free(appdir);
     return ret;
 }
+
+apprun_env_item_t* env_item_unchanged_export(apprun_env_item_t const* item) {
+    if (item->original_value != NULL) {
+        apprun_env_item_t* copy = calloc(1, sizeof(apprun_env_item_t));
+        copy->name = strdup(item->name);
+        copy->current_value = strdup(item->original_value);
+
+        return copy;
+    }
+
+    if (item->original_value == NULL && item->startup_value == NULL) {
+        // this is item should not be tracked nor modified
+
+        apprun_env_item_t* copy = calloc(1, sizeof(apprun_env_item_t));
+        copy->name = strdup(item->name);
+        copy->current_value = strdup(item->current_value);
+
+        return copy;
+    }
+
+    return NULL;
+}
+
+bool apprun_env_item_is_changed(apprun_env_item_t const* item) {
+    if (item->startup_value == item->current_value)
+        return false;
+
+    return !(item->startup_value != NULL &&
+             item->current_value != NULL &&
+             strcmp(item->startup_value, item->current_value) == 0);
+}
+
+void env_item_free(apprun_env_item_t* item) {
+    if (item == NULL)
+        return;
+
+    if (item->name != NULL)
+        free(item->name);
+
+    if (item->current_value != NULL)
+        free(item->current_value);
+
+    if (item->original_value != NULL)
+        free(item->original_value);
+
+    if (item->startup_value != NULL)
+        free(item->startup_value);
+
+    free(item);
+}

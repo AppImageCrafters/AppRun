@@ -40,6 +40,12 @@ void assert_str_list_eq(char* const* str_list_1, char* const* str_list_2) {
 }
 
 void assert_str_eq(const char* str1, const char* str2) {
+    if (str1 == NULL && str2 == NULL)
+        return;
+
+    if ((str1 == NULL) || (str2 == NULL))
+        bailout();
+
     if (strcmp(str1, str2) != 0)
         bailout();
 }
@@ -57,4 +63,48 @@ void assert_command_succeed(int ret) {
 void assert_command_fails(int ret) {
     if (ret == 0)
         bailout();
+}
+
+void set_private_env(char const* name, char const* value) {
+    setenv(name, value, 1);
+
+    unsigned int original_var_name_size = strlen(name) + strlen(APPDIR_RUNTIME_ENV_ORIG_PREFIX) + 1;
+    char* original_var_name = calloc(original_var_name_size, sizeof(char));
+
+    strcat(original_var_name, APPDIR_RUNTIME_ENV_ORIG_PREFIX);
+    strcat(original_var_name, name);
+
+    setenv(original_var_name, "", 1);
+    free(original_var_name);
+
+    unsigned startup_var_name_size = strlen(name) + strlen(APPDIR_RUNTIME_ENV_STARTUP_PREFIX) + 1;
+    char* startup_var_name = calloc(startup_var_name_size, sizeof(char));
+
+    strcat(startup_var_name, APPDIR_RUNTIME_ENV_STARTUP_PREFIX);
+    strcat(startup_var_name, name);
+
+    setenv(startup_var_name, value, 1);
+    free(startup_var_name);
+}
+
+
+void print_string_list(char** string_list) {
+    char** itr = string_list;
+    while (*itr != NULL) {
+        printf("%s\n", *itr);
+        itr++;
+    }
+}
+
+void assert_env_item_eq(apprun_env_item_t* a, apprun_env_item_t* b) {
+    if (a == NULL && b == NULL)
+        return;
+
+    if ((a == NULL) || (b == NULL))
+        bailout();
+
+    assert_str_eq(a->name, b->name);
+    assert_str_eq(a->startup_value, b->startup_value);
+    assert_str_eq(a->current_value, b->current_value);
+    assert_str_eq(a->original_value, b->original_value);
 }

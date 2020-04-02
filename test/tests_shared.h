@@ -27,6 +27,8 @@
 #ifndef APPDIR_RUMTIME_TESTS_SHARED_H
 #define APPDIR_RUMTIME_TESTS_SHARED_H
 
+#include "../src/environment.h"
+
 void bailout();
 
 #define assert_true(value) \
@@ -48,5 +50,11 @@ void assert_str_list_eq(char* const* str_list_1, char* const* str_list_2);
 void assert_command_succeed(int ret);
 
 void assert_command_fails(int ret);
+
+void set_private_env(char const* name, char const* value);
+
+void print_string_list(char** string_list);
+
+void assert_env_item_eq(apprun_env_item_t* a, apprun_env_item_t* b);
 
 #endif //APPDIR_RUMTIME_TESTS_SHARED_H

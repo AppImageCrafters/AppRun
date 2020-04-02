@@ -27,10 +27,27 @@
 #ifndef APPDIR_RUMTIME_ENVIRONMENT_H
 #define APPDIR_RUMTIME_ENVIRONMENT_H
 
+#include <stdbool.h>
+
 extern char const* const APPDIR_RUNTIME_ENV_ORIG_PREFIX;
 extern char const* const APPDIR_RUNTIME_ENV_STARTUP_PREFIX;
 extern char const* const APPDIR_RUNTIME_ENV;
 
+typedef struct {
+    char* name;
+    char* current_value;
+    char* original_value;
+    char* startup_value;
+} apprun_env_item_t;
+
+void env_item_free(apprun_env_item_t* item);
+
 char** appdir_runtime_adjusted_environment(const char* filename, char* const* envp);
+
+bool apprun_env_item_is_changed(apprun_env_item_t const* item);
+
+apprun_env_item_t* env_item_unchanged_export(apprun_env_item_t const* item);
+
+
 
 #endif //APPDIR_RUMTIME_ENVIRONMENT_H

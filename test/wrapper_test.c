@@ -32,28 +32,6 @@
 #include "../src/interpreter.h"
 #include "tests_shared.h"
 
-void set_private_env(char const* const name, char const* const value) {
-    setenv(name, value, 1);
-
-    unsigned int original_var_name_size = strlen(name) + strlen(APPDIR_RUNTIME_ENV_ORIG_PREFIX) + 1;
-    char* original_var_name = calloc(original_var_name_size, sizeof(char));
-
-    strcat(original_var_name, APPDIR_RUNTIME_ENV_ORIG_PREFIX);
-    strcat(original_var_name, name);
-
-    setenv(original_var_name, "", 1);
-    free(original_var_name);
-
-    unsigned startup_var_name_size = strlen(name) + strlen(APPDIR_RUNTIME_ENV_STARTUP_PREFIX) + 1;
-    char* startup_var_name = calloc(startup_var_name_size, sizeof(char));
-
-    strcat(startup_var_name, APPDIR_RUNTIME_ENV_STARTUP_PREFIX);
-    strcat(startup_var_name, name);
-
-    setenv(startup_var_name, value, 1);
-    free(startup_var_name);
-}
-
 void test_restore_original_env_for_external_binaries() {
     fprintf(stderr, "Test restore original environment when calling external binaries: ");
 
