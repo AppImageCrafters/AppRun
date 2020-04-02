@@ -53,7 +53,7 @@ appdir_runtime_exec_args_t* appdir_runtime_duplicate_exec_args(const char* filen
 }
 
 appdir_runtime_exec_args_t*
-appdir_runtime_prepend_interpreter_to_exec(char const* interpreter, char* const* argv) {
+appdir_runtime_prepend_interpreter_to_exec(char const* interpreter, char const* filename, char* const* argv) {
     appdir_runtime_exec_args_t* result;
     result = calloc(1, sizeof(appdir_runtime_exec_args_t));
 
@@ -66,15 +66,19 @@ appdir_runtime_prepend_interpreter_to_exec(char const* interpreter, char* const*
     // alloc array size with an extra space for the interpreter
     result->args = calloc(array_size + 1, sizeof(char*));
 
-    char* const* src_itr = argv;
+
     char** target_itr = result->args;
 
     // place interpreter as first argument, not mandatory but it's a linux convention
     *target_itr = strdup(interpreter);
     target_itr++;
 
+    // place the target filename as second argument
+    *target_itr = strdup(filename);
+    target_itr++;
+
     // copy arguments
-    for (; *src_itr != NULL; src_itr++, target_itr++)
+    for (char* const* src_itr = argv + 1; *src_itr != NULL; src_itr++, target_itr++)
         *target_itr = strdup(*src_itr);
 
     return result;
@@ -115,7 +119,7 @@ appdir_runtime_exec_args_t* appdir_runtime_adjusted_exec_args(const char* filena
     char* interpreter = getenv("INTERPRETER");
 
     if (appdir_runtime_is_exec_args_change_required(appdir, interpreter, filename))
-        return appdir_runtime_prepend_interpreter_to_exec(interpreter, argv);
+        return appdir_runtime_prepend_interpreter_to_exec(interpreter, filename, argv);
     else
         return appdir_runtime_duplicate_exec_args(filename, argv);
 }

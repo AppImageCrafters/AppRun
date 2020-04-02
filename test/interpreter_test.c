@@ -97,9 +97,10 @@ void test_override_exec_args(char* const* argv) {
 
     assert_str_eq(new_args->file, interpreter);
     assert_str_eq(new_args->args[0], interpreter);
+    assert_str_eq(new_args->args[1], filename);
 
     char** org_str_list = new_args->args + 1;
-    assert_str_list_eq(org_str_list, argv);
+    assert_str_list_eq(org_str_list+1, argv+1);
 
     appdir_runtime_exec_args_free(new_args);
     free(filename);
