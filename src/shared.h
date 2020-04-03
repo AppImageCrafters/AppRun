@@ -29,7 +29,7 @@
 
 char** appdir_runtime_string_list_alloc(int size);
 
-void appdir_runtime_string_list_free(char* const* string_list);
+void appdir_runtime_string_list_free(char** string_list);
 
 int appdir_runtime_string_list_len(char* const* x);
 

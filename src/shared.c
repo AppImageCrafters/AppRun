@@ -40,11 +40,12 @@ int appdir_runtime_string_list_len(char* const* x) {
     return len;
 }
 
-void appdir_runtime_string_list_free(char* const* string_list) {
-    if (string_list) {
-        for (int i = 0; i < appdir_runtime_string_list_len(string_list); i++) {
-            free(string_list[i]);
-        }
+void appdir_runtime_string_list_free(char** string_list) {
+    if (string_list != NULL) {
+        for (char** itr = string_list; *itr != NULL; itr++)
+            free(*itr);
+
+        free(string_list);
     }
 }
 

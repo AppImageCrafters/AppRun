@@ -28,6 +28,7 @@
 
 #include "../src/environment.h"
 #include "tests_shared.h"
+#include "../src/shared.h"
 
 
 void test_env_item_is_changed() {
@@ -241,7 +242,7 @@ void test_env_item_export_empty_item() {
     fprintf(stderr, "Ok\n");
 }
 
-void test_envp_to_env_item_list() {
+void test_env_item_list_from_envp() {
     fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
 
     char* envp[] = {
@@ -256,7 +257,7 @@ void test_envp_to_env_item_list() {
             NULL,
     };
 
-    apprun_env_item_list_t* res = apprun_env_envp_to_env_item_list(envp);
+    apprun_env_item_list_t* res = apprun_env_item_list_from_envp(envp);
 
     apprun_env_item_t k1 = {"K1", "V1", "V0", "V1"};
     apprun_env_item_t k2 = {"K2", NULL, NULL, NULL};
@@ -304,6 +305,37 @@ void test_export_env_item_list() {
 }
 
 
+void test_env_item_list_to_envp() {
+    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+
+    apprun_env_item_list_t list[5] = {0x0};
+    apprun_env_item_t k1 = {"K1", "V1", "V0", "V1"};
+    list[0] = &k1;
+    apprun_env_item_t k2 = {"K2", NULL, NULL, NULL};
+    list[1] = &k2;
+    apprun_env_item_t k3 = {"K3", "0:1:2", NULL, NULL};
+    list[2] = &k3;
+    apprun_env_item_t k4 = {"K4", NULL, "V0", NULL};
+    list[3] = &k4;
+
+    char** res = apprun_env_item_list_to_envp(list);
+
+    char* expected[] = {
+            "K1=V1",
+            "APPIMAGE_ORIGINAL_K1=V0",
+            "APPIMAGE_STARTUP_K1=V1",
+            "K3=0:1:2",
+            "APPIMAGE_ORIGINAL_K4=V0",
+            NULL,
+    };
+
+    assert_str_list_eq(expected, res);
+    appdir_runtime_string_list_free(res);
+
+
+    fprintf(stderr, "Ok\n");
+}
+
 int main(int argc, char** argv, char* envp[]) {
     test_env_item_is_changed();
 
@@ -320,8 +352,9 @@ int main(int argc, char** argv, char* envp[]) {
     test_env_item_export_apprun_only_item();
     test_env_item_export_empty_item();
 
-    test_envp_to_env_item_list();
+    test_env_item_list_from_envp();
     test_export_env_item_list();
+    test_env_item_list_to_envp();
 
     return 0;
 }
