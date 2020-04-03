@@ -340,6 +340,9 @@ bool apprun_env_item_is_tracked(const apprun_env_item_t* item) {
 
 apprun_env_item_t* apprun_env_item_export(apprun_env_item_t* item) {
     if (!apprun_env_item_is_tracked(item)) {
+        if (item->current_value == NULL)
+            return NULL;
+
         apprun_env_item_t* copy = calloc(1, sizeof(apprun_env_item_t));
         copy->name = strdup(item->name);
         copy->current_value = strdup(item->current_value);
@@ -448,4 +451,28 @@ void apprun_env_item_list_free(apprun_env_item_list_t* list) {
         apprun_env_item_free(*itr);
 
     free(list);
+}
+
+apprun_env_item_list_t* apprun_env_item_list_export(apprun_env_item_list_t const* list) {
+    unsigned new_list_size = apprun_env_item_list_size(list) + 1;
+    unsigned new_list_item_count = 0;
+    apprun_env_item_list_t* new_list = calloc(new_list_size, sizeof(apprun_env_item_list_t*));
+
+    for (apprun_env_item_list_t const* itr = list; *itr != NULL; itr++) {
+        apprun_env_item_t* item = apprun_env_item_export(*itr);
+        if (item != NULL) {
+            new_list[new_list_item_count] = item;
+            new_list_item_count++;
+        }
+    }
+
+    return new_list;
+}
+
+unsigned apprun_env_item_list_size(apprun_env_item_list_t const* list) {
+    unsigned size = 0;
+    while (list[size] != NULL)
+        size++;
+
+    return size;
 }

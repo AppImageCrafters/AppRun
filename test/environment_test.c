@@ -230,6 +230,17 @@ void test_env_item_export_apprun_only_item() {
     fprintf(stderr, "Ok\n");
 }
 
+void test_env_item_export_empty_item() {
+    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+
+    apprun_env_item_t apprun_only_item = {"EMPTY", NULL, NULL, NULL};
+
+    apprun_env_item_t* res = apprun_env_item_export(&apprun_only_item);
+    assert_eq(res, NULL);
+
+    fprintf(stderr, "Ok\n");
+}
+
 void test_envp_to_env_item_list() {
     fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
 
@@ -263,6 +274,36 @@ void test_envp_to_env_item_list() {
     fprintf(stderr, "Ok\n");
 }
 
+void test_export_env_item_list() {
+    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+
+    apprun_env_item_t k1 = {"K1", "V1", "V0", "V1"};
+    apprun_env_item_t k2 = {"K2", NULL, NULL, NULL};
+    apprun_env_item_t k3 = {"K3", "0:1:2", NULL, NULL};
+    apprun_env_item_t k4 = {"K4", NULL, "V0", NULL};
+    apprun_env_item_list_t list[5] = {0x0};
+    list[0] = &k1;
+    list[1] = &k2;
+    list[2] = &k3;
+    list[3] = &k4;
+
+    apprun_env_item_list_t* res = apprun_env_item_list_export((apprun_env_item_list_t const*) &list);
+
+    apprun_env_item_t r0 = {"K1", "V0", NULL, NULL};
+    apprun_env_item_t r1 = {"K3", "0:1:2", NULL, NULL};
+    apprun_env_item_t r2 = {"K4", "V0", NULL, NULL};
+
+    assert_env_item_eq(res[0], &r0);
+    assert_env_item_eq(res[1], &r1);
+    assert_env_item_eq(res[2], &r2);
+    assert_eq(res[3], NULL);
+
+    apprun_env_item_list_free(res);
+
+    fprintf(stderr, "Ok\n");
+}
+
+
 int main(int argc, char** argv, char* envp[]) {
     test_env_item_is_changed();
 
@@ -277,8 +318,10 @@ int main(int argc, char** argv, char* envp[]) {
     test_env_item_changed_export_hidden_item();
 
     test_env_item_export_apprun_only_item();
+    test_env_item_export_empty_item();
 
     test_envp_to_env_item_list();
+    test_export_env_item_list();
 
     return 0;
 }
