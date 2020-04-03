@@ -233,16 +233,7 @@ apprun_env_item_t* env_item_unchanged_export(apprun_env_item_t const* item) {
     return NULL;
 }
 
-bool apprun_env_item_is_changed(apprun_env_item_t const* item) {
-    if (item->startup_value == item->current_value)
-        return false;
-
-    return !(item->startup_value != NULL &&
-             item->current_value != NULL &&
-             strcmp(item->startup_value, item->current_value) == 0);
-}
-
-void env_item_free(apprun_env_item_t* item) {
+void apprun_env_item_free(apprun_env_item_t* item) {
     if (item == NULL)
         return;
 
@@ -259,4 +250,66 @@ void env_item_free(apprun_env_item_t* item) {
         free(item->startup_value);
 
     free(item);
+}
+
+bool apprun_env_item_is_changed(apprun_env_item_t const* item) {
+    if (item->startup_value == item->current_value)
+        return false;
+
+    return !(item->startup_value != NULL &&
+             item->current_value != NULL &&
+             strcmp(item->startup_value, item->current_value) == 0);
+}
+
+char* apprun_env_replace_startup_by_original_section(const apprun_env_item_t* item,
+                                                     const char* startup_value_section) {
+    // replace startup_value by original_value
+    unsigned new_value_len = strlen(item->original_value) +
+                             strlen(item->current_value) - strlen(item->startup_value) + 1;
+    char* new_value = calloc(new_value_len, sizeof(char));
+
+    // copy prefixed values
+    strncpy(new_value, item->current_value, startup_value_section - item->current_value);
+
+    // add original value
+    strcat(new_value, item->original_value);
+
+    // add postfix
+    strcat(new_value, startup_value_section + strlen(item->startup_value));
+    return new_value;
+}
+
+apprun_env_item_t* apprun_env_item_changed_export(apprun_env_item_t* item) {
+    if (item->original_value == NULL && item->startup_value == NULL) {
+        // this is item should not be tracked nor modified
+
+        apprun_env_item_t* copy = calloc(1, sizeof(apprun_env_item_t));
+        copy->name = strdup(item->name);
+        copy->current_value = strdup(item->current_value);
+
+        return copy;
+    }
+
+    if (item->original_value == NULL)
+        return NULL;
+
+    // check if the startup_value was extended (pre or post fixed)
+    char* startup_value_section = strstr(item->current_value, item->startup_value);
+
+    if (startup_value_section != NULL) {
+        char* new_value = apprun_env_replace_startup_by_original_section(item, startup_value_section);
+
+        apprun_env_item_t* copy = calloc(1, sizeof(apprun_env_item_t));
+        copy->name = strdup(item->name);
+        copy->current_value = new_value;
+
+        return copy;
+    } else {
+        // keep the current value and remove the APPRUN related vars
+        apprun_env_item_t* copy = calloc(1, sizeof(apprun_env_item_t));
+        copy->name = strdup(item->name);
+        copy->current_value = strdup(item->current_value);
+
+        return copy;
+    }
 }

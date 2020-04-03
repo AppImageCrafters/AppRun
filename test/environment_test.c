@@ -52,37 +52,6 @@ void test_env_item_is_changed() {
     fprintf(stderr, "Ok\n");
 }
 
-void test_env_item_unchanged_export_apprun_only_item() {
-    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
-
-    apprun_env_item_t apprun_only_item = {
-            "LD_PRELOAD",
-            "libapprun_hooks.so",
-            NULL,
-            "libapprun_hooks.so"
-    };
-    apprun_env_item_t* res = env_item_unchanged_export(&apprun_only_item);
-    assert_eq(res, NULL);
-
-    fprintf(stderr, "Ok\n");
-}
-
-void test_env_item_unchanged_export_external_item() {
-    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
-
-    apprun_env_item_t external_item = {
-            "DISPLAY",
-            ":0",
-            NULL,
-            NULL
-    };
-
-    apprun_env_item_t* res = env_item_unchanged_export(&external_item);
-    assert_env_item_eq(res, &external_item);
-    env_item_free(res);
-    fprintf(stderr, "Ok\n");
-}
-
 void test_env_item_unchanged_export_shared_item() {
     fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
 
@@ -104,9 +73,97 @@ void test_env_item_unchanged_export_shared_item() {
 
     assert_env_item_eq(res, &expected);
 
-    env_item_free(res);
+    apprun_env_item_free(res);
     fprintf(stderr, "Ok\n");
 }
+
+void test_env_item_unchanged_export_external_item() {
+    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+
+    apprun_env_item_t external_item = {
+            "DISPLAY",
+            ":0",
+            NULL,
+            NULL
+    };
+
+    apprun_env_item_t* res = env_item_unchanged_export(&external_item);
+    assert_env_item_eq(res, &external_item);
+    apprun_env_item_free(res);
+    fprintf(stderr, "Ok\n");
+}
+
+void test_env_item_unchanged_export_apprun_only_item() {
+    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+
+    apprun_env_item_t apprun_only_item = {
+            "LD_PRELOAD",
+            "libapprun_hooks.so",
+            NULL,
+            "libapprun_hooks.so"
+    };
+    apprun_env_item_t* res = env_item_unchanged_export(&apprun_only_item);
+    assert_eq(res, NULL);
+
+    fprintf(stderr, "Ok\n");
+}
+
+void test_env_item_changed_export_shared_item() {
+    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+
+    apprun_env_item_t shared_item = {
+            "PATH",
+            "/sbin:/tmp/app/bin:/bin:/usr/bin",
+            "/bin",
+            "/tmp/app/bin:/bin"
+    };
+
+    apprun_env_item_t* res = apprun_env_item_changed_export(&shared_item);
+
+    apprun_env_item_t expected = {
+            "PATH",
+            "/sbin:/bin:/usr/bin",
+            NULL,
+            NULL
+    };
+
+    assert_env_item_eq(res, &expected);
+
+    apprun_env_item_free(res);
+    fprintf(stderr, "Ok\n");
+}
+
+void test_env_item_changed_export_external_item() {
+    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+
+    apprun_env_item_t external_item = {
+            "DISPLAY",
+            ":0",
+            NULL,
+            NULL
+    };
+
+    apprun_env_item_t* res = apprun_env_item_changed_export(&external_item);
+    assert_env_item_eq(res, &external_item);
+    apprun_env_item_free(res);
+    fprintf(stderr, "Ok\n");
+}
+
+void test_env_item_changed_export_apprun_only_item() {
+    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+
+    apprun_env_item_t apprun_only_item = {
+            "LD_PRELOAD",
+            "libapprun_hooks.so",
+            NULL,
+            "libapprun_hooks.so"
+    };
+    apprun_env_item_t* res = apprun_env_item_changed_export(&apprun_only_item);
+    assert_eq(res, NULL);
+
+    fprintf(stderr, "Ok\n");
+}
+
 
 int main(int argc, char** argv, char* envp[]) {
     test_env_item_is_changed();
@@ -114,6 +171,12 @@ int main(int argc, char** argv, char* envp[]) {
     test_env_item_unchanged_export_shared_item();
     test_env_item_unchanged_export_external_item();
     test_env_item_unchanged_export_apprun_only_item();
+
+    test_env_item_changed_export_shared_item();
+    test_env_item_changed_export_external_item();
+    test_env_item_changed_export_apprun_only_item();
+
+
 
     return 0;
 }
