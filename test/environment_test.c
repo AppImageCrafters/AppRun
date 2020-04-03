@@ -62,7 +62,7 @@ void test_env_item_unchanged_export_shared_item() {
             "/tmp/app/lib:/lib"
     };
 
-    apprun_env_item_t* res = env_item_unchanged_export(&shared_item);
+    apprun_env_item_t* res = apprun_env_item_unchanged_export(&shared_item);
 
     apprun_env_item_t expected = {
             "LD_LIBRARY_PATH",
@@ -87,7 +87,7 @@ void test_env_item_unchanged_export_external_item() {
             NULL
     };
 
-    apprun_env_item_t* res = env_item_unchanged_export(&external_item);
+    apprun_env_item_t* res = apprun_env_item_unchanged_export(&external_item);
     assert_env_item_eq(res, &external_item);
     apprun_env_item_free(res);
     fprintf(stderr, "Ok\n");
@@ -102,9 +102,34 @@ void test_env_item_unchanged_export_apprun_only_item() {
             NULL,
             "libapprun_hooks.so"
     };
-    apprun_env_item_t* res = env_item_unchanged_export(&apprun_only_item);
+    apprun_env_item_t* res = apprun_env_item_unchanged_export(&apprun_only_item);
     assert_eq(res, NULL);
 
+    fprintf(stderr, "Ok\n");
+}
+
+void test_env_item_unchanged_export_hidden_item() {
+    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+
+    apprun_env_item_t shared_item = {
+            "LC_ALL",
+            NULL,
+            "C",
+            NULL
+    };
+
+    apprun_env_item_t* res = apprun_env_item_unchanged_export(&shared_item);
+
+    apprun_env_item_t expected = {
+            "LC_ALL",
+            "C",
+            NULL,
+            NULL
+    };
+
+    assert_env_item_eq(res, &expected);
+
+    apprun_env_item_free(res);
     fprintf(stderr, "Ok\n");
 }
 
@@ -164,6 +189,46 @@ void test_env_item_changed_export_apprun_only_item() {
     fprintf(stderr, "Ok\n");
 }
 
+void test_env_item_changed_export_hidden_item() {
+    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+
+    apprun_env_item_t shared_item = {
+            "LC_ALL",
+            "es_CU.UTF-8",
+            "C",
+            NULL
+    };
+
+    apprun_env_item_t* res = apprun_env_item_changed_export(&shared_item);
+
+    apprun_env_item_t expected = {
+            "LC_ALL",
+            "es_CU.UTF-8",
+            NULL,
+            NULL
+    };
+
+    assert_env_item_eq(res, &expected);
+
+    apprun_env_item_free(res);
+    fprintf(stderr, "Ok\n");
+}
+
+void test_env_item_export_apprun_only_item() {
+    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+
+    apprun_env_item_t apprun_only_item = {
+            "LD_PRELOAD",
+            "libapprun_hooks.so",
+            NULL,
+            "libapprun_hooks.so"
+    };
+
+    apprun_env_item_t* res = apprun_env_item_export(&apprun_only_item);
+    assert_eq(res, NULL);
+
+    fprintf(stderr, "Ok\n");
+}
 
 int main(int argc, char** argv, char* envp[]) {
     test_env_item_is_changed();
@@ -171,12 +236,14 @@ int main(int argc, char** argv, char* envp[]) {
     test_env_item_unchanged_export_shared_item();
     test_env_item_unchanged_export_external_item();
     test_env_item_unchanged_export_apprun_only_item();
+    test_env_item_unchanged_export_hidden_item();
 
     test_env_item_changed_export_shared_item();
     test_env_item_changed_export_external_item();
     test_env_item_changed_export_apprun_only_item();
+    test_env_item_changed_export_hidden_item();
 
-
+    test_env_item_export_apprun_only_item();
 
     return 0;
 }

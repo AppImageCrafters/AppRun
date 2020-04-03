@@ -211,7 +211,7 @@ char** appdir_runtime_adjusted_environment(const char* filename, char* const* en
     return ret;
 }
 
-apprun_env_item_t* env_item_unchanged_export(apprun_env_item_t const* item) {
+apprun_env_item_t* apprun_env_item_unchanged_export(apprun_env_item_t const* item) {
     if (item->original_value != NULL) {
         apprun_env_item_t* copy = calloc(1, sizeof(apprun_env_item_t));
         copy->name = strdup(item->name);
@@ -294,7 +294,10 @@ apprun_env_item_t* apprun_env_item_changed_export(apprun_env_item_t* item) {
         return NULL;
 
     // check if the startup_value was extended (pre or post fixed)
-    char* startup_value_section = strstr(item->current_value, item->startup_value);
+    char* startup_value_section = NULL;
+
+    if (item->current_value != NULL && item->startup_value != NULL)
+        startup_value_section = strstr(item->current_value, item->startup_value);
 
     if (startup_value_section != NULL) {
         char* new_value = apprun_env_replace_startup_by_original_section(item, startup_value_section);
@@ -312,4 +315,23 @@ apprun_env_item_t* apprun_env_item_changed_export(apprun_env_item_t* item) {
 
         return copy;
     }
+}
+
+bool apprun_env_item_is_tracked(const apprun_env_item_t* item) {
+    return item->original_value != NULL || item->startup_value != NULL;
+}
+
+apprun_env_item_t* apprun_env_item_export(apprun_env_item_t* item) {
+    if (!apprun_env_item_is_tracked(item)) {
+        apprun_env_item_t* copy = calloc(1, sizeof(apprun_env_item_t));
+        copy->name = strdup(item->name);
+        copy->current_value = strdup(item->current_value);
+
+        return copy;
+    }
+
+    if (apprun_env_item_is_changed(item))
+        return apprun_env_item_changed_export(item);
+    else
+        return apprun_env_item_unchanged_export(item);
 }
