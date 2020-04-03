@@ -27,13 +27,9 @@
 #include <stdlib.h>
 #include "shared.h"
 
-int appdir_runtime_array_len(void* const* x) {
-    int len = 0;
-    while (x[len] != 0)
-        len++;
-
+int appdir_runtime_array_len(char* const* x) {
     // allocate extra space for the 0 termination
-    return len + 1;
+    return appdir_runtime_string_list_len(x) + 1;
 }
 
 int appdir_runtime_string_list_len(char* const* x) {
