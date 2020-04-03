@@ -387,7 +387,7 @@ apprun_env_item_t* apprun_env_item_list_find(apprun_env_item_list_t* list, unsig
     return NULL;
 }
 
-apprun_env_item_list_t* apprun_env_envp_to_env_item_list(char* const* envp) {
+apprun_env_item_list_t* apprun_env_item_list_from_envp(char* const* envp) {
     unsigned env_origin_prefix_len = strlen(APPDIR_RUNTIME_ENV_ORIG_PREFIX);
     unsigned env_startup_prefix_len = strlen(APPDIR_RUNTIME_ENV_STARTUP_PREFIX);
 
@@ -475,4 +475,79 @@ unsigned apprun_env_item_list_size(apprun_env_item_list_t const* list) {
         size++;
 
     return size;
+}
+
+unsigned int apprun_env_item_list_to_envp_len(apprun_env_item_list_t* list) {
+    unsigned len = 0;
+    for (apprun_env_item_list_t* itr = list; *itr != NULL; itr++) {
+        apprun_env_item_t* item = *itr;
+        if (item->current_value != NULL)
+            len++;
+
+        if (item->startup_value != NULL)
+            len++;
+
+        if (item->original_value != NULL)
+            len++;
+    }
+
+    return len;
+}
+
+char* apprun_env_envp_entry_create(char const* name_prefix, char const* name, char const* value) {
+    unsigned size = 0;
+    if (name_prefix != NULL)
+        size += strlen(name_prefix);
+    if (name != NULL)
+        size += strlen(name);
+    if (value != NULL)
+        size += strlen(value);
+
+    // allocate enough space for '=' and the NULL termination
+    char* entry = calloc(size + 2, sizeof(char));
+    if (name_prefix)
+        strcat(entry, name_prefix);
+
+    if (name)
+        strcat(entry, name);
+
+    strcat(entry, "=");
+
+    if (value)
+        strcat(entry, value);
+
+    return entry;
+}
+
+char** apprun_env_item_list_to_envp(apprun_env_item_list_t* list) {
+    unsigned int envp_len = apprun_env_item_list_to_envp_len(list);
+
+    // Allocate an extra space for NULL termination
+    char** envp = calloc(envp_len + 1, sizeof(char*));
+    unsigned count = 0;
+
+    for (apprun_env_item_list_t* itr = list; *itr != NULL; itr++) {
+        apprun_env_item_t* item = *itr;
+        if (item->current_value != NULL) {
+            char* env_entry = apprun_env_envp_entry_create(NULL, item->name, item->current_value);
+            envp[count] = env_entry;
+            count++;
+        }
+
+        if (item->original_value != NULL) {
+            char* env_entry = apprun_env_envp_entry_create(APPDIR_RUNTIME_ENV_ORIG_PREFIX, item->name,
+                                                           item->original_value);
+            envp[count] = env_entry;
+            count++;
+        }
+
+        if (item->startup_value != NULL) {
+            char* env_entry = apprun_env_envp_entry_create(APPDIR_RUNTIME_ENV_STARTUP_PREFIX, item->name,
+                                                           item->startup_value);
+            envp[count] = env_entry;
+            count++;
+        }
+    }
+
+    return envp;
 }
