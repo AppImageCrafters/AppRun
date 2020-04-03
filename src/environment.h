@@ -40,7 +40,13 @@ typedef struct {
     char* startup_value;
 } apprun_env_item_t;
 
+typedef apprun_env_item_t* apprun_env_item_list_t;
+
+apprun_env_item_t* apprun_env_item_create(char* name, char* current_vale, char* original_value, char* statup_value);
+
 void apprun_env_item_free(apprun_env_item_t* item);
+
+void apprun_env_item_list_free(apprun_env_item_list_t* list);
 
 char** appdir_runtime_adjusted_environment(const char* filename, char* const* envp);
 
@@ -51,5 +57,7 @@ apprun_env_item_t* apprun_env_item_export(apprun_env_item_t* item);
 apprun_env_item_t* apprun_env_item_changed_export(apprun_env_item_t* item);
 
 apprun_env_item_t* apprun_env_item_unchanged_export(apprun_env_item_t const* item);
+
+apprun_env_item_list_t* apprun_env_envp_to_env_item_list(char* const* envp);
 
 #endif //APPDIR_RUMTIME_ENVIRONMENT_H

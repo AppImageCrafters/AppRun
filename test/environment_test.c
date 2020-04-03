@@ -230,6 +230,39 @@ void test_env_item_export_apprun_only_item() {
     fprintf(stderr, "Ok\n");
 }
 
+void test_envp_to_env_item_list() {
+    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+
+    char* envp[] = {
+            "K1=V1",
+            "APPIMAGE_ORIGINAL_K1=V0",
+            "APPIMAGE_STARTUP_K1=V1",
+            "K2=",
+            "K3=0:1:2",
+            "K4=",
+            "APPIMAGE_ORIGINAL_K4=V0",
+            "APPIMAGE_STARTUP_K4=",
+            NULL,
+    };
+
+    apprun_env_item_list_t* res = apprun_env_envp_to_env_item_list(envp);
+
+    apprun_env_item_t k1 = {"K1", "V1", "V0", "V1"};
+    apprun_env_item_t k2 = {"K2", NULL, NULL, NULL};
+    apprun_env_item_t k3 = {"K3", "0:1:2", NULL, NULL};
+    apprun_env_item_t k4 = {"K4", NULL, "V0", NULL};
+
+    assert_env_item_eq(res[0], &k1);
+    assert_env_item_eq(res[1], &k2);
+    assert_env_item_eq(res[2], &k3);
+    assert_env_item_eq(res[3], &k4);
+
+    apprun_env_item_list_free(res);
+
+
+    fprintf(stderr, "Ok\n");
+}
+
 int main(int argc, char** argv, char* envp[]) {
     test_env_item_is_changed();
 
@@ -244,6 +277,8 @@ int main(int argc, char** argv, char* envp[]) {
     test_env_item_changed_export_hidden_item();
 
     test_env_item_export_apprun_only_item();
+
+    test_envp_to_env_item_list();
 
     return 0;
 }

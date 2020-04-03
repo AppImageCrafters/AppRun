@@ -233,6 +233,23 @@ apprun_env_item_t* apprun_env_item_unchanged_export(apprun_env_item_t const* ite
     return NULL;
 }
 
+apprun_env_item_t* apprun_env_item_create(char* name, char* current_vale, char* original_value, char* statup_value) {
+    apprun_env_item_t* item = calloc(1, sizeof(apprun_env_item_t));
+    if (name != NULL)
+        item->name = strdup(name);
+
+    if (current_vale != NULL)
+        item->current_value = strdup(current_vale);
+
+    if (original_value != NULL)
+        item->original_value = strdup(original_value);
+
+    if (statup_value != NULL)
+        item->startup_value = strdup(statup_value);
+
+    return item;
+}
+
 void apprun_env_item_free(apprun_env_item_t* item) {
     if (item == NULL)
         return;
@@ -334,4 +351,101 @@ apprun_env_item_t* apprun_env_item_export(apprun_env_item_t* item) {
         return apprun_env_item_changed_export(item);
     else
         return apprun_env_item_unchanged_export(item);
+}
+
+char* apprun_env_str_entry_extract_name(char* string) {
+    if (string) {
+        char* sep = strstr(string, "=");
+        return strndup(string, sep - string);
+    }
+
+    return NULL;
+}
+
+char* apprun_env_str_entry_extract_value(char* string) {
+    if (string) {
+        unsigned string_len = strlen(string);
+        char* sep = strstr(string, "=");
+        unsigned value_len = string_len - (sep - string);
+
+        // assume empty string value as NULL
+        if (value_len > 1)
+            return strndup(sep + 1, value_len);
+    }
+
+    return NULL;
+}
+
+apprun_env_item_t* apprun_env_item_list_find(apprun_env_item_list_t* list, unsigned list_size, char* name) {
+    for (unsigned i = 0; i < list_size; i++)
+        if (strcmp(name, list[i]->name) == 0)
+            return list[i];
+
+    return NULL;
+}
+
+apprun_env_item_list_t* apprun_env_envp_to_env_item_list(char* const* envp) {
+    unsigned env_origin_prefix_len = strlen(APPDIR_RUNTIME_ENV_ORIG_PREFIX);
+    unsigned env_startup_prefix_len = strlen(APPDIR_RUNTIME_ENV_STARTUP_PREFIX);
+
+    unsigned items_count = 0;
+
+    unsigned envp_size = appdir_runtime_array_len(envp);
+    apprun_env_item_list_t* list = calloc(envp_size, sizeof(apprun_env_item_t*));
+
+    for (char* const* itr = envp; *itr != NULL; itr++) {
+        char* prefixed_str = *itr;
+        unsigned prefixed_str_len = strlen(prefixed_str);
+
+        char* str = NULL;
+        bool is_original_value = false;
+        bool is_startup_value = false;
+
+        if (strncmp(APPDIR_RUNTIME_ENV_ORIG_PREFIX, prefixed_str, env_origin_prefix_len) == 0) {
+            str = strndup(prefixed_str + env_origin_prefix_len, prefixed_str_len - env_origin_prefix_len);
+            is_original_value = true;
+        }
+
+        if (strncmp(APPDIR_RUNTIME_ENV_STARTUP_PREFIX, prefixed_str, env_startup_prefix_len) == 0) {
+            str = strndup(prefixed_str + env_startup_prefix_len, prefixed_str_len - env_startup_prefix_len);
+            is_startup_value = true;
+        }
+
+        if (str == NULL)
+            str = strdup(prefixed_str);
+
+        char* name = apprun_env_str_entry_extract_name(str);
+        char* value = apprun_env_str_entry_extract_value(str);
+        free(str);
+
+        apprun_env_item_t* item = apprun_env_item_list_find(list, items_count, name);
+        if (item == NULL) {
+            item = calloc(1, sizeof(apprun_env_item_t));
+            item->name = name;
+
+            list[items_count] = item;
+            items_count++;
+        } else {
+            // it's safe to free the name as it's not going to be used
+            free(name);
+        }
+
+        if (is_original_value)
+            item->original_value = value;
+
+        if (is_startup_value)
+            item->startup_value = value;
+
+        if (!is_original_value && !is_startup_value)
+            item->current_value = value;
+    }
+
+    return list;
+}
+
+void apprun_env_item_list_free(apprun_env_item_list_t* list) {
+    for (apprun_env_item_list_t* itr = list; *itr != NULL; itr++)
+        apprun_env_item_free(*itr);
+
+    free(list);
 }
