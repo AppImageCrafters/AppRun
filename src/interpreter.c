@@ -84,29 +84,6 @@ appdir_runtime_prepend_interpreter_to_exec(char const* interpreter, char const* 
     return result;
 }
 
-bool appdir_runtime_is_path_child_of(const char* path, const char* base) {
-    char* real_base_path = realpath(base, NULL);
-    char* real_path = realpath(path, NULL);
-
-    bool result;
-
-    if (real_base_path != NULL && real_path != NULL) {
-        unsigned int len = strlen(real_base_path);
-        result = strncmp(real_base_path, real_path, len) == 0;
-    } else {
-        unsigned int len = strlen(base);
-        result = strncmp(base, path, len) == 0;
-    }
-
-    if (real_base_path)
-        free(real_base_path);
-
-    if (real_path)
-        free(real_path);
-
-    return result;
-}
-
 bool appdir_runtime_is_exec_args_change_required(const char* appdir, const char* interpreter, const char* filename) {
     if (interpreter == NULL || appdir == NULL)
         return false;

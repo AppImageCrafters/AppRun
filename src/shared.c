@@ -25,6 +25,8 @@
  **************************************************************************/
 
 #include <stdlib.h>
+#include <string.h>
+
 #include "shared.h"
 
 int appdir_runtime_array_len(char* const* x) {
@@ -52,4 +54,27 @@ void appdir_runtime_string_list_free(char** string_list) {
 char** appdir_runtime_string_list_alloc(int size) {
     char** ret = calloc(size, sizeof(char*));
     return ret;
+}
+
+bool appdir_runtime_is_path_child_of(const char* path, const char* base) {
+    char* real_base_path = realpath(base, NULL);
+    char* real_path = realpath(path, NULL);
+
+    bool result;
+
+    if (real_base_path != NULL && real_path != NULL) {
+        unsigned int len = strlen(real_base_path);
+        result = strncmp(real_base_path, real_path, len) == 0;
+    } else {
+        unsigned int len = strlen(base);
+        result = strncmp(base, path, len) == 0;
+    }
+
+    if (real_base_path)
+        free(real_base_path);
+
+    if (real_path)
+        free(real_path);
+
+    return result;
 }

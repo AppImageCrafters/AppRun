@@ -27,6 +27,8 @@
 #ifndef APPDIR_RUMTIME_SHARED_H
 #define APPDIR_RUMTIME_SHARED_H
 
+#include <stdbool.h>
+
 char** appdir_runtime_string_list_alloc(int size);
 
 void appdir_runtime_string_list_free(char** string_list);
@@ -34,5 +36,7 @@ void appdir_runtime_string_list_free(char** string_list);
 int appdir_runtime_string_list_len(char* const* x);
 
 int appdir_runtime_array_len(char* const* x);
+
+bool appdir_runtime_is_path_child_of(const char* path, const char* base);
 
 #endif //APPDIR_RUMTIME_SHARED_H

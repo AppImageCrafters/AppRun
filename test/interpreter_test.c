@@ -30,6 +30,7 @@
 #include <libgen.h>
 
 #include "tests_shared.h"
+#include "../src/shared.h"
 #include "../src/interpreter.h"
 
 

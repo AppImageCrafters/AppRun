@@ -40,8 +40,6 @@ appdir_runtime_exec_args_t* appdir_runtime_adjusted_exec_args(const char* filena
 
 void appdir_runtime_exec_args_free(appdir_runtime_exec_args_t* args);
 
-bool appdir_runtime_is_path_child_of(const char* path, const char* base);
-
 bool appdir_runtime_is_exec_args_change_required(const char* appdir, const char* interpreter, const char* filename);
 
 #endif //APPDIR_RUMTIME_INTERPRETER_H
