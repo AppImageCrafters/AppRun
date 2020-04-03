@@ -33,6 +33,6 @@ void appdir_runtime_string_list_free(char* const* string_list);
 
 int appdir_runtime_string_list_len(char* const* x);
 
-int appdir_runtime_array_len(char* const* x);
+int appdir_runtime_array_len(void* const* x);
 
 #endif //APPDIR_RUMTIME_SHARED_H
