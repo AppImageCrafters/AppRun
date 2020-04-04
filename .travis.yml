@@ -8,26 +8,26 @@ sudo: required
 matrix:
   include:
     - env:
-      - TARGET_ARCH=x86_64
-      - TARGET_DEB_ARCH=amd64
-      - SETUP_FOREING_ARCH_REPOSITORY=False
+        - TARGET_ARCH=x86_64
+        - TARGET_DEB_ARCH=amd64
+        - SETUP_FOREING_ARCH_REPOSITORY=False
     - env:
-      - TARGET_ARCH=i386
-      - TARGET_DEB_ARCH=i386
-      - SETUP_FOREING_ARCH_REPOSITORY=False
-      - CFLAGS=-m32
+        - TARGET_ARCH=i386
+        - TARGET_DEB_ARCH=i386
+        - SETUP_FOREING_ARCH_REPOSITORY=False
+        - CFLAGS=-m32
       install:
         - sudo dpkg --add-architecture i386
         - sudo apt-get update -y
         - sudo apt-get install -y g++-multilib
     - env:
-      - TARGET_ARCH=aarch64
-      - TARGET_DEB_ARCH=arm64
-      - SETUP_FOREING_ARCH_REPOSITORY=True
+        - TARGET_ARCH=aarch64
+        - TARGET_DEB_ARCH=arm64
+        - SETUP_FOREING_ARCH_REPOSITORY=True
     - env:
-      - TARGET_ARCH=gnueabihf
-      - TARGET_DEB_ARCH=armhf
-      - SETUP_FOREING_ARCH_REPOSITORY=True
+        - TARGET_ARCH=gnueabihf
+        - TARGET_DEB_ARCH=armhf
+        - SETUP_FOREING_ARCH_REPOSITORY=True
 install:
   - 'if [ "$SETUP_FOREING_ARCH_REPOSITORY" == "True" ]; then
       sudo dpkg --add-architecture $TARGET_DEB_ARCH;
@@ -41,6 +41,7 @@ install:
 script:
   - cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="cmake/${TARGET_ARCH}-toolchain.cmake"
   - make -j$(nproc)
+  - if [ "$(dpkg-architecture -q DEB_HOST_ARCH)" == "$TARGET_DEB_ARCH" ]; then ctest; fi
 
 # make the AppImage bundle
 after_success:
