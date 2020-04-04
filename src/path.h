@@ -27,6 +27,6 @@
 #ifndef APPIMAGEEXECWRAPPER_PATH_H
 #define APPIMAGEEXECWRAPPER_PATH_H
 
-char* appdir_runtime_resolve_file_name(char const* file_name);
+char* apprun_resolve_file_name(char const* file_name);
 
 #endif //APPIMAGEEXECWRAPPER_PATH_H

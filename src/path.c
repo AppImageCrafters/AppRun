@@ -30,21 +30,21 @@
 #include <string.h>
 #include <unistd.h>
 
-char* appdir_runtime_lookup_next(char* itr, char lookup_char) {
+char* apprun_lookup_next(char* itr, char lookup_char) {
     while (itr != NULL && *itr != '\0' && *itr != lookup_char)
         itr++;
 
     return itr;
 }
 
-char* appdir_runtime_resolve_file_name_from_path(const char* file_name, char* path_env) {
+char* apprun_resolve_file_name_from_path(const char* file_name, char* path_env) {
     char* resolved = NULL;
     unsigned file_name_len = strlen(file_name);
 
     char* itr_begin = path_env;
     while (itr_begin != NULL && *itr_begin != '\0' && resolved == NULL) {
         char* itr_end = itr_begin;
-        itr_end = appdir_runtime_lookup_next(itr_end, ':');
+        itr_end = apprun_lookup_next(itr_end, ':');
 
         if (itr_end != itr_begin) {
             resolved = calloc(itr_end - itr_begin + file_name_len + 2, sizeof(char));
@@ -68,7 +68,7 @@ char* appdir_runtime_resolve_file_name_from_path(const char* file_name, char* pa
     return resolved;
 }
 
-char* appdir_runtime_resolve_file_name(char const* file_name) {
+char* apprun_resolve_file_name(char const* file_name) {
     char* resolved = NULL;
 
     resolved = realpath(file_name, NULL);
@@ -77,7 +77,7 @@ char* appdir_runtime_resolve_file_name(char const* file_name) {
 
     char* path_env = getenv("PATH");
     if (path_env != NULL)
-        resolved = appdir_runtime_resolve_file_name_from_path(file_name, path_env);
+        resolved = apprun_resolve_file_name_from_path(file_name, path_env);
 
     if (resolved == NULL)
         resolved = strdup(file_name);

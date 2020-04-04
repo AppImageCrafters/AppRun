@@ -37,36 +37,36 @@ char const* const APPDIR_RUNTIME_ENV = "APPDIR";
 typedef struct {
     char** names;
     char** values;
-} appdir_runtime_environment_t;
+} apprun_environment_t;
 
-appdir_runtime_environment_t appdir_runtime_environment_alloc(size_t envc) {
-    appdir_runtime_environment_t env;
+apprun_environment_t apprun_environment_alloc(size_t envc) {
+    apprun_environment_t env;
     env.names = calloc(envc + 1, sizeof(char*));
     env.values = calloc(envc + 1, sizeof(char*));
     return env;
 }
 
-int appdir_runtime_environment_len(const appdir_runtime_environment_t env) {
-    return appdir_runtime_string_list_len(env.names);
+int apprun_environment_len(const apprun_environment_t env) {
+    return apprun_string_list_len(env.names);
 }
 
-void appdir_runtime_environment_free(appdir_runtime_environment_t env) {
-    appdir_runtime_string_list_free(env.names);
-    appdir_runtime_string_list_free(env.values);
+void apprun_environment_free(apprun_environment_t env) {
+    apprun_string_list_free(env.names);
+    apprun_string_list_free(env.values);
 }
 
 void
-appdir_runtime_environment_append_item(appdir_runtime_environment_t env, char* name, unsigned long name_size, char* val,
-                                       unsigned long val_size) {
-    int count = appdir_runtime_environment_len(env);
+apprun_environment_append_item(apprun_environment_t env, char* name, unsigned long name_size, char* val,
+                               unsigned long val_size) {
+    int count = apprun_environment_len(env);
     env.names[count] = calloc(name_size + 1, sizeof(char));
     env.values[count] = calloc(val_size + 1, sizeof(char));
     strncpy(env.names[count], name, name_size);
     strncpy(env.values[count], val, val_size);
 }
 
-int appdir_runtime_environment_find_name(appdir_runtime_environment_t env, char* name, unsigned long name_size) {
-    int count = appdir_runtime_environment_len(env);
+int apprun_environment_find_name(apprun_environment_t env, char* name, unsigned long name_size) {
+    int count = apprun_environment_len(env);
     for (int i = 0; i < count; i++) {
         if (!strncmp(env.names[i], name, name_size)) {
             return i;
@@ -75,9 +75,9 @@ int appdir_runtime_environment_find_name(appdir_runtime_environment_t env, char*
     return -1;
 }
 
-char** appdir_runtime_environment_to_stringlist(appdir_runtime_environment_t env) {
-    int len = appdir_runtime_environment_len(env);
-    char** ret = appdir_runtime_string_list_alloc(len + 1);
+char** apprun_environment_to_stringlist(apprun_environment_t env) {
+    int len = apprun_environment_len(env);
+    char** ret = apprun_string_list_alloc(len + 1);
     for (int i = 0; i < len; i++) {
         char* name = env.names[i];
         char* value = env.values[i];
@@ -275,7 +275,7 @@ apprun_env_item_list_t* apprun_env_item_list_from_envp(char* const* envp) {
 
     unsigned items_count = 0;
 
-    unsigned envp_size = appdir_runtime_array_len(envp);
+    unsigned envp_size = apprun_array_len(envp);
     apprun_env_item_list_t* list = calloc(envp_size, sizeof(apprun_env_item_t*));
 
     for (char* const* itr = envp; *itr != NULL; itr++) {

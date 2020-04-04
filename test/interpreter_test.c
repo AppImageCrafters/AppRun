@@ -109,29 +109,29 @@ void test_override_exec_args(char* const* argv) {
     fprintf(stdout, "OK\n");
 }
 
-void test_appdir_runtime_is_path_child_of() {
+void test_apprun_is_path_child_of() {
     fprintf(stdout, "Test path child of: ");
-    assert_false(appdir_runtime_is_path_child_of("/bin/echo", "/usr"));
-    assert_true(appdir_runtime_is_path_child_of("/bin/echo", "/bin"));
+    assert_false(apprun_is_path_child_of("/bin/echo", "/usr"));
+    assert_true(apprun_is_path_child_of("/bin/echo", "/bin"));
 
-    assert_false(appdir_runtime_is_path_child_of("/no_existent/echo", "/usr"));
-    assert_true(appdir_runtime_is_path_child_of("/no_existent/echo", "/no_existent"));
+    assert_false(apprun_is_path_child_of("/no_existent/echo", "/usr"));
+    assert_true(apprun_is_path_child_of("/no_existent/echo", "/no_existent"));
     fprintf(stdout, "OK\n");
 }
 
-void test_appdir_runtime_is_exec_args_change_required() {
+void test_apprun_is_exec_args_change_required() {
     fprintf(stdout, "Test is exec args change required: ");
-    assert_false(appdir_runtime_is_exec_args_change_required(NULL, NULL, "/usr/bin/echo"));
-    assert_false(appdir_runtime_is_exec_args_change_required(NULL, "/ld.so", "/usr/bin/echo"));
-    assert_false(appdir_runtime_is_exec_args_change_required("/usr", NULL, "/usr/bin/echo"));
-    assert_true(appdir_runtime_is_exec_args_change_required("/usr", "/ld.so", "/usr/bin/echo"));
-    assert_false(appdir_runtime_is_exec_args_change_required("/usr", "/ld.so", "/bin/echo"));
+    assert_false(apprun_is_exec_args_change_required(NULL, NULL, "/usr/bin/echo"));
+    assert_false(apprun_is_exec_args_change_required(NULL, "/ld.so", "/usr/bin/echo"));
+    assert_false(apprun_is_exec_args_change_required("/usr", NULL, "/usr/bin/echo"));
+    assert_true(apprun_is_exec_args_change_required("/usr", "/ld.so", "/usr/bin/echo"));
+    assert_false(apprun_is_exec_args_change_required("/usr", "/ld.so", "/bin/echo"));
     fprintf(stdout, "OK\n");
 }
 
 int main(int argc, char** argv) {
-    test_appdir_runtime_is_path_child_of();
-    test_appdir_runtime_is_exec_args_change_required();
+    test_apprun_is_path_child_of();
+    test_apprun_is_exec_args_change_required();
 
     test_not_override_if_missing_interpreter_env(argv);
     test_not_override_if_missing_appdir_env(argv);

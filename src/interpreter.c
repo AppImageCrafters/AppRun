@@ -33,14 +33,14 @@
 
 char const* const APPDIR_RUNTIME_INTERPRETER_ENV = "INTERPRETER";
 
-apprun_exec_args_t* appdir_runtime_duplicate_exec_args(const char* filename, char* const* argv) {
+apprun_exec_args_t* apprun_duplicate_exec_args(const char* filename, char* const* argv) {
     apprun_exec_args_t* result;
     result = calloc(1, sizeof(apprun_exec_args_t));
 
     // use original filename
     result->file = strdup(filename);
 
-    int array_size = appdir_runtime_array_len(argv);
+    int array_size = apprun_array_len(argv);
     result->args = calloc(array_size, sizeof(char*));
     char* const* src_itr = argv;
     char** target_itr = result->args;
@@ -53,7 +53,7 @@ apprun_exec_args_t* appdir_runtime_duplicate_exec_args(const char* filename, cha
 }
 
 apprun_exec_args_t*
-appdir_runtime_prepend_interpreter_to_exec(char const* interpreter, char const* filename, char* const* argv) {
+apprun_prepend_interpreter_to_exec(char const* interpreter, char const* filename, char* const* argv) {
     apprun_exec_args_t* result;
     result = calloc(1, sizeof(apprun_exec_args_t));
 
@@ -61,7 +61,7 @@ appdir_runtime_prepend_interpreter_to_exec(char const* interpreter, char const* 
     result->file = strdup(interpreter);
 
 
-    int array_size = appdir_runtime_array_len(argv);
+    int array_size = apprun_array_len(argv);
 
     // alloc array size with an extra space for the interpreter
     result->args = calloc(array_size + 1, sizeof(char*));
@@ -84,10 +84,10 @@ appdir_runtime_prepend_interpreter_to_exec(char const* interpreter, char const* 
     return result;
 }
 
-bool appdir_runtime_is_exec_args_change_required(const char* appdir, const char* interpreter, const char* filename) {
+bool apprun_is_exec_args_change_required(const char* appdir, const char* interpreter, const char* filename) {
     if (interpreter == NULL || appdir == NULL)
         return false;
 
-    return appdir_runtime_is_path_child_of(filename, appdir);
+    return apprun_is_path_child_of(filename, appdir);
 }
 

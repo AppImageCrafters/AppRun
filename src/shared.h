@@ -39,15 +39,15 @@ apprun_exec_args_t* apprun_adjusted_exec_args(const char* filename, char* const*
 
 void apprun_exec_args_free(apprun_exec_args_t* args);
 
-char** appdir_runtime_string_list_alloc(unsigned int size);
+char** apprun_string_list_alloc(unsigned int size);
 
-char** appdir_runtime_string_list_dup(char* const* envp);
-void appdir_runtime_string_list_free(char** string_list);
+char** apprun_string_list_dup(char* const* envp);
+void apprun_string_list_free(char** string_list);
 
-int appdir_runtime_string_list_len(char* const* x);
+int apprun_string_list_len(char* const* x);
 
-int appdir_runtime_array_len(char* const* arr);
+int apprun_array_len(char* const* arr);
 
-bool appdir_runtime_is_path_child_of(const char* path, const char* base);
+bool apprun_is_path_child_of(const char* path, const char* base);
 
 #endif //APPDIR_RUMTIME_SHARED_H

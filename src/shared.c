@@ -33,14 +33,14 @@
 #include "path.h"
 #include "environment.h"
 
-int appdir_runtime_array_len(char* const* arr) {
+int apprun_array_len(char* const* arr) {
     if (arr)
-        return appdir_runtime_string_list_len(arr) + 1; // allocate extra space for the 0 termination
+        return apprun_string_list_len(arr) + 1; // allocate extra space for the 0 termination
     else
         return 0;
 }
 
-int appdir_runtime_string_list_len(char* const* x) {
+int apprun_string_list_len(char* const* x) {
     int len = 0;
     while (x[len] != 0)
         len++;
@@ -48,7 +48,7 @@ int appdir_runtime_string_list_len(char* const* x) {
     return len;
 }
 
-void appdir_runtime_string_list_free(char** string_list) {
+void apprun_string_list_free(char** string_list) {
     if (string_list != NULL) {
         for (char** itr = string_list; *itr != NULL; itr++)
             free(*itr);
@@ -57,12 +57,12 @@ void appdir_runtime_string_list_free(char** string_list) {
     }
 }
 
-char** appdir_runtime_string_list_alloc(unsigned int size) {
+char** apprun_string_list_alloc(unsigned int size) {
     char** ret = calloc(size, sizeof(char*));
     return ret;
 }
 
-bool appdir_runtime_is_path_child_of(const char* path, const char* base) {
+bool apprun_is_path_child_of(const char* path, const char* base) {
     char* real_base_path = realpath(base, NULL);
     char* real_path = realpath(path, NULL);
 
@@ -86,8 +86,8 @@ bool appdir_runtime_is_path_child_of(const char* path, const char* base) {
 }
 
 void apprun_exec_args_free(apprun_exec_args_t* args) {
-    appdir_runtime_string_list_free(args->args);
-    appdir_runtime_string_list_free(args->envp);
+    apprun_string_list_free(args->args);
+    apprun_string_list_free(args->envp);
     free(args->file);
     free(args);
 }
@@ -120,7 +120,7 @@ void apprun_print_exec_args(const char* filename, char* const* argv, char* const
 }
 
 apprun_exec_args_t* apprun_adjusted_exec_args(const char* filename, char* const* argv, char* const* envp) {
-    char* resolved_file_name = appdir_runtime_resolve_file_name(filename);
+    char* resolved_file_name = apprun_resolve_file_name(filename);
 
 
     char* appdir = getenv("APPDIR");
@@ -134,21 +134,21 @@ apprun_exec_args_t* apprun_adjusted_exec_args(const char* filename, char* const*
 #endif
 
     apprun_exec_args_t* res = NULL;
-    if (appdir_runtime_is_exec_args_change_required(appdir, interpreter, resolved_file_name)) {
+    if (apprun_is_exec_args_change_required(appdir, interpreter, resolved_file_name)) {
 #ifdef DEBUG
         fprintf(stderr, "APPRUN_HOOK_DEBUG: PREPENDING APPDIR INTERPRETER\n");
 #endif
 
-        res = appdir_runtime_prepend_interpreter_to_exec(interpreter, resolved_file_name, argv);
+        res = apprun_prepend_interpreter_to_exec(interpreter, resolved_file_name, argv);
     } else
-        res = appdir_runtime_duplicate_exec_args(resolved_file_name, argv);
+        res = apprun_duplicate_exec_args(resolved_file_name, argv);
 
 
-    if (appdir != NULL && appdir_runtime_is_path_child_of(resolved_file_name, appdir)) {
+    if (appdir != NULL && apprun_is_path_child_of(resolved_file_name, appdir)) {
 #ifdef DEBUG
         fprintf(stderr, "APPRUN_HOOK_DEBUG: REMOVING APPDIR PRIVATE ENVIRONMENT\n");
 #endif
-        res->envp = appdir_runtime_string_list_dup(envp);
+        res->envp = apprun_string_list_dup(envp);
     } else
         res->envp = apprun_export_envp(envp);
 
@@ -161,10 +161,10 @@ apprun_exec_args_t* apprun_adjusted_exec_args(const char* filename, char* const*
     return res;
 }
 
-char** appdir_runtime_string_list_dup(char* const* envp) {
+char** apprun_string_list_dup(char* const* envp) {
     if (envp != NULL) {
-        unsigned size = appdir_runtime_array_len(envp);
-        char** copy = appdir_runtime_string_list_alloc(size);
+        unsigned size = apprun_array_len(envp);
+        char** copy = apprun_string_list_alloc(size);
 
         char* const* itr1 = envp;
         char** itr2 = copy;

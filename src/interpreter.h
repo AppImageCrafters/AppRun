@@ -33,10 +33,10 @@
 char const* const APPDIR_RUNTIME_INTERPRETER_ENV;
 
 apprun_exec_args_t*
-appdir_runtime_prepend_interpreter_to_exec(char const* interpreter, char const* filename, char* const* argv);
+apprun_prepend_interpreter_to_exec(char const* interpreter, char const* filename, char* const* argv);
 
-apprun_exec_args_t* appdir_runtime_duplicate_exec_args(const char* filename, char* const* argv);
+apprun_exec_args_t* apprun_duplicate_exec_args(const char* filename, char* const* argv);
 
-bool appdir_runtime_is_exec_args_change_required(const char* appdir, const char* interpreter, const char* filename);
+bool apprun_is_exec_args_change_required(const char* appdir, const char* interpreter, const char* filename);
 
 #endif //APPDIR_RUMTIME_INTERPRETER_H

@@ -33,13 +33,13 @@ int main(int argc, char** argv) {
     char * result = NULL;
     fprintf(stderr, "Test resolve full path: ");
 
-    result = appdir_runtime_resolve_file_name("/bin/bash");
+    result = apprun_resolve_file_name("/bin/bash");
     assert_str_eq("/bin/bash", result);
     fprintf(stderr, "Ok\n");
     free(result);
 
     fprintf(stderr, "Test resolve relative path: ");
-    result = appdir_runtime_resolve_file_name("bash");
+    result = apprun_resolve_file_name("bash");
     assert_str_eq("/bin/bash", result);
     fprintf(stderr, "Ok\n");
     free(result);

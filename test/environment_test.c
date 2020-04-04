@@ -330,7 +330,7 @@ void test_env_item_list_to_envp() {
     };
 
     assert_str_list_eq(expected, res);
-    appdir_runtime_string_list_free(res);
+    apprun_string_list_free(res);
 
 
     fprintf(stdout, "Ok\n");
