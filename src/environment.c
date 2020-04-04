@@ -26,69 +26,12 @@
 #include <malloc.h>
 #include <string.h>
 
-
 #include "environment.h"
 #include "shared.h"
 
 char const* const APPDIR_RUNTIME_ENV_ORIG_PREFIX = "APPIMAGE_ORIGINAL_";
 char const* const APPDIR_RUNTIME_ENV_STARTUP_PREFIX = "APPIMAGE_STARTUP_";
 char const* const APPDIR_RUNTIME_ENV = "APPDIR";
-
-typedef struct {
-    char** names;
-    char** values;
-} apprun_environment_t;
-
-apprun_environment_t apprun_environment_alloc(size_t envc) {
-    apprun_environment_t env;
-    env.names = calloc(envc + 1, sizeof(char*));
-    env.values = calloc(envc + 1, sizeof(char*));
-    return env;
-}
-
-int apprun_environment_len(const apprun_environment_t env) {
-    return apprun_string_list_len(env.names);
-}
-
-void apprun_environment_free(apprun_environment_t env) {
-    apprun_string_list_free(env.names);
-    apprun_string_list_free(env.values);
-}
-
-void
-apprun_environment_append_item(apprun_environment_t env, char* name, unsigned long name_size, char* val,
-                               unsigned long val_size) {
-    int count = apprun_environment_len(env);
-    env.names[count] = calloc(name_size + 1, sizeof(char));
-    env.values[count] = calloc(val_size + 1, sizeof(char));
-    strncpy(env.names[count], name, name_size);
-    strncpy(env.values[count], val, val_size);
-}
-
-int apprun_environment_find_name(apprun_environment_t env, char* name, unsigned long name_size) {
-    int count = apprun_environment_len(env);
-    for (int i = 0; i < count; i++) {
-        if (!strncmp(env.names[i], name, name_size)) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-char** apprun_environment_to_stringlist(apprun_environment_t env) {
-    int len = apprun_environment_len(env);
-    char** ret = apprun_string_list_alloc(len + 1);
-    for (int i = 0; i < len; i++) {
-        char* name = env.names[i];
-        char* value = env.values[i];
-        unsigned int result_len = strlen(name) + strlen(value) + 1;
-        ret[i] = calloc(result_len + 1, sizeof(char));
-        strcat(ret[i], name);
-        strcat(ret[i], "=");
-        strcat(ret[i], value);
-    }
-    return ret;
-}
 
 apprun_env_item_t* apprun_env_item_unchanged_export(apprun_env_item_t const* item) {
     if (item->original_value != NULL) {
@@ -110,23 +53,6 @@ apprun_env_item_t* apprun_env_item_unchanged_export(apprun_env_item_t const* ite
     }
 
     return NULL;
-}
-
-apprun_env_item_t* apprun_env_item_create(char* name, char* current_vale, char* original_value, char* statup_value) {
-    apprun_env_item_t* item = calloc(1, sizeof(apprun_env_item_t));
-    if (name != NULL)
-        item->name = strdup(name);
-
-    if (current_vale != NULL)
-        item->current_value = strdup(current_vale);
-
-    if (original_value != NULL)
-        item->original_value = strdup(original_value);
-
-    if (statup_value != NULL)
-        item->startup_value = strdup(statup_value);
-
-    return item;
 }
 
 void apprun_env_item_free(apprun_env_item_t* item) {

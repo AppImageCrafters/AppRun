@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * Copyright (C) 2016 Sven Brauch <mail@svenbrauch.de>
+ * Copyright (c) 2020 Alexis Lopez Zubieta <contact@azubieta.net>
  *
  * All Rights Reserved.
  *
@@ -41,8 +41,6 @@ typedef struct {
 } apprun_env_item_t;
 
 typedef apprun_env_item_t* apprun_env_item_list_t;
-
-apprun_env_item_t* apprun_env_item_create(char* name, char* current_vale, char* original_value, char* statup_value);
 
 void apprun_env_item_free(apprun_env_item_t* item);
 
