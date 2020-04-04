@@ -192,8 +192,8 @@ apprun_env_item_t* apprun_env_item_list_find(apprun_env_item_list_t* list, char*
 }
 
 apprun_env_item_list_t* apprun_env_item_list_from_envp(char* const* envp) {
-    unsigned env_origin_prefix_len = strlen(APPDIR_RUNTIME_ENV_ORIG_PREFIX);
-    unsigned env_startup_prefix_len = strlen(APPDIR_RUNTIME_ENV_STARTUP_PREFIX);
+    unsigned env_origin_prefix_len = strlen(APPRUN_ENV_ORIG_PREFIX);
+    unsigned env_startup_prefix_len = strlen(APPRUN_ENV_STARTUP_PREFIX);
 
     unsigned items_count = 0;
 
@@ -208,12 +208,12 @@ apprun_env_item_list_t* apprun_env_item_list_from_envp(char* const* envp) {
         bool is_original_value = false;
         bool is_startup_value = false;
 
-        if (strncmp(APPDIR_RUNTIME_ENV_ORIG_PREFIX, prefixed_str, env_origin_prefix_len) == 0) {
+        if (strncmp(APPRUN_ENV_ORIG_PREFIX, prefixed_str, env_origin_prefix_len) == 0) {
             str = strndup(prefixed_str + env_origin_prefix_len, prefixed_str_len - env_origin_prefix_len);
             is_original_value = true;
         }
 
-        if (strncmp(APPDIR_RUNTIME_ENV_STARTUP_PREFIX, prefixed_str, env_startup_prefix_len) == 0) {
+        if (strncmp(APPRUN_ENV_STARTUP_PREFIX, prefixed_str, env_startup_prefix_len) == 0) {
             str = strndup(prefixed_str + env_startup_prefix_len, prefixed_str_len - env_startup_prefix_len);
             is_startup_value = true;
         }
@@ -339,14 +339,14 @@ char** apprun_env_item_list_to_envp(apprun_env_item_list_t* list) {
         }
 
         if (item->original_value != NULL) {
-            char* env_entry = apprun_env_envp_entry_create(APPDIR_RUNTIME_ENV_ORIG_PREFIX, item->name,
+            char* env_entry = apprun_env_envp_entry_create(APPRUN_ENV_ORIG_PREFIX, item->name,
                                                            item->original_value);
             envp[count] = env_entry;
             count++;
         }
 
         if (item->startup_value != NULL) {
-            char* env_entry = apprun_env_envp_entry_create(APPDIR_RUNTIME_ENV_STARTUP_PREFIX, item->name,
+            char* env_entry = apprun_env_envp_entry_create(APPRUN_ENV_STARTUP_PREFIX, item->name,
                                                            item->startup_value);
             envp[count] = env_entry;
             count++;

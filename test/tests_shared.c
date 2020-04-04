@@ -68,19 +68,19 @@ void assert_command_fails(int ret) {
 void set_private_env(char const* name, char const* value) {
     setenv(name, value, 1);
 
-    unsigned int original_var_name_size = strlen(name) + strlen(APPDIR_RUNTIME_ENV_ORIG_PREFIX) + 1;
+    unsigned int original_var_name_size = strlen(name) + strlen(APPRUN_ENV_ORIG_PREFIX) + 1;
     char* original_var_name = calloc(original_var_name_size, sizeof(char));
 
-    strcat(original_var_name, APPDIR_RUNTIME_ENV_ORIG_PREFIX);
+    strcat(original_var_name, APPRUN_ENV_ORIG_PREFIX);
     strcat(original_var_name, name);
 
     setenv(original_var_name, "", 1);
     free(original_var_name);
 
-    unsigned startup_var_name_size = strlen(name) + strlen(APPDIR_RUNTIME_ENV_STARTUP_PREFIX) + 1;
+    unsigned startup_var_name_size = strlen(name) + strlen(APPRUN_ENV_STARTUP_PREFIX) + 1;
     char* startup_var_name = calloc(startup_var_name_size, sizeof(char));
 
-    strcat(startup_var_name, APPDIR_RUNTIME_ENV_STARTUP_PREFIX);
+    strcat(startup_var_name, APPRUN_ENV_STARTUP_PREFIX);
     strcat(startup_var_name, name);
 
     setenv(startup_var_name, value, 1);

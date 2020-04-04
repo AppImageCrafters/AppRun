@@ -247,13 +247,13 @@ void test_env_item_list_from_envp() {
 
     char* envp[] = {
             "K1=V1",
-            "APPIMAGE_ORIGINAL_K1=V0",
-            "APPIMAGE_STARTUP_K1=V1",
+            "APPRUN_ORIGINAL_K1=V0",
+            "APPRUN_STARTUP_K1=V1",
             "K2=",
             "K3=0:1:2",
             "K4=",
-            "APPIMAGE_ORIGINAL_K4=V0",
-            "APPIMAGE_STARTUP_K4=",
+            "APPRUN_ORIGINAL_K4=V0",
+            "APPRUN_STARTUP_K4=",
             NULL,
     };
 
@@ -322,10 +322,10 @@ void test_env_item_list_to_envp() {
 
     char* expected[] = {
             "K1=V1",
-            "APPIMAGE_ORIGINAL_K1=V0",
-            "APPIMAGE_STARTUP_K1=V1",
+            "APPRUN_ORIGINAL_K1=V0",
+            "APPRUN_STARTUP_K1=V1",
             "K3=0:1:2",
-            "APPIMAGE_ORIGINAL_K4=V0",
+            "APPRUN_ORIGINAL_K4=V0",
             NULL,
     };
 
