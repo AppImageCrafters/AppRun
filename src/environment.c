@@ -29,10 +29,6 @@
 #include "environment.h"
 #include "shared.h"
 
-char const* const APPDIR_RUNTIME_ENV_ORIG_PREFIX = "APPIMAGE_ORIGINAL_";
-char const* const APPDIR_RUNTIME_ENV_STARTUP_PREFIX = "APPIMAGE_STARTUP_";
-char const* const APPDIR_RUNTIME_ENV = "APPDIR";
-
 apprun_env_item_t* apprun_env_item_unchanged_export(apprun_env_item_t const* item) {
     if (item->original_value != NULL) {
         apprun_env_item_t* copy = calloc(1, sizeof(apprun_env_item_t));

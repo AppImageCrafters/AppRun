@@ -31,8 +31,6 @@
 #include "interpreter.h"
 #include "shared.h"
 
-char const* const APPDIR_RUNTIME_INTERPRETER_ENV = "INTERPRETER";
-
 apprun_exec_args_t* apprun_duplicate_exec_args(const char* filename, char* const* argv) {
     apprun_exec_args_t* result;
     result = calloc(1, sizeof(apprun_exec_args_t));

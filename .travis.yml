@@ -41,7 +41,7 @@ install:
 script:
   - cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="cmake/${TARGET_ARCH}-toolchain.cmake"
   - make -j$(nproc)
-  - if [ "$(dpkg-architecture -q DEB_HOST_ARCH)" == "$TARGET_DEB_ARCH" ]; then ctest; fi
+  - if [ "$(dpkg-architecture -q DEB_HOST_ARCH)" == "$TARGET_DEB_ARCH" ]; then ctest --verbose; fi
 
 # make the AppImage bundle
 after_success:

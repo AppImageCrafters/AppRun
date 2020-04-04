@@ -29,9 +29,9 @@
 
 #include <stdbool.h>
 
-extern char const* const APPDIR_RUNTIME_ENV_ORIG_PREFIX;
-extern char const* const APPDIR_RUNTIME_ENV_STARTUP_PREFIX;
-extern char const* const APPDIR_RUNTIME_ENV;
+#define APPDIR_RUNTIME_ENV_ORIG_PREFIX "APPIMAGE_ORIGINAL_"
+#define APPDIR_RUNTIME_ENV_STARTUP_PREFIX "APPIMAGE_STARTUP_"
+#define APPDIR_RUNTIME_ENV "APPDIR"
 
 typedef struct {
     char* name;
