@@ -60,7 +60,7 @@ char* appdir_runtime_resolve_file_name_from_path(const char* file_name, char* pa
             itr_begin = itr_end;
 
             // skip separator
-            if (itr_begin != '\0')
+            if (*itr_begin != '\0')
                 itr_begin++;
         }
     }
@@ -78,6 +78,9 @@ char* appdir_runtime_resolve_file_name(char const* file_name) {
     char* path_env = getenv("PATH");
     if (path_env != NULL)
         resolved = appdir_runtime_resolve_file_name_from_path(file_name, path_env);
+
+    if (resolved == NULL)
+        resolved = strdup(file_name);
 
     return resolved;
 }

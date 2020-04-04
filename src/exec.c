@@ -17,45 +17,21 @@
  * Boston, MA 02110-1301, USA.
  */
 
-/**
-This library is intended to be used together with the AppImage distribution mechanism.
-Place the library somewhere in your AppImage and point LD_PRELOAD to it
-before launching your application.
-
-Whenever your application invokes a child process through execv() or execve(),
-this wrapper will intercept the call and see if the child process lies
-outside of the bundled appdir. If it does, the wrapper will attempt to undo
-any changes done to environment variables before launching the process,
-since you probably did not intend to launch it with e.g. the LD_LIBRARY_PATH
-you previously set for your application.
-
-To perform this operation, you have to set the following environment variables:
-  $APPDIR -- path of the AppDir you are launching your application from. If this
-             is not present, the wrapper will do nothing.
-
-For each environment variable you want restored, where {VAR} is the name of the environment
-variable (e.g. "PATH"):
-  $APPIMAGE_ORIGINAL_{VAR} -- original value of the environment variable
-  $APPIMAGE_STARTUP_{VAR} -- value of the variable when you were starting up
-                             your application
-*/
-
 #define _GNU_SOURCE
 
 #include <unistd.h>
 #include <dlfcn.h>
+#include <stdio.h>
 
 #include "shared.h"
-#include "environment.h"
-#include "interpreter.h"
 
 typedef ssize_t (* execve_func_t)(const char* filename, char* const argv[], char* const envp[]);
 
-static execve_func_t old_execve = NULL;
+static execve_func_t real_execve = NULL;
 
 typedef ssize_t (* execvp_func_t)(const char* filename, char* const argv[]);
 
-static execvp_func_t old_execvp = NULL;
+static execvp_func_t real_execvp = NULL;
 
 // TODO implement me: execl, execlp, execle; but it's annoying work and nothing seems to use them
 // typedef int (*execl_func_t)(const char *path, const char *arg);
@@ -69,58 +45,64 @@ static execvp_func_t old_execvp = NULL;
 
 typedef int (* execv_func_t)(const char* path, char* const argv[]);
 
-static execv_func_t old_execv = NULL;
+static execv_func_t real_execv = NULL;
 
 typedef int (* execvpe_func_t)(const char* file, char* const argv[], char* const envp[]);
 
-static execvpe_func_t old_execvpe = NULL;
+static execvpe_func_t real_execvpe = NULL;
 
 int execve(const char* filename, char* const argv[], char* const envp[]) {
-    char** new_envp = appdir_runtime_adjusted_environment(filename, envp);
-    appdir_runtime_exec_args_t* new_exec_args = appdir_runtime_adjusted_exec_args(filename, argv);
+#ifdef DEBUG
+    fprintf(stderr, "APPRUN_HOOK_DEBUG: %s\n", __PRETTY_FUNCTION__);
+#endif
 
-    old_execve = dlsym(RTLD_NEXT, "execve");
-    int ret = old_execve(new_exec_args->file, new_exec_args->args, new_envp);
+    apprun_exec_args_t* new_exec_args = apprun_adjusted_exec_args(filename, argv, envp);
 
-    appdir_runtime_string_list_free(new_envp);
-    appdir_runtime_exec_args_free(new_exec_args);
+    real_execve = dlsym(RTLD_NEXT, "execve");
+    int ret = real_execve(new_exec_args->file, new_exec_args->args, new_exec_args->envp);
+
+    apprun_exec_args_free(new_exec_args);
     return ret;
 }
 
 int execv(const char* filename, char* const argv[]) {
-    char** new_envp = appdir_runtime_adjusted_environment(filename, environ);
-    appdir_runtime_exec_args_t* new_exec_args = appdir_runtime_adjusted_exec_args(filename, argv);
+#ifdef DEBUG
+    fprintf(stderr, "APPRUN_HOOK_DEBUG: %s\n", __PRETTY_FUNCTION__);
+#endif
 
-    old_execve = dlsym(RTLD_NEXT, "execve");
-    int ret = old_execve(new_exec_args->file, new_exec_args->args, new_envp);
+    apprun_exec_args_t* new_exec_args = apprun_adjusted_exec_args(filename, argv, environ);
 
-    appdir_runtime_string_list_free(new_envp);
-    appdir_runtime_exec_args_free(new_exec_args);
+    real_execve = dlsym(RTLD_NEXT, "execve");
+    int ret = real_execve(new_exec_args->file, new_exec_args->args, new_exec_args->envp);
+
+    apprun_exec_args_free(new_exec_args);
     return ret;
 }
 
 int execvpe(const char* filename, char* const argv[], char* const envp[]) {
-    // TODO: might not be full path
-    char** new_envp = appdir_runtime_adjusted_environment(filename, envp);
-    appdir_runtime_exec_args_t* new_exec_args = appdir_runtime_adjusted_exec_args(filename, argv);
+#ifdef DEBUG
+    fprintf(stderr, "APPRUN_HOOK_DEBUG: %s\n", __PRETTY_FUNCTION__);
+#endif
 
-    old_execvpe = dlsym(RTLD_NEXT, "execvpe");
-    int ret = old_execvpe(new_exec_args->file, new_exec_args->args, new_envp);
+    apprun_exec_args_t* new_exec_args = apprun_adjusted_exec_args(filename, argv, envp);
 
-    appdir_runtime_string_list_free(new_envp);
-    appdir_runtime_exec_args_free(new_exec_args);
+    real_execvpe = dlsym(RTLD_NEXT, "execvpe");
+    int ret = real_execvpe(new_exec_args->file, new_exec_args->args, new_exec_args->envp);
+
+    apprun_exec_args_free(new_exec_args);
     return ret;
 }
 
 int execvp(const char* filename, char* const argv[]) {
-    // TODO: might not be full path
-    char** new_envp = appdir_runtime_adjusted_environment(filename, environ);
-    appdir_runtime_exec_args_t* new_exec_args = appdir_runtime_adjusted_exec_args(filename, argv);
+#ifdef DEBUG
+    fprintf(stderr, "APPRUN_HOOK_DEBUG: %s\n", __PRETTY_FUNCTION__);
+#endif
 
-    old_execvpe = dlsym(RTLD_NEXT, "execvpe");
-    int ret = old_execvpe(new_exec_args->file, new_exec_args->args, new_envp);
+    apprun_exec_args_t* new_exec_args = apprun_adjusted_exec_args(filename, argv, environ);
 
-    appdir_runtime_string_list_free(new_envp);
-    appdir_runtime_exec_args_free(new_exec_args);
+    real_execvpe = dlsym(RTLD_NEXT, "execvpe");
+    int ret = real_execvpe(new_exec_args->file, new_exec_args->args, new_exec_args->envp);
+
+    apprun_exec_args_free(new_exec_args);
     return ret;
 }

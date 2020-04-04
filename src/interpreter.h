@@ -28,17 +28,14 @@
 #define APPDIR_RUMTIME_INTERPRETER_H
 
 #include <stdbool.h>
+#include "shared.h"
 
 char const* const APPDIR_RUNTIME_INTERPRETER_ENV;
 
-typedef struct {
-    char* file;
-    char** args;
-} appdir_runtime_exec_args_t;
+apprun_exec_args_t*
+appdir_runtime_prepend_interpreter_to_exec(char const* interpreter, char const* filename, char* const* argv);
 
-appdir_runtime_exec_args_t* appdir_runtime_adjusted_exec_args(const char* filename, char* const* argv);
-
-void appdir_runtime_exec_args_free(appdir_runtime_exec_args_t* args);
+apprun_exec_args_t* appdir_runtime_duplicate_exec_args(const char* filename, char* const* argv);
 
 bool appdir_runtime_is_exec_args_change_required(const char* appdir, const char* interpreter, const char* filename);
 

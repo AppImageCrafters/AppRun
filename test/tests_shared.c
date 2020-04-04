@@ -51,7 +51,7 @@ void assert_str_eq(const char* str1, const char* str2) {
 }
 
 void bailout() {
-    fprintf(stderr, "FAIL\n");
+    fprintf(stdout, "FAIL\n");
     exit(1);
 }
 

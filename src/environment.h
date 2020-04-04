@@ -52,7 +52,7 @@ apprun_env_item_list_t* apprun_env_item_list_export(apprun_env_item_list_t const
 
 unsigned apprun_env_item_list_size(apprun_env_item_list_t const* list);
 
-char** appdir_runtime_adjusted_environment(const char* filename, char* const* envp);
+char** apprun_export_envp(char* const* envp);
 
 bool apprun_env_item_is_changed(apprun_env_item_t const* item);
 

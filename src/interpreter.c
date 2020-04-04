@@ -33,9 +33,9 @@
 
 char const* const APPDIR_RUNTIME_INTERPRETER_ENV = "INTERPRETER";
 
-appdir_runtime_exec_args_t* appdir_runtime_duplicate_exec_args(const char* filename, char* const* argv) {
-    appdir_runtime_exec_args_t* result;
-    result = calloc(1, sizeof(appdir_runtime_exec_args_t));
+apprun_exec_args_t* appdir_runtime_duplicate_exec_args(const char* filename, char* const* argv) {
+    apprun_exec_args_t* result;
+    result = calloc(1, sizeof(apprun_exec_args_t));
 
     // use original filename
     result->file = strdup(filename);
@@ -52,10 +52,10 @@ appdir_runtime_exec_args_t* appdir_runtime_duplicate_exec_args(const char* filen
     return result;
 }
 
-appdir_runtime_exec_args_t*
+apprun_exec_args_t*
 appdir_runtime_prepend_interpreter_to_exec(char const* interpreter, char const* filename, char* const* argv) {
-    appdir_runtime_exec_args_t* result;
-    result = calloc(1, sizeof(appdir_runtime_exec_args_t));
+    apprun_exec_args_t* result;
+    result = calloc(1, sizeof(apprun_exec_args_t));
 
     // use original filename
     result->file = strdup(interpreter);
@@ -89,22 +89,5 @@ bool appdir_runtime_is_exec_args_change_required(const char* appdir, const char*
         return false;
 
     return appdir_runtime_is_path_child_of(filename, appdir);
-}
-
-appdir_runtime_exec_args_t* appdir_runtime_adjusted_exec_args(const char* filename, char* const* argv) {
-    char* appdir = getenv("APPDIR");
-    char* interpreter = getenv("INTERPRETER");
-
-    if (appdir_runtime_is_exec_args_change_required(appdir, interpreter, filename))
-        return appdir_runtime_prepend_interpreter_to_exec(interpreter, filename, argv);
-    else
-        return appdir_runtime_duplicate_exec_args(filename, argv);
-}
-
-void appdir_runtime_exec_args_free(appdir_runtime_exec_args_t* args) {
-    appdir_runtime_string_list_free(args->args);
-    free(args->args);
-    free(args->file);
-    free(args);
 }
 

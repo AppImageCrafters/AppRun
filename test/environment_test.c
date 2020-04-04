@@ -32,7 +32,7 @@
 
 
 void test_env_item_is_changed() {
-    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+    fprintf(stdout, "%s: ", __PRETTY_FUNCTION__);
 
     apprun_env_item_t not_changed_item = {
             "LD_PRELOAD",
@@ -50,11 +50,11 @@ void test_env_item_is_changed() {
     };
 
     assert_true(apprun_env_item_is_changed(&changed_item));
-    fprintf(stderr, "Ok\n");
+    fprintf(stdout, "Ok\n");
 }
 
 void test_env_item_unchanged_export_shared_item() {
-    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+    fprintf(stdout, "%s: ", __PRETTY_FUNCTION__);
 
     apprun_env_item_t shared_item = {
             "LD_LIBRARY_PATH",
@@ -75,11 +75,11 @@ void test_env_item_unchanged_export_shared_item() {
     assert_env_item_eq(res, &expected);
 
     apprun_env_item_free(res);
-    fprintf(stderr, "Ok\n");
+    fprintf(stdout, "Ok\n");
 }
 
 void test_env_item_unchanged_export_external_item() {
-    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+    fprintf(stdout, "%s: ", __PRETTY_FUNCTION__);
 
     apprun_env_item_t external_item = {
             "DISPLAY",
@@ -91,11 +91,11 @@ void test_env_item_unchanged_export_external_item() {
     apprun_env_item_t* res = apprun_env_item_unchanged_export(&external_item);
     assert_env_item_eq(res, &external_item);
     apprun_env_item_free(res);
-    fprintf(stderr, "Ok\n");
+    fprintf(stdout, "Ok\n");
 }
 
 void test_env_item_unchanged_export_apprun_only_item() {
-    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+    fprintf(stdout, "%s: ", __PRETTY_FUNCTION__);
 
     apprun_env_item_t apprun_only_item = {
             "LD_PRELOAD",
@@ -106,11 +106,11 @@ void test_env_item_unchanged_export_apprun_only_item() {
     apprun_env_item_t* res = apprun_env_item_unchanged_export(&apprun_only_item);
     assert_eq(res, NULL);
 
-    fprintf(stderr, "Ok\n");
+    fprintf(stdout, "Ok\n");
 }
 
 void test_env_item_unchanged_export_hidden_item() {
-    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+    fprintf(stdout, "%s: ", __PRETTY_FUNCTION__);
 
     apprun_env_item_t shared_item = {
             "LC_ALL",
@@ -131,11 +131,11 @@ void test_env_item_unchanged_export_hidden_item() {
     assert_env_item_eq(res, &expected);
 
     apprun_env_item_free(res);
-    fprintf(stderr, "Ok\n");
+    fprintf(stdout, "Ok\n");
 }
 
 void test_env_item_changed_export_shared_item() {
-    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+    fprintf(stdout, "%s: ", __PRETTY_FUNCTION__);
 
     apprun_env_item_t shared_item = {
             "PATH",
@@ -156,11 +156,11 @@ void test_env_item_changed_export_shared_item() {
     assert_env_item_eq(res, &expected);
 
     apprun_env_item_free(res);
-    fprintf(stderr, "Ok\n");
+    fprintf(stdout, "Ok\n");
 }
 
 void test_env_item_changed_export_external_item() {
-    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+    fprintf(stdout, "%s: ", __PRETTY_FUNCTION__);
 
     apprun_env_item_t external_item = {
             "DISPLAY",
@@ -172,11 +172,11 @@ void test_env_item_changed_export_external_item() {
     apprun_env_item_t* res = apprun_env_item_changed_export(&external_item);
     assert_env_item_eq(res, &external_item);
     apprun_env_item_free(res);
-    fprintf(stderr, "Ok\n");
+    fprintf(stdout, "Ok\n");
 }
 
 void test_env_item_changed_export_apprun_only_item() {
-    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+    fprintf(stdout, "%s: ", __PRETTY_FUNCTION__);
 
     apprun_env_item_t apprun_only_item = {
             "LD_PRELOAD",
@@ -187,11 +187,11 @@ void test_env_item_changed_export_apprun_only_item() {
     apprun_env_item_t* res = apprun_env_item_changed_export(&apprun_only_item);
     assert_eq(res, NULL);
 
-    fprintf(stderr, "Ok\n");
+    fprintf(stdout, "Ok\n");
 }
 
 void test_env_item_changed_export_hidden_item() {
-    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+    fprintf(stdout, "%s: ", __PRETTY_FUNCTION__);
 
     apprun_env_item_t shared_item = {
             "LC_ALL",
@@ -212,11 +212,11 @@ void test_env_item_changed_export_hidden_item() {
     assert_env_item_eq(res, &expected);
 
     apprun_env_item_free(res);
-    fprintf(stderr, "Ok\n");
+    fprintf(stdout, "Ok\n");
 }
 
 void test_env_item_export_apprun_only_item() {
-    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+    fprintf(stdout, "%s: ", __PRETTY_FUNCTION__);
 
     apprun_env_item_t apprun_only_item = {
             "LD_PRELOAD",
@@ -228,22 +228,22 @@ void test_env_item_export_apprun_only_item() {
     apprun_env_item_t* res = apprun_env_item_export(&apprun_only_item);
     assert_eq(res, NULL);
 
-    fprintf(stderr, "Ok\n");
+    fprintf(stdout, "Ok\n");
 }
 
 void test_env_item_export_empty_item() {
-    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+    fprintf(stdout, "%s: ", __PRETTY_FUNCTION__);
 
     apprun_env_item_t apprun_only_item = {"EMPTY", NULL, NULL, NULL};
 
     apprun_env_item_t* res = apprun_env_item_export(&apprun_only_item);
     assert_eq(res, NULL);
 
-    fprintf(stderr, "Ok\n");
+    fprintf(stdout, "Ok\n");
 }
 
 void test_env_item_list_from_envp() {
-    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+    fprintf(stdout, "%s: ", __PRETTY_FUNCTION__);
 
     char* envp[] = {
             "K1=V1",
@@ -272,11 +272,11 @@ void test_env_item_list_from_envp() {
     apprun_env_item_list_free(res);
 
 
-    fprintf(stderr, "Ok\n");
+    fprintf(stdout, "Ok\n");
 }
 
 void test_export_env_item_list() {
-    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+    fprintf(stdout, "%s: ", __PRETTY_FUNCTION__);
 
     apprun_env_item_t k1 = {"K1", "V1", "V0", "V1"};
     apprun_env_item_t k2 = {"K2", NULL, NULL, NULL};
@@ -301,12 +301,12 @@ void test_export_env_item_list() {
 
     apprun_env_item_list_free(res);
 
-    fprintf(stderr, "Ok\n");
+    fprintf(stdout, "Ok\n");
 }
 
 
 void test_env_item_list_to_envp() {
-    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+    fprintf(stdout, "%s: ", __PRETTY_FUNCTION__);
 
     apprun_env_item_list_t list[5] = {0x0};
     apprun_env_item_t k1 = {"K1", "V1", "V0", "V1"};
@@ -333,7 +333,7 @@ void test_env_item_list_to_envp() {
     appdir_runtime_string_list_free(res);
 
 
-    fprintf(stderr, "Ok\n");
+    fprintf(stdout, "Ok\n");
 }
 
 int main(int argc, char** argv, char* envp[]) {

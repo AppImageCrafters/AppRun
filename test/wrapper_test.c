@@ -33,7 +33,7 @@
 #include "tests_shared.h"
 
 void test_restore_original_env_for_external_binaries() {
-    fprintf(stderr, "Test restore original environment when calling external binaries: ");
+    fprintf(stdout, "Test restore original environment when calling external binaries: ");
 
     set_private_env(APPDIR_RUNTIME_ENV, "/tmp");
 
@@ -41,11 +41,11 @@ void test_restore_original_env_for_external_binaries() {
     assert_command_fails(system("/usr/bin/printenv APPDIR >> /dev/null"));
     assert_command_fails(system("/usr/bin/printenv LD_PRELOAD >> /dev/null"));
 
-    fprintf(stderr, "Ok\n");
+    fprintf(stdout, "Ok\n");
 }
 
 void test_keep_appdir_env_for_internal_binaries() {
-    fprintf(stderr, "Test keep APPDIR environment when calling internal binaries: ");
+    fprintf(stdout, "Test keep APPDIR environment when calling internal binaries: ");
 
     set_private_env(APPDIR_RUNTIME_ENV, "/usr/bin");
 
@@ -53,14 +53,14 @@ void test_keep_appdir_env_for_internal_binaries() {
     assert_command_succeed(system("/usr/bin/printenv APPDIR >> /dev/null"));
     assert_command_succeed(system("/usr/bin/printenv LD_PRELOAD >> /dev/null"));
 
-    fprintf(stderr, "Ok\n");
+    fprintf(stdout, "Ok\n");
 }
 
 void setup_wrapper() {
     char* wrapper_path = getenv("LD_PRELOAD");
 
     if (wrapper_path == NULL) {
-        fprintf(stderr, "Error: Missing LD_PRELOAD\n"
+        fprintf(stdout, "Error: Missing LD_PRELOAD\n"
                         "\nUsage:\n"
                         "\tLD_PRELOAD=<libappdir-exec-wrapper.so> ./wrapper_test\n");
         exit(1);
@@ -71,7 +71,7 @@ void setup_wrapper() {
 }
 
 void test_prefix_interpreter_for_internal_binaries() {
-    fprintf(stderr, "Test prefix INTERPRETER when calling internal binaries: ");
+    fprintf(stdout, "Test prefix INTERPRETER when calling internal binaries: ");
 
     set_private_env(APPDIR_RUNTIME_ENV, "/bin");
     set_private_env(APPDIR_RUNTIME_INTERPRETER_ENV, "/bin/echo");
@@ -80,11 +80,11 @@ void test_prefix_interpreter_for_internal_binaries() {
     assert_command_succeed(system("/bin/false >> /dev/null"));
     assert_command_succeed(system("/bin/false >> /dev/null"));
 
-    fprintf(stderr, "Ok\n");
+    fprintf(stdout, "Ok\n");
 }
 
 void test_dont_prefix_interpreter_for_external_binaries() {
-    fprintf(stderr, "Test dont prefix INTERPRETER when calling external binaries: ");
+    fprintf(stdout, "Test dont prefix INTERPRETER when calling external binaries: ");
 
     set_private_env(APPDIR_RUNTIME_ENV, "/usr/bin");
     set_private_env(APPDIR_RUNTIME_INTERPRETER_ENV, "/bin/echo");
@@ -93,7 +93,7 @@ void test_dont_prefix_interpreter_for_external_binaries() {
     assert_command_fails(system("/bin/false"));
     assert_command_fails(system("/bin/false"));
 
-    fprintf(stderr, "Ok\n");
+    fprintf(stdout, "Ok\n");
 }
 
 int main(int argc, char** argv) {

@@ -35,57 +35,57 @@
 
 
 void test_not_override_if_missing_interpreter_env(char* const* argv) {
-    fprintf(stderr, "Test not override on missing INTERPRETER environment variable: ");
+    fprintf(stdout, "Test not override on missing INTERPRETER environment variable: ");
 
     char* filename = strdup(argv[0]);
-    appdir_runtime_exec_args_t* new_args = appdir_runtime_adjusted_exec_args(filename, argv);
+    apprun_exec_args_t* new_args = apprun_adjusted_exec_args(filename, argv, NULL);
 
     assert_str_eq(new_args->file, filename);
     assert_str_list_eq(argv, new_args->args);
 
 
-    appdir_runtime_exec_args_free(new_args);
+    apprun_exec_args_free(new_args);
     free(filename);
 
-    fprintf(stderr, "OK\n");
+    fprintf(stdout, "OK\n");
 }
 
 void test_not_override_if_missing_appdir_env(char* const* argv) {
-    fprintf(stderr, "Test not override on missing APPDIR environment variable: ");
+    fprintf(stdout, "Test not override on missing APPDIR environment variable: ");
 
     char* interpreter = "/lib/ld-linux.so.2";
     setenv("INTERPRETER", interpreter, 1);
 
     char* filename = strdup(argv[0]);
-    appdir_runtime_exec_args_t* new_args = appdir_runtime_adjusted_exec_args(filename, argv);
+    apprun_exec_args_t* new_args = apprun_adjusted_exec_args(filename, argv, NULL);
 
     assert_str_eq(new_args->file, filename);
     assert_str_list_eq(argv, new_args->args);
 
 
-    appdir_runtime_exec_args_free(new_args);
+    apprun_exec_args_free(new_args);
     free(filename);
 
-    fprintf(stderr, "OK\n");
+    fprintf(stdout, "OK\n");
 }
 
 void test_not_override_if_external_binary(char* const* argv) {
-    fprintf(stderr, "Test not override when calling external binary: ");
+    fprintf(stdout, "Test not override when calling external binary: ");
 
-    char* filename = "/usr/bin/echo";
-    appdir_runtime_exec_args_t* new_args = appdir_runtime_adjusted_exec_args(filename, argv);
+    char* filename = "/bin/echo";
+    apprun_exec_args_t* new_args = apprun_adjusted_exec_args(filename, argv, NULL);
 
     assert_str_eq(new_args->file, filename);
     assert_str_list_eq(argv, new_args->args);
 
 
-    appdir_runtime_exec_args_free(new_args);
+    apprun_exec_args_free(new_args);
 
-    fprintf(stderr, "OK\n");
+    fprintf(stdout, "OK\n");
 }
 
 void test_override_exec_args(char* const* argv) {
-    fprintf(stderr, "Test override filename and argv: ");
+    fprintf(stdout, "Test override filename and argv: ");
 
     char* filename = strdup(argv[0]);
     char* interpreter = "/lib/ld-linux.so.2";
@@ -94,7 +94,7 @@ void test_override_exec_args(char* const* argv) {
     setenv("INTERPRETER", interpreter, 1);
     setenv("APPDIR", appdir, 1);
 
-    appdir_runtime_exec_args_t* new_args = appdir_runtime_adjusted_exec_args(filename, argv);
+    apprun_exec_args_t* new_args = apprun_adjusted_exec_args(filename, argv, NULL);
 
     assert_str_eq(new_args->file, interpreter);
     assert_str_eq(new_args->args[0], interpreter);
@@ -103,30 +103,30 @@ void test_override_exec_args(char* const* argv) {
     char** org_str_list = new_args->args + 1;
     assert_str_list_eq(org_str_list+1, argv+1);
 
-    appdir_runtime_exec_args_free(new_args);
+    apprun_exec_args_free(new_args);
     free(filename);
 
-    fprintf(stderr, "OK\n");
+    fprintf(stdout, "OK\n");
 }
 
 void test_appdir_runtime_is_path_child_of() {
-    fprintf(stderr, "Test path child of: ");
+    fprintf(stdout, "Test path child of: ");
     assert_false(appdir_runtime_is_path_child_of("/bin/echo", "/usr"));
     assert_true(appdir_runtime_is_path_child_of("/bin/echo", "/bin"));
 
     assert_false(appdir_runtime_is_path_child_of("/no_existent/echo", "/usr"));
     assert_true(appdir_runtime_is_path_child_of("/no_existent/echo", "/no_existent"));
-    fprintf(stderr, "OK\n");
+    fprintf(stdout, "OK\n");
 }
 
 void test_appdir_runtime_is_exec_args_change_required() {
-    fprintf(stderr, "Test is exec args change required: ");
+    fprintf(stdout, "Test is exec args change required: ");
     assert_false(appdir_runtime_is_exec_args_change_required(NULL, NULL, "/usr/bin/echo"));
     assert_false(appdir_runtime_is_exec_args_change_required(NULL, "/ld.so", "/usr/bin/echo"));
     assert_false(appdir_runtime_is_exec_args_change_required("/usr", NULL, "/usr/bin/echo"));
     assert_true(appdir_runtime_is_exec_args_change_required("/usr", "/ld.so", "/usr/bin/echo"));
     assert_false(appdir_runtime_is_exec_args_change_required("/usr", "/ld.so", "/bin/echo"));
-    fprintf(stderr, "OK\n");
+    fprintf(stdout, "OK\n");
 }
 
 int main(int argc, char** argv) {
