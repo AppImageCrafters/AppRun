@@ -1,9 +1,9 @@
-add_library(apprun_exec_hook SHARED exec.c environment.c interpreter.c path.c shared.c)
-target_link_libraries(apprun_exec_hook dl)
-target_compile_definitions(apprun_exec_hook PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
+add_library(apprun_hooks SHARED exec.c environment.c interpreter.c path.c shared.c)
+target_link_libraries(apprun_hooks dl)
+target_compile_definitions(apprun_hooks PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
 
 
 install(
-    TARGETS apprun_exec_hook
+    TARGETS apprun_hooks
     LIBRARY DESTINATION lib
 )

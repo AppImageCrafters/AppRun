@@ -49,8 +49,8 @@ after_success:
   # get the tag version
 
   - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
-  - mv src/libapprun_exec_hook.so libapprun_exec_hook-$TARGET_DEB_ARCH.so
-  - bash upload.sh libapprun_exec_hook-$TARGET_DEB_ARCH.so
+  - mv src/libapprun_hooks.so libapprun_hooks-$TARGET_DEB_ARCH.so
+  - bash upload.sh libapprun_hooks-$TARGET_DEB_ARCH.so
 
 branches:
   except:
