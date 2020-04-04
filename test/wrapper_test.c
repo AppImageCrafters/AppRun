@@ -35,7 +35,7 @@
 void test_restore_original_env_for_external_binaries() {
     fprintf(stdout, "Test restore original environment when calling external binaries: ");
 
-    set_private_env(APPDIR_RUNTIME_ENV, "/tmp");
+    set_private_env(APPRUN_ENV_APPDIR, "/tmp");
 
     // grep fails if nothing matches
     assert_command_fails(system("/usr/bin/printenv APPDIR >> /dev/null"));
@@ -47,7 +47,7 @@ void test_restore_original_env_for_external_binaries() {
 void test_keep_appdir_env_for_internal_binaries() {
     fprintf(stdout, "Test keep APPDIR environment when calling internal binaries: ");
 
-    set_private_env(APPDIR_RUNTIME_ENV, "/usr/bin");
+    set_private_env(APPRUN_ENV_APPDIR, "/usr/bin");
 
     // grep fails if nothing matches
     assert_command_succeed(system("/usr/bin/printenv APPDIR >> /dev/null"));
@@ -66,15 +66,15 @@ void setup_wrapper() {
         exit(1);
     }
 
-    setenv("APPIMAGE_ORIGINAL_LD_PRELOAD", "", 0);
-    setenv("APPIMAGE_STARTUP_LD_PRELOAD", wrapper_path, 0);
+    setenv("APPRUN_ORIGINAL_LD_PRELOAD", "", 0);
+    setenv("APPRUN_STARTUP_LD_PRELOAD", wrapper_path, 0);
 }
 
 void test_prefix_interpreter_for_internal_binaries() {
     fprintf(stdout, "Test prefix INTERPRETER when calling internal binaries: ");
 
-    set_private_env(APPDIR_RUNTIME_ENV, "/bin");
-    set_private_env(APPDIR_RUNTIME_INTERPRETER_ENV, "/bin/echo");
+    set_private_env(APPRUN_ENV_APPDIR, "/bin");
+    set_private_env(APPRUN_ENV_INTERPRETER, "/bin/echo");
 
     // grep fails if nothing matches
     assert_command_succeed(system("/bin/false >> /dev/null"));
@@ -86,8 +86,8 @@ void test_prefix_interpreter_for_internal_binaries() {
 void test_dont_prefix_interpreter_for_external_binaries() {
     fprintf(stdout, "Test dont prefix INTERPRETER when calling external binaries: ");
 
-    set_private_env(APPDIR_RUNTIME_ENV, "/usr/bin");
-    set_private_env(APPDIR_RUNTIME_INTERPRETER_ENV, "/bin/echo");
+    set_private_env(APPRUN_ENV_APPDIR, "/usr/bin");
+    set_private_env(APPRUN_ENV_INTERPRETER, "/bin/echo");
 
     // grep fails if nothing matches
     assert_command_fails(system("/bin/false"));

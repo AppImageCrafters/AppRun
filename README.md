@@ -24,16 +24,16 @@ The following environment variables are required:
 **Private environment variables are defined as follows**:  
 
 Where {VAR} is the name of the environment variable (e.g. "PATH"):
-- `$APPIMAGE_ORIGINAL_{VAR}`: original value of the environment variable. Will be restore when executing external binaries.
-- `$APPIMAGE_STARTUP_{VAR}`: value of the variable when you were starting up your application. Used as reference to 
+- `$APPRUN_ORIGINAL_{VAR}`: original value of the environment variable. Will be restore when executing external binaries.
+- `$APPRUN_STARTUP_{VAR}`: value of the variable when you were starting up your application. Used as reference to 
 detect changes made by the application.
 
 **Example:**
 
 ```shell script
-export APPIMAGE_ORIGINAL_PATH=$PATH
+export APPRUN_ORIGINAL_PATH=$PATH
 export PATH=$APPDIR/bin:$APPDIR/usr/bin:$PATH
-export APPIMAGE_STARTUP=$PATH
+export APPRUN_STARTUP_PATH=$PATH
 ``` 
 
 Notice that the order matters in order to properly define the ORIGINAL value.                             

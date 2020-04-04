@@ -30,8 +30,6 @@
 #include <stdbool.h>
 #include "shared.h"
 
-#define APPDIR_RUNTIME_INTERPRETER_ENV "INTERPRETER"
-
 apprun_exec_args_t*
 apprun_prepend_interpreter_to_exec(char const* interpreter, char const* filename, char* const* argv);
 
