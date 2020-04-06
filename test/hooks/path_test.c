@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../src/hooks/path.h"
+#include "../../src/hooks/path.h"
 #include "tests_shared.h"
 
 int main(int argc, char** argv) {
