@@ -27,7 +27,7 @@
 #ifndef APPDIR_RUMTIME_TESTS_SHARED_H
 #define APPDIR_RUMTIME_TESTS_SHARED_H
 
-#include "../src/environment.h"
+#include "../src/hooks/environment.h"
 
 void bailout();
 

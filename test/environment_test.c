@@ -26,9 +26,9 @@
 
 #include <stdio.h>
 
-#include "../src/environment.h"
+#include "../src/hooks/environment.h"
 #include "tests_shared.h"
-#include "../src/shared.h"
+#include "../src/hooks/shared.h"
 
 
 void test_env_item_is_changed() {

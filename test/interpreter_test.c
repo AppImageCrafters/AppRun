@@ -30,8 +30,8 @@
 #include <libgen.h>
 
 #include "tests_shared.h"
-#include "../src/shared.h"
-#include "../src/interpreter.h"
+#include "../src/hooks/shared.h"
+#include "../src/hooks/interpreter.h"
 
 
 void test_not_override_if_missing_interpreter_env(char* const* argv) {
