@@ -63,4 +63,8 @@ apprun_env_item_list_t* apprun_env_item_list_from_envp(char* const* envp);
 
 char** apprun_env_item_list_to_envp(apprun_env_item_list_t* list);
 
+char* apprun_env_str_entry_extract_name(char* string);
+
+char* apprun_env_str_entry_extract_value(char* string);
+
 #endif //APPDIR_RUMTIME_ENVIRONMENT_H
