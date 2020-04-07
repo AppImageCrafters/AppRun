@@ -24,6 +24,11 @@
  *
  **************************************************************************/
 
+#include "string_utils.h"
+#include "environment.h"
+#include "interpreter.h"
+#include "exec_args.h"
+#include <stdio.h>
 #include "path.h"
 
 #include <stdlib.h>
@@ -83,4 +88,27 @@ char* apprun_resolve_file_name(char const* file_name) {
         resolved = strdup(file_name);
 
     return resolved;
+}
+
+bool apprun_is_path_child_of(const char* path, const char* base) {
+    char* real_base_path = realpath(base, NULL);
+    char* real_path = realpath(path, NULL);
+
+    bool result;
+
+    if (real_base_path != NULL && real_path != NULL) {
+        unsigned int len = strlen(real_base_path);
+        result = strncmp(real_base_path, real_path, len) == 0;
+    } else {
+        unsigned int len = strlen(base);
+        result = strncmp(base, path, len) == 0;
+    }
+
+    if (real_base_path)
+        free(real_base_path);
+
+    if (real_path)
+        free(real_path);
+
+    return result;
 }

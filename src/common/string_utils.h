@@ -24,36 +24,23 @@
  *
  **************************************************************************/
 
-#ifndef APPDIR_RUMTIME_SHARED_H
-#define APPDIR_RUMTIME_SHARED_H
+#ifndef APPIMAGEEXECWRAPPER_STRING_UTILS_H
+#define APPIMAGEEXECWRAPPER_STRING_UTILS_H
 
 #include <stdbool.h>
 
-#define APPRUN_ENV_APPDIR "APPDIR"
-#define APPRUN_ENV_INTERPRETER "INTERPRETER"
+char** extend_string_array(char** array, unsigned capacity);
 
-typedef struct {
-    char* file;
-    char** args;
-    char** envp;
-} apprun_exec_args_t;
-
-apprun_exec_args_t* apprun_adjusted_exec_args(const char* filename, char* const* argv, char* const* envp);
-
-void apprun_exec_args_free(apprun_exec_args_t* args);
-
-char** apprun_string_list_alloc(unsigned int size);
-
-char** apprun_string_list_dup(char* const* envp);
-
-void apprun_string_list_free(char** string_list);
+char** adjust_string_array_size(char** array);
 
 int apprun_string_list_len(char* const* x);
 
+void apprun_string_list_free(char** string_list);
+
+char** apprun_string_list_alloc(unsigned int size);
+
 int apprun_array_len(char* const* arr);
 
-bool apprun_is_path_child_of(const char* path, const char* base);
+char** apprun_string_list_dup(char* const* envp);
 
-void apprun_print_exec_args(const char* filename, char* const* argv, char* const* envp);
-
-#endif //APPDIR_RUMTIME_SHARED_H
+#endif //APPIMAGEEXECWRAPPER_STRING_UTILS_H

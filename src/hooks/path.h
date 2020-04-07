@@ -27,6 +27,10 @@
 #ifndef APPIMAGEEXECWRAPPER_PATH_H
 #define APPIMAGEEXECWRAPPER_PATH_H
 
+#include <stdbool.h>
+
 char* apprun_resolve_file_name(char const* file_name);
+
+bool apprun_is_path_child_of(const char* path, const char* base);
 
 #endif //APPIMAGEEXECWRAPPER_PATH_H

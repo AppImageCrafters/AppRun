@@ -30,9 +30,12 @@
 #include <libgen.h>
 
 #include "tests_shared.h"
-#include "../../src/hooks/shared.h"
+#include "../../src/hooks/exec_args.h"
 #include "../../src/hooks/interpreter.h"
+#include "../../src/hooks/path.h"
 
+
+extern apprun_exec_args_t* apprun_adjusted_exec_args(const char* filename, char* const* argv, char* const* envp);
 
 void test_not_override_if_missing_interpreter_env(char* const* argv) {
     fprintf(stdout, "Test not override on missing INTERPRETER environment variable: ");
@@ -101,7 +104,7 @@ void test_override_exec_args(char* const* argv) {
     assert_str_eq(new_args->args[1], filename);
 
     char** org_str_list = new_args->args + 1;
-    assert_str_list_eq(org_str_list+1, argv+1);
+    assert_str_list_eq(org_str_list + 1, argv + 1);
 
     apprun_exec_args_free(new_args);
     free(filename);
@@ -120,7 +123,7 @@ void test_apprun_is_path_child_of() {
 }
 
 void test_apprun_is_exec_args_change_required() {
-    fprintf(stdout, "Test is exec args change required: ");
+    fprintf(stdout, "Test is apprun args change required: ");
     assert_false(apprun_is_exec_args_change_required(NULL, NULL, "/usr/bin/echo"));
     assert_false(apprun_is_exec_args_change_required(NULL, "/ld.so", "/usr/bin/echo"));
     assert_false(apprun_is_exec_args_change_required("/usr", NULL, "/usr/bin/echo"));

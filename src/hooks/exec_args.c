@@ -24,17 +24,48 @@
  *
  **************************************************************************/
 
-#ifndef APPDIR_RUMTIME_INTERPRETER_H
-#define APPDIR_RUMTIME_INTERPRETER_H
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
-#include <stdbool.h>
 #include "exec_args.h"
+#include "interpreter.h"
+#include "path.h"
+#include "environment.h"
+#include "string_utils.h"
 
-apprun_exec_args_t*
-apprun_prepend_interpreter_to_exec(char const* interpreter, char const* filename, char* const* argv);
+void apprun_exec_args_free(apprun_exec_args_t* args) {
+    apprun_string_list_free(args->args);
+    apprun_string_list_free(args->envp);
+    free(args->file);
+    free(args);
+}
 
-apprun_exec_args_t* apprun_duplicate_exec_args(const char* filename, char* const* argv);
 
-bool apprun_is_exec_args_change_required(const char* appdir, const char* interpreter, const char* filename);
+void apprun_print_exec_args(const char* filename, char* const* argv, char* const* envp) {
+    fprintf(stderr, "APPRUN_HOOK_DEBUG:\tfilename: \"%s\"\n", filename);
+    fprintf(stderr, "APPRUN_HOOK_DEBUG:\targs: [ ");
+    if (argv) {
+        for (char* const* itr = argv; *itr != 0; itr++) {
+            fprintf(stderr, "\"%s\"", *itr);
+            if (*(itr + 1) != NULL)
+                fprintf(stderr, ", ");
+        }
+    }
 
-#endif //APPDIR_RUMTIME_INTERPRETER_H
+    fprintf(stderr, "]\n");
+
+    fprintf(stderr, "APPRUN_HOOK_DEBUG:\tenvp: [ ");
+    if (envp) {
+        for (char* const* itr = envp; *itr != 0; itr++) {
+            fprintf(stderr, "\"%s\"", *itr);
+            if (*(itr + 1) != NULL)
+                fprintf(stderr, ", ");
+        }
+    }
+
+
+    fprintf(stderr, "]\n");
+}
+
+

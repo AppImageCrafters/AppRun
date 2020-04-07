@@ -24,17 +24,37 @@
  *
  **************************************************************************/
 
-#ifndef APPDIR_RUMTIME_INTERPRETER_H
-#define APPDIR_RUMTIME_INTERPRETER_H
+#include <stdio.h>
+#include <stdlib.h>
 
-#include <stdbool.h>
-#include "exec_args.h"
+#include "file_utils.h"
+#include "string_utils.h"
 
-apprun_exec_args_t*
-apprun_prepend_interpreter_to_exec(char const* interpreter, char const* filename, char* const* argv);
+char** read_lines(char* filename) {
+    char** result = NULL;
 
-apprun_exec_args_t* apprun_duplicate_exec_args(const char* filename, char* const* argv);
+    FILE* fp = fopen(filename, "r");
+    if (fp) {
+        unsigned result_capacity = 512;
+        unsigned count = 0;
+        result = calloc(result_capacity, sizeof(char*));
 
-bool apprun_is_exec_args_change_required(const char* appdir, const char* interpreter, const char* filename);
+        char* line = NULL;
+        size_t len = 0;
 
-#endif //APPDIR_RUMTIME_INTERPRETER_H
+        while (getline(&line, &len, fp) != -1) {
+            if (count == result_capacity) {
+                result_capacity = result_capacity * 2;
+                result = extend_string_array(result, result_capacity);
+            }
+
+            result[count] = line;
+            count++;
+        }
+
+        result = adjust_string_array_size(result);
+        fclose(fp);
+    }
+
+    return result;
+}

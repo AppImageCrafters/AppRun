@@ -24,17 +24,20 @@
  *
  **************************************************************************/
 
-#ifndef APPDIR_RUMTIME_INTERPRETER_H
-#define APPDIR_RUMTIME_INTERPRETER_H
+#ifndef APPDIR_RUMTIME_SHARED_H
+#define APPDIR_RUMTIME_SHARED_H
 
-#include <stdbool.h>
-#include "exec_args.h"
+#define APPRUN_ENV_APPDIR "APPDIR"
+#define APPRUN_ENV_INTERPRETER "INTERPRETER"
 
-apprun_exec_args_t*
-apprun_prepend_interpreter_to_exec(char const* interpreter, char const* filename, char* const* argv);
+typedef struct {
+    char* file;
+    char** args;
+    char** envp;
+} apprun_exec_args_t;
 
-apprun_exec_args_t* apprun_duplicate_exec_args(const char* filename, char* const* argv);
+void apprun_exec_args_free(apprun_exec_args_t* args);
 
-bool apprun_is_exec_args_change_required(const char* appdir, const char* interpreter, const char* filename);
+void apprun_print_exec_args(const char* filename, char* const* argv, char* const* envp);
 
-#endif //APPDIR_RUMTIME_INTERPRETER_H
+#endif //APPDIR_RUMTIME_SHARED_H
