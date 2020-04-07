@@ -1,4 +1,4 @@
-set(COMMON_SOURCES file_utils.c string_list.c path.c)
+set(COMMON_SOURCES file_utils.c string_list.c path.c string_utils.c)
 
 add_library(apprun_common_static STATIC ${COMMON_SOURCES})
 target_include_directories(apprun_common_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

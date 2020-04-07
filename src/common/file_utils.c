@@ -30,8 +30,8 @@
 #include <string.h>
 
 #include "file_utils.h"
+#include "string_utils.h"
 #include "string_list.h"
-#include "path.h"
 
 char** apprun_file_read_lines(char* filename) {
     char** result = NULL;
@@ -43,15 +43,14 @@ char** apprun_file_read_lines(char* filename) {
         result = calloc(result_capacity, sizeof(char*));
 
         char buffer[1024];
-        size_t len = 0;
-
         while (fgets(buffer, 1024, fp) != NULL) {
             if (count == result_capacity) {
                 result_capacity = result_capacity * 2;
                 result = apprun_extend_string_array(result, result_capacity);
             }
 
-            result[count] = strdup(buffer);
+            char* str = apprun_string_remove_trailing_new_line(buffer);
+            result[count] = str;
             count++;
         }
 

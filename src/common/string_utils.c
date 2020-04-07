@@ -24,25 +24,20 @@
  *
  **************************************************************************/
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "runtime_environmet.h"
-#include "../common/file_utils.h"
+#include "string_utils.h"
 
-char* get_env_file_path(const char* appdir) {
-    char* path = calloc(strlen(appdir) + strlen("/.env"), sizeof(char));
-    strcat(path, appdir);
-    strcat(path, "/.env");
+char* apprun_string_remove_trailing_new_line(const char* str) {
+    if (str == NULL)
+        return NULL;
 
-    return path;
-}
+    unsigned line_len = strlen(str);
+    if (line_len > 0 && str[line_len - 1] == '\n')
+        line_len--;
 
-void setup_runtime_environment(char* appdir) {
-    char* env_file_path = get_env_file_path(appdir);
-    char** env = apprun_file_read_lines(env_file_path);
-
-    for (char** itr = env; *itr != NULL; itr++)
-        printf("%s\n", *itr);
+    char* new = calloc(line_len + 1, sizeof(char));
+    memcpy(new, str, line_len);
+    return new;
 }

@@ -27,8 +27,6 @@
 #ifndef APPRUN_FILE_UTILS_H
 #define APPRUN_FILE_UTILS_H
 
-#include <stdbool.h>
-
 char** apprun_file_read_lines(char* filename);
 
 #endif //APPRUN_FILE_UTILS_H

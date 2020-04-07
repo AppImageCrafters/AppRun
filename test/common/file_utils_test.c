@@ -33,35 +33,34 @@
 #include "path.h"
 
 void test_apprun_file_read_lines() {
-    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
+    printf("%s: ", __PRETTY_FUNCTION__);
 
     char** res = apprun_file_read_lines(TESTS_DIR"/apprun/.env");
     assert_true(res != NULL);
 
-    assert_str_eq(res[0], "LD_LOADER=libapprun_hooks-amd64.so\n");
-    assert_str_eq(res[1], "PATH=$APPDIR/bin:$PATH\n");
+    assert_str_eq(res[0], "LD_LOADER=libapprun_hooks-amd64.so");
+    assert_str_eq(res[1], "PATH=$APPDIR/bin:$PATH");
 
     apprun_string_list_free(res);
 
-    fprintf(stderr, "Ok\n");
+    printf("Ok\n");
 }
 
 void test_resolve_path() {
     char* result = NULL;
-    fprintf(stderr, "Test resolve full path: ");
+    printf("Test resolve full path: ");
 
     result = apprun_resolve_file_name("/bin/bash");
     assert_str_eq("/bin/bash", result);
-    fprintf(stderr, "Ok\n");
+    printf("Ok\n");
     free(result);
 
-    fprintf(stderr, "Test resolve relative path: ");
+    printf("Test resolve relative path: ");
     result = apprun_resolve_file_name("bash");
     assert_str_eq("/bin/bash", result);
 
-    fprintf(stderr, "Ok\n");
+    printf("Ok\n");
     free(result);
-
 }
 
 int main(int argc, char** argv) {
