@@ -30,7 +30,7 @@
 
 #include "../../src/hooks/environment.h"
 #include "../../src/hooks/interpreter.h"
-#include "tests_shared.h"
+#include "../common/tests_shared.h"
 
 void test_restore_original_env_for_external_binaries() {
     fprintf(stdout, "Test restore original environment when calling external binaries: ");

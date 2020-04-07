@@ -24,37 +24,51 @@
  *
  **************************************************************************/
 
-#ifndef APPDIR_RUMTIME_TESTS_SHARED_H
-#define APPDIR_RUMTIME_TESTS_SHARED_H
+#include <stdio.h>
+#include <stdlib.h>
+#include <common/string_list.h>
 
-#include "../../src/hooks/environment.h"
+#include "tests_shared.h"
+#include "common/file_utils.h"
+#include "path.h"
 
-void bailout();
+void test_apprun_file_read_lines() {
+    fprintf(stderr, "%s: ", __PRETTY_FUNCTION__);
 
-#define assert_true( value ) \
-    if ( !(value) ) \
-        bailout()
+    char** res = apprun_file_read_lines(TESTS_DIR"/apprun/.env");
+    assert_true(res != NULL);
 
-#define assert_false( value ) \
-    if ( (value) ) \
-        bailout()
+    assert_str_eq(res[0], "LD_LOADER=libapprun_hooks-amd64.so\n");
+    assert_str_eq(res[1], "PATH=$APPDIR/bin:$PATH\n");
 
-#define assert_eq(a, b) \
-    if ( (a) != (b) ) \
-        bailout()
+    apprun_string_list_free(res);
 
-void assert_str_eq(const char* str1, const char* str2);
+    fprintf(stderr, "Ok\n");
+}
 
-void assert_str_list_eq(char* const* str_list_1, char* const* str_list_2);
+void test_resolve_path() {
+    char* result = NULL;
+    fprintf(stderr, "Test resolve full path: ");
 
-void assert_command_succeed(int ret);
+    result = apprun_resolve_file_name("/bin/bash");
+    assert_str_eq("/bin/bash", result);
+    fprintf(stderr, "Ok\n");
+    free(result);
 
-void assert_command_fails(int ret);
+    fprintf(stderr, "Test resolve relative path: ");
+    result = apprun_resolve_file_name("bash");
+    assert_str_eq("/bin/bash", result);
 
-void set_private_env(char const* name, char const* value);
+    fprintf(stderr, "Ok\n");
+    free(result);
 
-void print_string_list(char** string_list);
+}
 
-void assert_env_item_eq(apprun_env_item_t* a, apprun_env_item_t* b);
+int main(int argc, char** argv) {
+    test_apprun_file_read_lines();
 
-#endif //APPDIR_RUMTIME_TESTS_SHARED_H
+    test_resolve_path();
+    return 0;
+}
+
+

@@ -29,10 +29,11 @@
 #include <stdlib.h>
 #include <libgen.h>
 
-#include "tests_shared.h"
+#include "../common/tests_shared.h"
 #include "../../src/hooks/exec_args.h"
 #include "../../src/hooks/interpreter.h"
-#include "../../src/hooks/path.h"
+
+#include "path.h"
 
 
 extern apprun_exec_args_t* apprun_adjusted_exec_args(const char* filename, char* const* argv, char* const* envp);
@@ -112,16 +113,6 @@ void test_override_exec_args(char* const* argv) {
     fprintf(stdout, "OK\n");
 }
 
-void test_apprun_is_path_child_of() {
-    fprintf(stdout, "Test path child of: ");
-    assert_false(apprun_is_path_child_of("/bin/echo", "/usr"));
-    assert_true(apprun_is_path_child_of("/bin/echo", "/bin"));
-
-    assert_false(apprun_is_path_child_of("/no_existent/echo", "/usr"));
-    assert_true(apprun_is_path_child_of("/no_existent/echo", "/no_existent"));
-    fprintf(stdout, "OK\n");
-}
-
 void test_apprun_is_exec_args_change_required() {
     fprintf(stdout, "Test is apprun args change required: ");
     assert_false(apprun_is_exec_args_change_required(NULL, NULL, "/usr/bin/echo"));
@@ -133,7 +124,6 @@ void test_apprun_is_exec_args_change_required() {
 }
 
 int main(int argc, char** argv) {
-    test_apprun_is_path_child_of();
     test_apprun_is_exec_args_change_required();
 
     test_not_override_if_missing_interpreter_env(argv);

@@ -24,13 +24,16 @@
  *
  **************************************************************************/
 
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "file_utils.h"
-#include "string_utils.h"
+#include "string_list.h"
+#include "path.h"
 
-char** read_lines(char* filename) {
+char** apprun_file_read_lines(char* filename) {
     char** result = NULL;
 
     FILE* fp = fopen(filename, "r");
@@ -39,16 +42,16 @@ char** read_lines(char* filename) {
         unsigned count = 0;
         result = calloc(result_capacity, sizeof(char*));
 
-        char* line = NULL;
+        char buffer[1024];
         size_t len = 0;
 
-        while (getline(&line, &len, fp) != -1) {
+        while (fgets(buffer, 1024, fp) != NULL) {
             if (count == result_capacity) {
                 result_capacity = result_capacity * 2;
-                result = extend_string_array(result, result_capacity);
+                result = apprun_extend_string_array(result, result_capacity);
             }
 
-            result[count] = line;
+            result[count] = strdup(buffer);
             count++;
         }
 
@@ -58,3 +61,7 @@ char** read_lines(char* filename) {
 
     return result;
 }
+
+
+
+

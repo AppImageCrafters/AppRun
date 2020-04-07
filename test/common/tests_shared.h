@@ -23,28 +23,38 @@
  * THE SOFTWARE.
  *
  **************************************************************************/
-#include <stdio.h>
-#include <stdlib.h>
 
-#include "../../src/hooks/path.h"
-#include "tests_shared.h"
+#ifndef APPDIR_RUMTIME_TESTS_SHARED_H
+#define APPDIR_RUMTIME_TESTS_SHARED_H
 
-int main(int argc, char** argv) {
-    char * result = NULL;
-    fprintf(stderr, "Test resolve full path: ");
+#include "hooks/environment.h"
 
-    result = apprun_resolve_file_name("/bin/bash");
-    assert_str_eq("/bin/bash", result);
-    fprintf(stderr, "Ok\n");
-    free(result);
+void bailout();
 
-    fprintf(stderr, "Test resolve relative path: ");
-    result = apprun_resolve_file_name("bash");
-    assert_str_eq("/bin/bash", result);
-    fprintf(stderr, "Ok\n");
-    free(result);
+#define assert_true( value ) \
+    if ( !(value) ) \
+        bailout()
 
-    return 0;
-}
+#define assert_false( value ) \
+    if ( (value) ) \
+        bailout()
 
+#define assert_eq(a, b) \
+    if ( (a) != (b) ) \
+        bailout()
 
+void assert_str_eq(const char* str1, const char* str2);
+
+void assert_str_list_eq(char* const* str_list_1, char* const* str_list_2);
+
+void assert_command_succeed(int ret);
+
+void assert_command_fails(int ret);
+
+void set_private_env(char const* name, char const* value);
+
+void print_string_list(char** string_list);
+
+void assert_env_item_eq(apprun_env_item_t* a, apprun_env_item_t* b);
+
+#endif //APPDIR_RUMTIME_TESTS_SHARED_H

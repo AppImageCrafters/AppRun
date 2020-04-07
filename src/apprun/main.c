@@ -61,7 +61,7 @@ char* get_env_file_path(const char* appdir) {
 
 void setup_runtime_environment(char* appdir) {
     char* env_file_path = get_env_file_path(appdir);
-    char** env = read_lines(env_file_path);
+    char** env = apprun_file_read_lines(env_file_path);
 
     for (char** itr = env; *itr != NULL; itr++)
         printf("%s\n", *itr);

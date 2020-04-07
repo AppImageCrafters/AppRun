@@ -24,23 +24,15 @@
  *
  **************************************************************************/
 
-#ifndef APPIMAGEEXECWRAPPER_STRING_UTILS_H
-#define APPIMAGEEXECWRAPPER_STRING_UTILS_H
+
+#ifndef APPRUN_PATH_H
+#define APPRUN_PATH_H
 
 #include <stdbool.h>
 
-char** extend_string_array(char** array, unsigned capacity);
+char* apprun_resolve_file_name(char const* file_name);
 
-char** adjust_string_array_size(char** array);
+bool apprun_is_path_child_of(const char* path, const char* base);
 
-int apprun_string_list_len(char* const* x);
 
-void apprun_string_list_free(char** string_list);
-
-char** apprun_string_list_alloc(unsigned int size);
-
-int apprun_array_len(char* const* arr);
-
-char** apprun_string_list_dup(char* const* envp);
-
-#endif //APPIMAGEEXECWRAPPER_STRING_UTILS_H
+#endif //APPRUN_PATH_H

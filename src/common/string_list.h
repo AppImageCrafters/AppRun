@@ -24,48 +24,23 @@
  *
  **************************************************************************/
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
+#ifndef APPRUN_STRING_LIST_H
+#define APPRUN_STRING_LIST_H
 
-#include "exec_args.h"
-#include "interpreter.h"
-#include "path.h"
-#include "environment.h"
-#include "string_list.h"
+#include <stdbool.h>
 
-void apprun_exec_args_free(apprun_exec_args_t* args) {
-    apprun_string_list_free(args->args);
-    apprun_string_list_free(args->envp);
-    free(args->file);
-    free(args);
-}
+char** apprun_extend_string_array(char** array, unsigned capacity);
 
+char** adjust_string_array_size(char** array);
 
-void apprun_print_exec_args(const char* filename, char* const* argv, char* const* envp) {
-    fprintf(stderr, "APPRUN_HOOK_DEBUG:\tfilename: \"%s\"\n", filename);
-    fprintf(stderr, "APPRUN_HOOK_DEBUG:\targs: [ ");
-    if (argv) {
-        for (char* const* itr = argv; *itr != 0; itr++) {
-            fprintf(stderr, "\"%s\"", *itr);
-            if (*(itr + 1) != NULL)
-                fprintf(stderr, ", ");
-        }
-    }
+int apprun_string_list_len(char* const* x);
 
-    fprintf(stderr, "]\n");
+void apprun_string_list_free(char** string_list);
 
-    fprintf(stderr, "APPRUN_HOOK_DEBUG:\tenvp: [ ");
-    if (envp) {
-        for (char* const* itr = envp; *itr != 0; itr++) {
-            fprintf(stderr, "\"%s\"", *itr);
-            if (*(itr + 1) != NULL)
-                fprintf(stderr, ", ");
-        }
-    }
+char** apprun_string_list_alloc(unsigned int size);
 
+int apprun_array_len(char* const* arr);
 
-    fprintf(stderr, "]\n");
-}
+char** apprun_string_list_dup(char* const* envp);
 
-
+#endif //APPRUN_STRING_LIST_H

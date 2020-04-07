@@ -28,10 +28,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "string_utils.h"
+#include "string_list.h"
 
-char** extend_string_array(char** array, unsigned new_capacity) {
-    char** new = calloc(new_capacity, sizeof(char*));
+char** apprun_extend_string_array(char** array, unsigned capacity) {
+    char** new = calloc(capacity, sizeof(char*));
 
     char** orginal_itr = array;
     char** new_itr = new;
