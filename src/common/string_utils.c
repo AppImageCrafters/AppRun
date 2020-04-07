@@ -24,20 +24,40 @@
  *
  **************************************************************************/
 
+
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
-#include "shared.h"
-#include "interpreter.h"
-#include "path.h"
-#include "environment.h"
+#include "string_utils.h"
 
-int apprun_array_len(char* const* arr) {
-    if (arr)
-        return apprun_string_list_len(arr) + 1; // allocate extra space for the 0 termination
-    else
-        return 0;
+char** extend_string_array(char** array, unsigned new_capacity) {
+    char** new = calloc(new_capacity, sizeof(char*));
+
+    char** orginal_itr = array;
+    char** new_itr = new;
+
+    for (; orginal_itr != NULL && *orginal_itr != NULL; orginal_itr++, new_itr++)
+        *new_itr = *orginal_itr;
+
+    free(array);
+    return new;
+}
+
+char** adjust_string_array_size(char** array) {
+    unsigned new_capacity = 1;
+    for (char** itr = array; itr != NULL && *itr != NULL; itr++)
+        new_capacity++;
+
+    char** new = calloc(new_capacity, sizeof(char*));
+
+    char** orginal_itr = array;
+    char** new_itr = new;
+
+    for (; orginal_itr != NULL && *orginal_itr != NULL; orginal_itr++, new_itr++)
+        *new_itr = *orginal_itr;
+
+    free(array);
+    return new;
 }
 
 int apprun_string_list_len(char* const* x) {
@@ -62,63 +82,12 @@ char** apprun_string_list_alloc(unsigned int size) {
     return ret;
 }
 
-bool apprun_is_path_child_of(const char* path, const char* base) {
-    char* real_base_path = realpath(base, NULL);
-    char* real_path = realpath(path, NULL);
-
-    bool result;
-
-    if (real_base_path != NULL && real_path != NULL) {
-        unsigned int len = strlen(real_base_path);
-        result = strncmp(real_base_path, real_path, len) == 0;
-    } else {
-        unsigned int len = strlen(base);
-        result = strncmp(base, path, len) == 0;
-    }
-
-    if (real_base_path)
-        free(real_base_path);
-
-    if (real_path)
-        free(real_path);
-
-    return result;
+int apprun_array_len(char* const* arr) {
+    if (arr)
+        return apprun_string_list_len(arr) + 1; // allocate extra space for the 0 termination
+    else
+        return 0;
 }
-
-void apprun_exec_args_free(apprun_exec_args_t* args) {
-    apprun_string_list_free(args->args);
-    apprun_string_list_free(args->envp);
-    free(args->file);
-    free(args);
-}
-
-
-void apprun_print_exec_args(const char* filename, char* const* argv, char* const* envp) {
-    fprintf(stderr, "APPRUN_HOOK_DEBUG:\tfilename: \"%s\"\n", filename);
-    fprintf(stderr, "APPRUN_HOOK_DEBUG:\targs: [ ");
-    if (argv) {
-        for (char* const* itr = argv; *itr != 0; itr++) {
-            fprintf(stderr, "\"%s\"", *itr);
-            if (*(itr + 1) != NULL)
-                fprintf(stderr, ", ");
-        }
-    }
-
-    fprintf(stderr, "]\n");
-
-    fprintf(stderr, "APPRUN_HOOK_DEBUG:\tenvp: [ ");
-    if (envp) {
-        for (char* const* itr = envp; *itr != 0; itr++) {
-            fprintf(stderr, "\"%s\"", *itr);
-            if (*(itr + 1) != NULL)
-                fprintf(stderr, ", ");
-        }
-    }
-
-
-    fprintf(stderr, "]\n");
-}
-
 
 char** apprun_string_list_dup(char* const* envp) {
     if (envp != NULL) {

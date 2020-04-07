@@ -62,7 +62,7 @@ void setup_wrapper() {
     if (wrapper_path == NULL) {
         fprintf(stdout, "Error: Missing LD_PRELOAD\n"
                         "\nUsage:\n"
-                        "\tLD_PRELOAD=<libappdir-exec-wrapper.so> ./wrapper_test\n");
+                        "\tLD_PRELOAD=<libappdir-apprun-wrapper.so> ./wrapper_test\n");
         exit(1);
     }
 

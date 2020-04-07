@@ -29,7 +29,9 @@
 #include <stdbool.h>
 
 #include "interpreter.h"
-#include "shared.h"
+#include "exec_args.h"
+#include "string_utils.h"
+#include "path.h"
 
 apprun_exec_args_t* apprun_duplicate_exec_args(const char* filename, char* const* argv) {
     apprun_exec_args_t* result;

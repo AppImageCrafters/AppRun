@@ -24,17 +24,55 @@
  *
  **************************************************************************/
 
-#ifndef APPDIR_RUMTIME_INTERPRETER_H
-#define APPDIR_RUMTIME_INTERPRETER_H
+#include <stdio.h>
+#include <stdlib.h>
+#include <libgen.h>
+#include <string.h>
 
-#include <stdbool.h>
-#include "exec_args.h"
+#include "../hooks/environment.h"
+#include "runtime_environmet.h"
+#include "../common/file_utils.h"
 
-apprun_exec_args_t*
-apprun_prepend_interpreter_to_exec(char const* interpreter, char const* filename, char* const* argv);
+#define die(...)                                    \
+    do {                                            \
+        fprintf(stderr, "APPRUN ERROR: " __VA_ARGS__);     \
+        exit(1);                                    \
+    } while(0);
 
-apprun_exec_args_t* apprun_duplicate_exec_args(const char* filename, char* const* argv);
+char* get_appdir() {
+    char* appdir = getenv("APPDIR");
 
-bool apprun_is_exec_args_change_required(const char* appdir, const char* interpreter, const char* filename);
+    if (appdir == NULL)
+        appdir = dirname(realpath("/proc/self/exe", NULL));
 
-#endif //APPDIR_RUMTIME_INTERPRETER_H
+    if (!appdir)
+        die("Could not resolve APPDIR\n");
+
+    return appdir;
+}
+
+char* get_env_file_path(const char* appdir) {
+    char* path = calloc(strlen(appdir) + strlen("/.env"), sizeof(char));
+    strcat(path, appdir);
+    strcat(path, "/.env");
+
+    return path;
+}
+
+void setup_runtime_environment(char* appdir) {
+    char* env_file_path = get_env_file_path(appdir);
+    char** env = read_lines(env_file_path);
+
+    for (char** itr = env; *itr != NULL; itr++)
+        printf("%s\n", *itr);
+}
+
+int main(int argc, char* argv[]) {
+    char* appdir = get_appdir();
+
+    setup_runtime_environment(appdir);
+
+    return 0;
+}
+
+
