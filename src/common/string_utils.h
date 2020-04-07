@@ -24,25 +24,10 @@
  *
  **************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-#include "runtime_environmet.h"
-#include "../common/file_utils.h"
+#ifndef APPIMAGEEXECWRAPPER_STRING_UTILS_H
+#define APPIMAGEEXECWRAPPER_STRING_UTILS_H
 
-char* get_env_file_path(const char* appdir) {
-    char* path = calloc(strlen(appdir) + strlen("/.env"), sizeof(char));
-    strcat(path, appdir);
-    strcat(path, "/.env");
+char* apprun_string_remove_trailing_new_line(const char* str);
 
-    return path;
-}
-
-void setup_runtime_environment(char* appdir) {
-    char* env_file_path = get_env_file_path(appdir);
-    char** env = apprun_file_read_lines(env_file_path);
-
-    for (char** itr = env; *itr != NULL; itr++)
-        printf("%s\n", *itr);
-}
+#endif //APPIMAGEEXECWRAPPER_STRING_UTILS_H

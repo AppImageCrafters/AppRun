@@ -51,21 +51,7 @@ char* get_appdir() {
     return appdir;
 }
 
-char* get_env_file_path(const char* appdir) {
-    char* path = calloc(strlen(appdir) + strlen("/.env"), sizeof(char));
-    strcat(path, appdir);
-    strcat(path, "/.env");
 
-    return path;
-}
-
-void setup_runtime_environment(char* appdir) {
-    char* env_file_path = get_env_file_path(appdir);
-    char** env = apprun_file_read_lines(env_file_path);
-
-    for (char** itr = env; *itr != NULL; itr++)
-        printf("%s\n", *itr);
-}
 
 int main(int argc, char* argv[]) {
     char* appdir = get_appdir();
