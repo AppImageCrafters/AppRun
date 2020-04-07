@@ -24,9 +24,11 @@
  *
  **************************************************************************/
 
-#ifndef APPIMAGEEXECWRAPPER_FILE_UTILS_H
-#define APPIMAGEEXECWRAPPER_FILE_UTILS_H
+#ifndef APPRUN_FILE_UTILS_H
+#define APPRUN_FILE_UTILS_H
 
-char** read_lines(char* filename);
+#include <stdbool.h>
 
-#endif //APPIMAGEEXECWRAPPER_FILE_UTILS_H
+char** apprun_file_read_lines(char* filename);
+
+#endif //APPRUN_FILE_UTILS_H

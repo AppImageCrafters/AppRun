@@ -36,7 +36,8 @@
 #include "path.h"
 #include "interpreter.h"
 #include "environment.h"
-#include "string_utils.h"
+#include "string_list.h"
+#include "file_utils.h"
 
 typedef ssize_t (* execve_func_t)(const char* filename, char* const argv[], char* const envp[]);
 

@@ -28,7 +28,7 @@
 
 #include "environment.h"
 #include "exec_args.h"
-#include "string_utils.h"
+#include "string_list.h"
 
 apprun_env_item_t* apprun_env_item_unchanged_export(apprun_env_item_t const* item) {
     if (item->original_value != NULL) {

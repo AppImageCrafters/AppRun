@@ -24,16 +24,11 @@
  *
  **************************************************************************/
 
-#include "string_utils.h"
-#include "environment.h"
-#include "interpreter.h"
-#include "exec_args.h"
-#include <stdio.h>
-#include "path.h"
-
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#include "path.h"
 
 char* apprun_lookup_next(char* itr, char lookup_char) {
     while (itr != NULL && *itr != '\0' && *itr != lookup_char)
@@ -72,6 +67,7 @@ char* apprun_resolve_file_name_from_path(const char* file_name, char* path_env) 
 
     return resolved;
 }
+
 
 char* apprun_resolve_file_name(char const* file_name) {
     char* resolved = NULL;

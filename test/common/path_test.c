@@ -24,13 +24,44 @@
  *
  **************************************************************************/
 
-#ifndef APPIMAGEEXECWRAPPER_PATH_H
-#define APPIMAGEEXECWRAPPER_PATH_H
+#include <stdlib.h>
+#include <stdio.h>
 
-#include <stdbool.h>
+#include "common/path.h"
+#include "tests_shared.h"
 
-char* apprun_resolve_file_name(char const* file_name);
+void test_apprun_resolve_file_name() {
+    char* result = NULL;
+    fprintf(stderr, "Test resolve full path: ");
 
-bool apprun_is_path_child_of(const char* path, const char* base);
+    result = apprun_resolve_file_name("/bin/bash");
+    assert_str_eq("/bin/bash", result);
+    fprintf(stderr, "Ok\n");
+    free(result);
 
-#endif //APPIMAGEEXECWRAPPER_PATH_H
+    fprintf(stderr, "Test resolve relative path: ");
+    result = apprun_resolve_file_name("bash");
+    assert_str_eq("/bin/bash", result);
+
+    fprintf(stderr, "Ok\n");
+    free(result);
+
+}
+
+void test_apprun_is_path_child_of() {
+    fprintf(stdout, "Test path child of: ");
+    assert_false(apprun_is_path_child_of("/bin/echo", "/usr"));
+    assert_true(apprun_is_path_child_of("/bin/echo", "/bin"));
+
+    assert_false(apprun_is_path_child_of("/no_existent/echo", "/usr"));
+    assert_true(apprun_is_path_child_of("/no_existent/echo", "/no_existent"));
+    fprintf(stdout, "OK\n");
+}
+
+int main(int argc, char** argv) {
+    test_apprun_is_path_child_of();
+    test_apprun_resolve_file_name();
+    return 0;
+}
+
+

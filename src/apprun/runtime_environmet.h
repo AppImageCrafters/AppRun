@@ -24,9 +24,9 @@
  *
  **************************************************************************/
 
-#ifndef APPIMAGEEXECWRAPPER_RUNTIME_ENVIRONMET_H
-#define APPIMAGEEXECWRAPPER_RUNTIME_ENVIRONMET_H
+#ifndef APPRUN_RUNTIME_ENVIRONMET_H
+#define APPRUN_RUNTIME_ENVIRONMET_H
 
 void setup_runtime_environment(char* appdir);
 
-#endif //APPIMAGEEXECWRAPPER_RUNTIME_ENVIRONMET_H
+#endif //APPRUN_RUNTIME_ENVIRONMET_H
