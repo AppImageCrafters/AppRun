@@ -33,7 +33,7 @@
 #include "string_utils.h"
 #include "string_list.h"
 
-char** apprun_file_read_lines(char* filename) {
+char** apprun_file_read_lines(const char* filename) {
     char** result = NULL;
 
     FILE* fp = fopen(filename, "r");

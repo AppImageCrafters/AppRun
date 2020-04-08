@@ -27,6 +27,6 @@
 #ifndef APPRUN_FILE_UTILS_H
 #define APPRUN_FILE_UTILS_H
 
-char** apprun_file_read_lines(char* filename);
+char** apprun_file_read_lines(const char* filename);
 
 #endif //APPRUN_FILE_UTILS_H
