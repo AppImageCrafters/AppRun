@@ -8,3 +8,8 @@ add_executable(path_test path_test.c tests_shared.c)
 target_link_libraries(path_test apprun_common_shared)
 
 add_test(NAME TEST_PATH COMMAND path_test)
+
+add_executable(shell_utils_test shell_utils_test.c tests_shared.c)
+target_link_libraries(shell_utils_test apprun_common_shared)
+
+add_test(NAME TEST_SHELL_UTILS COMMAND shell_utils_test)
