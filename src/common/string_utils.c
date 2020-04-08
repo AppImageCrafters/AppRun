@@ -41,3 +41,11 @@ char* apprun_string_remove_trailing_new_line(const char* str) {
     memcpy(new, str, line_len);
     return new;
 }
+
+char* apprun_string_extend(char* string, unsigned int new_size) {
+    char* new = calloc(new_size, sizeof(char*));
+    strcpy(new, string);
+    free(string);
+
+    return new;
+}

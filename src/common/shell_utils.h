@@ -24,12 +24,9 @@
  *
  **************************************************************************/
 
+#ifndef APPIMAGEEXECWRAPPER_SHELL_UTILS_H
+#define APPIMAGEEXECWRAPPER_SHELL_UTILS_H
 
-#ifndef APPIMAGEEXECWRAPPER_STRING_UTILS_H
-#define APPIMAGEEXECWRAPPER_STRING_UTILS_H
+char* apprun_shell_expand_variables(char const* str);
 
-char* apprun_string_remove_trailing_new_line(const char* str);
-
-char* apprun_string_extend(char* string, unsigned int new_size);
-
-#endif //APPIMAGEEXECWRAPPER_STRING_UTILS_H
+#endif //APPIMAGEEXECWRAPPER_SHELL_UTILS_H

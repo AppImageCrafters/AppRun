@@ -24,12 +24,29 @@
  *
  **************************************************************************/
 
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
-#ifndef APPIMAGEEXECWRAPPER_STRING_UTILS_H
-#define APPIMAGEEXECWRAPPER_STRING_UTILS_H
+#include "tests_shared.h"
 
-char* apprun_string_remove_trailing_new_line(const char* str);
+#include "common/shell_utils.h"
 
-char* apprun_string_extend(char* string, unsigned int new_size);
+void test_apprun_shell_expand_variables() {
+    printf("%s: ", __PRETTY_FUNCTION__);
 
-#endif //APPIMAGEEXECWRAPPER_STRING_UTILS_H
+    setenv("PATH", "/sbin", 1);
+    char* res = apprun_shell_expand_variables("$PATH:/bin:${PATH}");
+    assert_str_eq(res, "/sbin:/bin:/sbin");
+    free(res);
+
+    printf("OK\n");
+}
+
+int main(int argc, char** argv) {
+    test_apprun_shell_expand_variables();
+
+    return 0;
+}
+
+
