@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string_list.h>
 
 #include "runtime_environmet.h"
 #include "../common/file_utils.h"
@@ -53,22 +54,35 @@ void apprun_setenv_prefixed(const char* prefix, const char* name, const char* va
     free(prefixed_name);
 }
 
+void setup_appdir(const char* appdir) {
+    setenv("APPDIR", appdir, 1);
+    apprun_setenv_prefixed(APPRUN_ENV_ORIG_PREFIX, "APPDIR", "");
+    apprun_setenv_prefixed(APPRUN_ENV_STARTUP_PREFIX, "APPDIR", appdir);
+}
+
 void setup_runtime_environment(char* appdir) {
+    setup_appdir(appdir);
+
     char* env_file_path = get_env_file_path(appdir);
     char** env = apprun_file_read_lines(env_file_path);
 
     for (char** itr = env; *itr != NULL; itr++) {
-        char* name = apprun_env_str_entry_extract_name(*itr);
-        char* value = apprun_env_str_entry_extract_value(*itr);
-        char* expanded_value = apprun_shell_expand_variables(value);
+        // ignore lines starting with #
+        if (**itr != '#') {
+            char* name = apprun_env_str_entry_extract_name(*itr);
+            char* value = apprun_env_str_entry_extract_value(*itr);
+            char* expanded_value = apprun_shell_expand_variables(value);
 
-        char* original_value = getenv(name);
-        setenv(name, expanded_value, 1);
-        apprun_setenv_prefixed(APPRUN_ENV_ORIG_PREFIX, name, original_value);
-        apprun_setenv_prefixed(APPRUN_ENV_STARTUP_PREFIX, name, expanded_value);
+            char* original_value = getenv(name);
+            setenv(name, expanded_value, 1);
+            apprun_setenv_prefixed(APPRUN_ENV_ORIG_PREFIX, name, original_value);
+            apprun_setenv_prefixed(APPRUN_ENV_STARTUP_PREFIX, name, expanded_value);
 
-        free(expanded_value);
-        free(value);
-        free(name);
+            free(expanded_value);
+            free(value);
+            free(name);
+        }
     }
+
+    apprun_string_list_free(env);
 }

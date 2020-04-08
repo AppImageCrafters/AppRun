@@ -24,13 +24,24 @@
  *
  **************************************************************************/
 
-#ifndef APPRUN_FILE_UTILS_H
-#define APPRUN_FILE_UTILS_H
+#ifndef APPIMAGEEXECWRAPPER_RUNTIME_INTERPRETER_H
+#define APPIMAGEEXECWRAPPER_RUNTIME_INTERPRETER_H
 
-#include <stdio.h>
+#include <stdbool.h>
 
-char** apprun_read_lines(FILE* fp);
+long compare_glib_version_strings(char* a, char* b);
 
-char** apprun_file_read_lines(const char* filename);
+bool is_glibc_version_string_valid(char* buff);
 
-#endif //APPRUN_FILE_UTILS_H
+char* read_libc_version(char* path);
+
+char* parse_ld_trace_line_path(const char* line);
+
+char* resolve_system_glibc(char* const* dependencies);
+
+char* resolve_system_interpreter(char* const* dependencies);
+
+void setup_interpreter(const char* appdir);
+
+
+#endif //APPIMAGEEXECWRAPPER_RUNTIME_INTERPRETER_H

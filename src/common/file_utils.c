@@ -33,10 +33,8 @@
 #include "string_utils.h"
 #include "string_list.h"
 
-char** apprun_file_read_lines(const char* filename) {
+char** apprun_read_lines(FILE* fp) {
     char** result = NULL;
-
-    FILE* fp = fopen(filename, "r");
     if (fp) {
         unsigned result_capacity = 512;
         unsigned count = 0;
@@ -53,6 +51,19 @@ char** apprun_file_read_lines(const char* filename) {
             result[count] = str;
             count++;
         }
+
+        result = adjust_string_array_size(result);
+    }
+
+    return result;
+}
+
+char** apprun_file_read_lines(const char* filename) {
+    char** result = NULL;
+
+    FILE* fp = fopen(filename, "r");
+    if (fp) {
+        apprun_read_lines(fp);
 
         result = adjust_string_array_size(result);
         fclose(fp);
