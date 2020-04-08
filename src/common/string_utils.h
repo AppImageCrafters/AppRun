@@ -21,7 +21,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- *
+ *const
  **************************************************************************/
 
 
@@ -31,5 +31,7 @@
 char* apprun_string_remove_trailing_new_line(const char* str);
 
 char* apprun_string_extend(char* string, unsigned int new_size);
+
+const char* apprun_string_consume_until(const char* itr, const char delimiters[]);
 
 #endif //APPIMAGEEXECWRAPPER_STRING_UTILS_H

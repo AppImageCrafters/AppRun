@@ -29,7 +29,7 @@
 #include <stdio.h>
 
 #include "tests_shared.h"
-
+#include "common/string_list.h"
 #include "common/shell_utils.h"
 
 void test_apprun_shell_expand_variables() {
@@ -43,9 +43,77 @@ void test_apprun_shell_expand_variables() {
     printf("OK\n");
 }
 
+void test_apprun_shell_split_arguments_with_simple_string() {
+    printf("%s: ", __PRETTY_FUNCTION__);
+
+    setenv("PATH", "/sbin", 1);
+    char** res = apprun_shell_split_arguments("hello world");
+    char* expected[] = {
+            "hello",
+            "world",
+            NULL
+    };
+    assert_str_list_eq(res, expected);
+    apprun_string_list_free(res);
+
+    printf("OK\n");
+}
+
+void test_apprun_shell_split_arguments_with_single_quoted_string() {
+    printf("%s: ", __PRETTY_FUNCTION__);
+
+    setenv("PATH", "/sbin", 1);
+    char** res = apprun_shell_split_arguments("\'hello world\' 1");
+    char* expected[] = {"hello world", "1", NULL};
+    assert_str_list_eq(res, expected);
+    apprun_string_list_free(res);
+
+    printf("OK\n");
+}
+
+void test_apprun_shell_split_arguments_with_double_quoted_string() {
+    printf("%s: ", __PRETTY_FUNCTION__);
+
+    setenv("PATH", "/sbin", 1);
+    char** res = apprun_shell_split_arguments("\"hello world\" 2");
+    char* expected[] = {"hello world", "2", NULL};
+    assert_str_list_eq(res, expected);
+    apprun_string_list_free(res);
+
+    printf("OK\n");
+}
+
+void test_apprun_shell_split_arguments_with_escapeped_quotes_string() {
+    printf("%s: ", __PRETTY_FUNCTION__);
+
+    setenv("PATH", "/sbin", 1);
+    char** res = apprun_shell_split_arguments("\\\"hello world\\\'");
+    char* expected[] = {"\"hello", "world\'", NULL};
+    assert_str_list_eq(res, expected);
+    apprun_string_list_free(res);
+
+    printf("OK\n");
+}
+
+void test_apprun_shell_split_arguments_with_complex_string() {
+    printf("%s: ", __PRETTY_FUNCTION__);
+
+    setenv("PATH", "/sbin", 1);
+    char** res = apprun_shell_split_arguments("\"\\\'world\'\" \\\\ \\\"hello world\\\' \'\"hello\"\'");
+    char* expected[] = {"\\\'world\'", "\\", "\"hello", "world\'", "\"hello\"", NULL};
+    assert_str_list_eq(res, expected);
+    apprun_string_list_free(res);
+
+    printf("OK\n");
+}
+
 int main(int argc, char** argv) {
     test_apprun_shell_expand_variables();
-
+    test_apprun_shell_split_arguments_with_simple_string();
+    test_apprun_shell_split_arguments_with_single_quoted_string();
+    test_apprun_shell_split_arguments_with_double_quoted_string();
+    test_apprun_shell_split_arguments_with_escapeped_quotes_string();
+    test_apprun_shell_split_arguments_with_complex_string();
     return 0;
 }
 

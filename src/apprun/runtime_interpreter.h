@@ -41,7 +41,7 @@ char* resolve_system_glibc(char* const* dependencies);
 
 char* resolve_system_interpreter(char* const* dependencies);
 
-void setup_interpreter(const char* appdir);
+void setup_interpreter();
 
 
 #endif //APPIMAGEEXECWRAPPER_RUNTIME_INTERPRETER_H

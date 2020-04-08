@@ -29,4 +29,6 @@
 
 char* apprun_shell_expand_variables(char const* str);
 
+char** apprun_shell_split_arguments(char const* str);
+
 #endif //APPIMAGEEXECWRAPPER_SHELL_UTILS_H

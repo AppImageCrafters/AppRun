@@ -26,6 +26,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "string_utils.h"
 
@@ -48,4 +49,11 @@ char* apprun_string_extend(char* string, unsigned int new_size) {
     free(string);
 
     return new;
+}
+
+const char* apprun_string_consume_until(const char* itr, const char* delimiters) {
+    while (itr != NULL && *itr != '\0' && strchr(delimiters, *itr) == NULL)
+        itr++;
+
+    return itr;
 }

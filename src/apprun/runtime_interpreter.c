@@ -31,8 +31,11 @@
 
 #include <file_utils.h>
 #include <string_list.h>
+#include <libgen.h>
+#include <shell_utils.h>
 
 #include "runtime_interpreter.h"
+#include "../hooks/environment.h"
 
 
 char* parse_ld_trace_line_path(const char* line) {
@@ -64,7 +67,7 @@ char** query_exec_path_dependencies() {
     char** result = NULL;
     FILE* fp = popen(exec_path, "r");
     if (fp) {
-        char** lines = apprun_read_lines(fp);
+        result = apprun_read_lines(fp);
         pclose(fp);
     }
 
@@ -156,13 +159,40 @@ long compare_glib_version_strings(char* a, char* b) {
     return 0;
 }
 
-void setup_interpreter(const char* appdir) {
+void configure_embed_libc() {
+    char* ld_library_path = apprun_shell_expand_variables("$APPDIR_LIBRARY_PATH:$LIBC_LIBRARY_PATH:"
+                                                          "$"APPRUN_ENV_ORIG_PREFIX"LD_LIBRARY_PATH");
+    setenv("LD_LIBRARY_PATH", ld_library_path, 1);
+    setenv(APPRUN_ENV_STARTUP_PREFIX"LD_LIBRARY_PATH", ld_library_path, 1);
+    free(ld_library_path);
+}
+
+void configure_system_libc(const char* system_interpreter_path) {
+    setenv("INTERPRETER", system_interpreter_path, 1);
+    setenv(APPRUN_ENV_STARTUP_PREFIX"INTERPRETER", system_interpreter_path, 1);
+
+    char* ld_library_path = apprun_shell_expand_variables("$APPDIR_LIBRARY_PATH:"
+                                                          "$"APPRUN_ENV_ORIG_PREFIX"LD_LIBRARY_PATH");
+    setenv("LD_LIBRARY_PATH", ld_library_path, 1);
+    setenv(APPRUN_ENV_STARTUP_PREFIX"LD_LIBRARY_PATH", ld_library_path, 1);
+    free(ld_library_path);
+}
+
+void setup_interpreter() {
     char** dependencies = query_exec_path_dependencies();
 
-    char* libc_path = resolve_system_glibc(dependencies);
+    char* system_libc_path = resolve_system_glibc(dependencies);
     char* system_interpreter_path = resolve_system_interpreter(dependencies);
 
-    char* libc_version = read_libc_version(libc_path);
+    apprun_string_list_free(dependencies);
+
+    char* system_libc_version = read_libc_version(system_libc_path);
+    char* appdir_libc_version = getenv("LIBC_VERSION");
+
+    if (compare_glib_version_strings(system_libc_version, appdir_libc_version) > 0)
+        configure_system_libc(system_interpreter_path);
+    else
+        configure_embed_libc();
 }
 
 char* resolve_system_interpreter(char* const* dependencies) {

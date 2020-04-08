@@ -24,6 +24,7 @@
  *
  **************************************************************************/
 
+#include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -108,14 +109,16 @@ char* apprun_shell_expand_variables(char const* str) {
             char* var_value = getenv(var_name);
             free(var_name);
 
-            unsigned section_len = strlen(var_value);
-            if (buffer_len + section_len > buffer_capacity) {
-                buffer_capacity = buffer_capacity + section_len;
-                buffer = apprun_string_extend(buffer, buffer_capacity);
-            }
+            if (var_value) {
+                unsigned section_len = strlen(var_value);
+                if (buffer_len + section_len > buffer_capacity) {
+                    buffer_capacity = buffer_capacity + section_len;
+                    buffer = apprun_string_extend(buffer, buffer_capacity);
+                }
 
-            strcat(buffer, var_value);
-            buffer_len += section_len;
+                strcat(buffer, var_value);
+                buffer_len += section_len;
+            }
         }
 
         itr = var_end;
@@ -123,4 +126,66 @@ char* apprun_shell_expand_variables(char const* str) {
 
 
     return buffer;
+}
+
+const char* apprun_string_consume_spaces(const char* itr) {
+    while (itr != NULL && *itr != '\0' && isspace(*itr))
+        itr++;
+
+    return itr;
+}
+
+char** apprun_shell_split_arguments(char const* str) {
+    static const char single_quote_delimiter[] = "\'";
+    static const char double_quote_delimiter[] = "\"";
+    static const char regular_quote_delimiter[] = "\"\'\\ \t";
+
+    char** splits = calloc(strlen(str) + 1, sizeof(char*));
+    unsigned split_count = 0;
+
+    const char* begin = str;
+    const char* end = str;
+    char buffer[1024] = {0x0};
+
+    while (*begin != '\0') {
+        begin = apprun_string_consume_spaces(begin);
+        bool consumed = false;
+
+        if (*begin == '\\') {
+            strncat(buffer, begin + 1, 1);
+            end = begin + 2;
+            consumed = true;
+        }
+
+        if (!consumed && *begin == '\'') {
+            end = apprun_string_consume_until(begin + 1, single_quote_delimiter);
+            strncat(buffer, begin + 1, end - begin - 1);
+            consumed = true;
+
+            end++;
+        }
+
+        if (!consumed && *begin == '\"') {
+            end = apprun_string_consume_until(begin + 1, double_quote_delimiter);
+            strncat(buffer, begin + 1, end - begin - 1);
+            consumed = true;
+
+            end++;
+        }
+
+        if (!consumed && *begin != '\'' && *begin != '\"' && *begin != '\\') {
+            end = apprun_string_consume_until(begin, regular_quote_delimiter);
+            strncat(buffer, begin, end - begin);
+        }
+
+        if (isspace(*end) || *end == 0) {
+            splits[split_count] = strdup(buffer);
+            memset(buffer, 0, 1024);
+            split_count++;
+        }
+
+        begin = end;
+    }
+
+    return splits;
 }
