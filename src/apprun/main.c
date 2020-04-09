@@ -28,10 +28,13 @@
 #include <stdlib.h>
 #include <libgen.h>
 #include <string.h>
+#include <unistd.h>
+#include <string_list.h>
+#include <shell_utils.h>
+#include <file_utils.h>
 
-#include "../hooks/environment.h"
 #include "runtime_environmet.h"
-#include "../common/file_utils.h"
+#include "runtime_interpreter.h"
 
 #define die(...)                                    \
     do {                                            \
@@ -45,20 +48,44 @@ char* get_appdir() {
     if (appdir == NULL)
         appdir = dirname(realpath("/proc/self/exe", NULL));
 
-    if (!appdir)
-        die("Could not resolve APPDIR\n");
-
     return appdir;
 }
 
 
+void launch() {
+    char* interpreter = getenv("INTERPRETER");
+    char* exec_path = getenv("EXEC_PATH");
+    char* exec_args = getenv("EXEC_ARGS");
+
+    char** user_args = apprun_shell_split_arguments(exec_args);
+    unsigned user_args_len = apprun_string_list_len(user_args);
+    char** argv = calloc(2 + user_args_len + 1, sizeof(char*));
+    for (int i = 0; i < user_args_len; i++)
+        argv[i + 2] = user_args[i];
+
+    argv[0] = interpreter;
+    argv[1] = exec_path;
+
+    char* debug = apprun_string_list_join(argv, " ");
+    if (DEBUG)
+        fprintf(stderr, "APPRUN_DEBUG: %s\n", debug);
+
+    execv(interpreter, argv);
+}
+
 
 int main(int argc, char* argv[]) {
     char* appdir = get_appdir();
+    if (!appdir)
+        die("Could not resolve APPDIR\n");
 
-    setup_runtime_environment(appdir);
 
-    return 0;
+    setup_appdir(appdir);
+    setup_runtime_environment(appdir, argv);
+    setup_interpreter();
+
+    launch();
+
+    return 1;
 }
-
 

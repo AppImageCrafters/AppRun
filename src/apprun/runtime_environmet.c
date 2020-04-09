@@ -34,14 +34,6 @@
 #include "../common/shell_utils.h"
 #include "../hooks/environment.h"
 
-char* get_env_file_path(const char* appdir) {
-    char* path = calloc(strlen(appdir) + strlen("/.env") + 1, sizeof(char));
-    strcat(path, appdir);
-    strcat(path, "/.env");
-
-    return path;
-}
-
 void apprun_setenv_prefixed(const char* prefix, const char* name, const char* value) {
     unsigned prefixed_name_size = strlen(prefix) + strlen(name) + 1;
     char* prefixed_name = calloc(prefixed_name_size, sizeof(char));
@@ -60,18 +52,16 @@ void setup_appdir(const char* appdir) {
     apprun_setenv_prefixed(APPRUN_ENV_STARTUP_PREFIX, "APPDIR", appdir);
 }
 
-void setup_runtime_environment(char* appdir) {
-    setup_appdir(appdir);
-
+void setup_runtime_environment(char* appdir, char** argv) {
     char* env_file_path = get_env_file_path(appdir);
-    char** env = apprun_file_read_lines(env_file_path);
+    char** envp = apprun_file_read_lines(env_file_path);
 
-    for (char** itr = env; *itr != NULL; itr++) {
+    for (char* const* itr = envp; *itr != NULL; itr++) {
         // ignore lines starting with #
         if (**itr != '#') {
             char* name = apprun_env_str_entry_extract_name(*itr);
             char* value = apprun_env_str_entry_extract_value(*itr);
-            char* expanded_value = apprun_shell_expand_variables(value);
+            char* expanded_value = apprun_shell_expand_variables(value, argv);
 
             char* original_value = getenv(name);
             setenv(name, expanded_value, 1);
@@ -84,5 +74,13 @@ void setup_runtime_environment(char* appdir) {
         }
     }
 
-    apprun_string_list_free(env);
+    apprun_string_list_free(envp);
+}
+
+char* get_env_file_path(const char* appdir) {
+    char* path = calloc(strlen(appdir) + strlen("/.env") + 1, sizeof(char));
+    strcat(path, appdir);
+    strcat(path, "/.env");
+
+    return path;
 }

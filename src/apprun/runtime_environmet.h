@@ -27,6 +27,10 @@
 #ifndef APPRUN_RUNTIME_ENVIRONMET_H
 #define APPRUN_RUNTIME_ENVIRONMET_H
 
-void setup_runtime_environment(char* appdir);
+char* get_env_file_path(const char* appdir);
+
+void setup_appdir(const char* appdir);
+
+void setup_runtime_environment(char* appdir, char** argv);
 
 #endif //APPRUN_RUNTIME_ENVIRONMET_H
