@@ -43,4 +43,6 @@ int apprun_array_len(char* const* arr);
 
 char** apprun_string_list_dup(char* const* envp);
 
+char* apprun_string_list_join(char* const* string_list, char* split);
+
 #endif //APPRUN_STRING_LIST_H

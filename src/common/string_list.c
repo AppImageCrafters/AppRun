@@ -61,6 +61,9 @@ char** adjust_string_array_size(char** array) {
 }
 
 int apprun_string_list_len(char* const* x) {
+    if (x == NULL)
+        return 0;
+
     int len = 0;
     while (x[len] != 0)
         len++;
@@ -102,4 +105,22 @@ char** apprun_string_list_dup(char* const* envp) {
         return copy;
     } else
         return NULL;
+}
+
+char* apprun_string_list_join(char* const* string_list, char* split) {
+    unsigned string_list_len = apprun_string_list_len(string_list);
+    unsigned split_len = strlen(split);
+    unsigned str_size = 0;
+
+    for (int i = 0; i < string_list_len; i++)
+        str_size += strlen(string_list[i]) + split_len;
+
+    char* str = calloc(str_size, sizeof(char));
+    for (int i = 0; i < string_list_len; i++) {
+        strcat(str, string_list[i]);
+        if (i + 1 < string_list_len)
+            strcat(str, split);
+    }
+
+    return str;
 }
