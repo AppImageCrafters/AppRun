@@ -40,10 +40,16 @@ void apprun_setenv_prefixed(const char* prefix, const char* name, const char* va
     strcat(prefixed_name, prefix);
     strcat(prefixed_name, name);
 
-    if (value)
-        setenv(prefixed_name, value, 1);
+    apprun_update_env(prefixed_name, value);
 
     free(prefixed_name);
+}
+
+void apprun_update_env(const char* name, const char* value) {
+    if (value)
+        setenv(name, value, 1);
+    else
+        unsetenv(name);
 }
 
 void setup_appdir(const char* appdir) {
@@ -58,13 +64,13 @@ void setup_runtime_environment(char* appdir, char** argv) {
 
     for (char* const* itr = envp; itr != NULL && *itr != NULL; itr++) {
         // ignore lines starting with #
-        if (**itr != '#') {
+        if (**itr != '#' && strlen(*itr) > 0) {
             char* name = apprun_env_str_entry_extract_name(*itr);
             char* value = apprun_env_str_entry_extract_value(*itr);
             char* expanded_value = apprun_shell_expand_variables(value, argv);
 
             char* original_value = getenv(name);
-            setenv(name, expanded_value, 1);
+            apprun_update_env(name, expanded_value);
             apprun_setenv_prefixed(APPRUN_ENV_ORIG_PREFIX, name, original_value);
             apprun_setenv_prefixed(APPRUN_ENV_STARTUP_PREFIX, name, expanded_value);
 
