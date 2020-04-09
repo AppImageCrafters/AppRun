@@ -36,8 +36,19 @@ void test_apprun_shell_expand_variables() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
     setenv("PATH", "/sbin", 1);
-    char* res = apprun_shell_expand_variables("$PATH:/bin:${PATH}");
+    char* res = apprun_shell_expand_variables("$PATH:/bin:${PATH}", NULL);
     assert_str_eq(res, "/sbin:/bin:/sbin");
+    free(res);
+
+    printf("OK\n");
+}
+
+void test_apprun_shell_expand_command_line_arguments() {
+    printf("%s: ", __PRETTY_FUNCTION__);
+    char* argv[] = {"HELLO", "WORLD", NULL};
+    setenv("PATH", "/sbin", 1);
+    char* res = apprun_shell_expand_variables("$1:$@", argv);
+    assert_str_eq(res, "WORLD:HELLO WORLD");
     free(res);
 
     printf("OK\n");
@@ -109,6 +120,7 @@ void test_apprun_shell_split_arguments_with_complex_string() {
 
 int main(int argc, char** argv) {
     test_apprun_shell_expand_variables();
+    test_apprun_shell_expand_command_line_arguments();
     test_apprun_shell_split_arguments_with_simple_string();
     test_apprun_shell_split_arguments_with_single_quoted_string();
     test_apprun_shell_split_arguments_with_double_quoted_string();

@@ -31,9 +31,10 @@
 
 #include "shell_utils.h"
 #include "string_utils.h"
+#include "string_list.h"
 
 bool apprun_shell_is_var_char(char c) {
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '@' || c == '_';
 }
 
 const char* apprun_shell_find_var_start(const char* itr) {
@@ -77,7 +78,29 @@ char* apprun_shell_extract_var_name(const char* itr) {
     return strndup(being, itr - being);
 }
 
-char* apprun_shell_expand_variables(char const* str) {
+
+char* apprun_shell_resolve_var_value(char* const* argv, const char* var_name) {
+    unsigned argc = 0;
+    if (argv)
+        argc = apprun_string_list_len(argv);
+
+    char* var_value = NULL;
+    if (isdigit(*var_name)) {
+        long idx = atol(var_name);
+        if (idx <= argc)
+            var_value = strdup(argv[idx]);
+    }
+
+    if (strcmp(var_name, "@") == 0)
+        var_value = apprun_string_list_join(argv, " ");
+
+    if (isalpha(*var_name))
+        var_value = strdup(getenv(var_name));
+
+    return var_value;
+}
+
+char* apprun_shell_expand_variables(char const* str, char** argv) {
     if (str == NULL)
         return NULL;
 
@@ -106,7 +129,8 @@ char* apprun_shell_expand_variables(char const* str) {
 
         if (var_start != var_end) {
             char* var_name = apprun_shell_extract_var_name(var_start);
-            char* var_value = getenv(var_name);
+            char* var_value = apprun_shell_resolve_var_value(argv, var_name);
+
             free(var_name);
 
             if (var_value) {
@@ -118,6 +142,7 @@ char* apprun_shell_expand_variables(char const* str) {
 
                 strcat(buffer, var_value);
                 buffer_len += section_len;
+                free(var_value);
             }
         }
 
