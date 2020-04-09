@@ -28,6 +28,7 @@
 #include <stdlib.h>
 
 #include "apprun/runtime_interpreter.h"
+#include "common/string_list.h"
 #include "../common/tests_shared.h"
 
 void test_parse_ld_trace_lib_path() {
@@ -97,7 +98,7 @@ void test_validate_glibc_version_string() {
 
 void test_read_libc_version() {
     printf("%s: ", __PRETTY_FUNCTION__);
-    char* version = read_libc_version("/lib/i386-linux-gnu/libc.so.6");
+    char* version = read_libc_version("/lib/x86_64-linux-gnu/libc-2.27.so");
     assert_str_eq(version, "2.27");
     free(version);
 
@@ -124,13 +125,25 @@ void test_compare_glib_version_strings() {
     printf("Ok\n");
 }
 
+void test_query_exec_path_dependencies() {
+    printf("%s: ", __PRETTY_FUNCTION__);
+
+    setenv("EXEC_PATH", "/home/alexis/Workspace/appimage-builder/examples/wget/AppDir/usr/bin/wget", 1);
+    char** dependencies = query_exec_path_dependencies();
+    apprun_string_list_free(dependencies);
+    unsetenv("EXEC_PATH");
+
+    printf("Ok\n");
+}
+
 int main(int argc, char** argv, char* envp[]) {
     test_parse_ld_trace_lib_path();
     test_resolve_system_glibc();
     test_resolve_system_interpreter();
     test_validate_glibc_version_string();
     test_compare_glib_version_strings();
-    // test_read_libc_version();
+    // test_query_exec_path_dependencies(); // only works on ubuntu amd64
+    // test_read_libc_version(); // only works on ubuntu amd64
 
     return 0;
 }

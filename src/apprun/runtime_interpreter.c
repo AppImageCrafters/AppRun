@@ -60,17 +60,26 @@ char* parse_ld_trace_line_path(const char* line) {
 }
 
 char** query_exec_path_dependencies() {
-    setenv("LD_TRACE_LOADED_OBJECTS", "1", 1);
+    char* ld_preload_value = getenv("LD_PRELOAD");
+    unsetenv("LD_PRELOAD");
+
+#define COMMAND_PREFIX "export  LD_TRACE_LOADED_OBJECTS=1 &&"
     const char* exec_path = getenv("EXEC_PATH");
+    char* command = calloc(strlen(COMMAND_PREFIX) + strlen(exec_path) + 1, sizeof(char));
+    strcat(command, COMMAND_PREFIX);
+    strcat(command, exec_path);
 
     char** result = NULL;
-    FILE* fp = popen(exec_path, "r");
+    FILE* fp = popen(command, "r");
     if (fp) {
         result = apprun_read_lines(fp);
         pclose(fp);
     }
 
-    unsetenv("LD_TRACE_LOADED_OBJECTS");
+    if (ld_preload_value != NULL)
+        setenv("LD_PRELOAD", ld_preload_value, 1);
+
+    free(command);
     return result;
 }
 
@@ -179,6 +188,7 @@ void configure_system_libc(const char* system_interpreter_path) {
 
 void setup_interpreter() {
     char** dependencies = query_exec_path_dependencies();
+    char* dependencies_str = apprun_string_list_join(dependencies, "\n\t");
 
     char* system_libc_path = resolve_system_glibc(dependencies);
     char* system_interpreter_path = resolve_system_interpreter(dependencies);
@@ -188,6 +198,9 @@ void setup_interpreter() {
     char* system_libc_version = read_libc_version(system_libc_path);
     char* appdir_libc_version = getenv("LIBC_VERSION");
 
+#ifdef DEBUG
+    fprintf(stderr, "APPRUN_DEBUG: system glibc(%s), appdir glibc(%s) \n", system_libc_version, appdir_libc_version);
+#endif
     if (compare_glib_version_strings(system_libc_version, appdir_libc_version) > 0)
         configure_system_libc(system_interpreter_path);
     else

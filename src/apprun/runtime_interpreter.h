@@ -43,5 +43,6 @@ char* resolve_system_interpreter(char* const* dependencies);
 
 void setup_interpreter();
 
+char** query_exec_path_dependencies();
 
 #endif //APPIMAGEEXECWRAPPER_RUNTIME_INTERPRETER_H
