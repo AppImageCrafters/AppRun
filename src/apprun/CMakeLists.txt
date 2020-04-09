@@ -3,6 +3,7 @@ target_link_libraries(apprun_objects -static apprun_common_static)
 
 add_executable(apprun main.c $<TARGET_OBJECTS:apprun_objects>)
 target_link_libraries(apprun -static apprun_common_static)
+target_compile_definitions(apprun PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
 
 install(
     TARGETS apprun

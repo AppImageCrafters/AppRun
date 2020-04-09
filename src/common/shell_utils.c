@@ -91,11 +91,15 @@ char* apprun_shell_resolve_var_value(char* const* argv, const char* var_name) {
             var_value = strdup(argv[idx]);
     }
 
-    if (strcmp(var_name, "@") == 0)
-        var_value = apprun_string_list_join(argv, " ");
+    if (strcmp(var_name, "@") == 0 && argv != NULL)
+        var_value = apprun_string_list_join(argv + 1, " ");
 
-    if (isalpha(*var_name))
-        var_value = strdup(getenv(var_name));
+    if (isalpha(*var_name)) {
+        var_value = getenv(var_name);
+        if (var_value)
+            var_value = strdup(var_value);
+    }
+
 
     return var_value;
 }
@@ -161,6 +165,9 @@ const char* apprun_string_consume_spaces(const char* itr) {
 }
 
 char** apprun_shell_split_arguments(char const* str) {
+    if (str == NULL)
+        return NULL;
+
     static const char single_quote_delimiter[] = "\'";
     static const char double_quote_delimiter[] = "\"";
     static const char regular_quote_delimiter[] = "\"\'\\ \t";

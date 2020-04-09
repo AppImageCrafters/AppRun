@@ -161,7 +161,7 @@ long compare_glib_version_strings(char* a, char* b) {
 
 void configure_embed_libc() {
     char* ld_library_path = apprun_shell_expand_variables("$APPDIR_LIBRARY_PATH:$LIBC_LIBRARY_PATH:"
-                                                          "$"APPRUN_ENV_ORIG_PREFIX"LD_LIBRARY_PATH");
+                                                          "$"APPRUN_ENV_ORIG_PREFIX"LD_LIBRARY_PATH", NULL);
     setenv("LD_LIBRARY_PATH", ld_library_path, 1);
     setenv(APPRUN_ENV_STARTUP_PREFIX"LD_LIBRARY_PATH", ld_library_path, 1);
     free(ld_library_path);
@@ -172,7 +172,7 @@ void configure_system_libc(const char* system_interpreter_path) {
     setenv(APPRUN_ENV_STARTUP_PREFIX"INTERPRETER", system_interpreter_path, 1);
 
     char* ld_library_path = apprun_shell_expand_variables("$APPDIR_LIBRARY_PATH:"
-                                                          "$"APPRUN_ENV_ORIG_PREFIX"LD_LIBRARY_PATH");
+                                                          "$"APPRUN_ENV_ORIG_PREFIX"LD_LIBRARY_PATH", NULL);
     setenv("LD_LIBRARY_PATH", ld_library_path, 1);
     setenv(APPRUN_ENV_STARTUP_PREFIX"LD_LIBRARY_PATH", ld_library_path, 1);
     free(ld_library_path);
