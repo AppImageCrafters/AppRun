@@ -56,7 +56,7 @@ void setup_runtime_environment(char* appdir, char** argv) {
     char* env_file_path = get_env_file_path(appdir);
     char** envp = apprun_file_read_lines(env_file_path);
 
-    for (char* const* itr = envp; *itr != NULL; itr++) {
+    for (char* const* itr = envp; itr != NULL && *itr != NULL; itr++) {
         // ignore lines starting with #
         if (**itr != '#') {
             char* name = apprun_env_str_entry_extract_name(*itr);
