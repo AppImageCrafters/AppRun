@@ -168,7 +168,7 @@ char* apprun_env_str_entry_extract_name(char* string) {
 }
 
 char* apprun_env_str_entry_extract_value(char* string) {
-    if (string) {
+    if (string && strlen(string) > 0) {
         unsigned string_len = strlen(string);
         char* sep = strstr(string, "=");
         unsigned value_len = string_len - (sep - string);
