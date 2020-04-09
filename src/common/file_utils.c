@@ -63,8 +63,7 @@ char** apprun_file_read_lines(const char* filename) {
 
     FILE* fp = fopen(filename, "r");
     if (fp) {
-        apprun_read_lines(fp);
-
+        result = apprun_read_lines(fp);
         result = adjust_string_array_size(result);
         fclose(fp);
     }

@@ -29,10 +29,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <file_utils.h>
-#include <string_list.h>
-#include <libgen.h>
-#include <shell_utils.h>
+#include "../common/file_utils.h"
+#include "../common/string_list.h"
+#include "../common/shell_utils.h"
 
 #include "runtime_interpreter.h"
 #include "../hooks/environment.h"

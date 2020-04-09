@@ -28,11 +28,13 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "../common/path.h"
+#include "../common/string_list.h"
+
 #include "exec_args.h"
 #include "interpreter.h"
-#include "path.h"
 #include "environment.h"
-#include "string_list.h"
+
 
 void apprun_exec_args_free(apprun_exec_args_t* args) {
     apprun_string_list_free(args->args);
