@@ -47,8 +47,8 @@ void test_apprun_shell_expand_command_line_arguments() {
     printf("%s: ", __PRETTY_FUNCTION__);
     char* argv[] = {"HELLO", "WORLD", NULL};
     setenv("PATH", "/sbin", 1);
-    char* res = apprun_shell_expand_variables("$1:$@", argv);
-    assert_str_eq(res, "WORLD:HELLO WORLD");
+    char* res = apprun_shell_expand_variables("$0:$@", argv);
+    assert_str_eq(res, "HELLO:WORLD");
     free(res);
 
     printf("OK\n");
