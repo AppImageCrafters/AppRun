@@ -67,9 +67,10 @@ void launch() {
     argv[1] = exec_path;
 
     char* debug = apprun_string_list_join(argv, " ");
-    if (DEBUG)
-        fprintf(stderr, "APPRUN_DEBUG: %s\n", debug);
 
+#ifdef DEBUG
+    fprintf(stderr, "APPRUN_DEBUG: %s\n", debug);
+#endif
     execv(interpreter, argv);
 }
 
