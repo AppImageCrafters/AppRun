@@ -27,11 +27,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <string_list.h>
 
 #include "runtime_environmet.h"
 #include "../common/file_utils.h"
 #include "../common/shell_utils.h"
+#include "../common/string_list.h"
 #include "../hooks/environment.h"
 
 void apprun_setenv_prefixed(const char* prefix, const char* name, const char* value) {
