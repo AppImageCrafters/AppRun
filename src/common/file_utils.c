@@ -71,6 +71,31 @@ char** apprun_file_read_lines(const char* filename) {
     return result;
 }
 
+void apprun_file_copy(const char* source_path, const char* target_path) {
+    FILE* source, * target;
+
+    source = fopen(source_path, "r");
+    target = fopen(target_path, "w");
+
+    if (source == NULL) {
+        fprintf(stderr, "Unable to read file: %s\n", source_path);
+        exit(1);
+    }
+
+    if (target == NULL) {
+        fprintf(stderr, "Unable to write file: %s\n", target_path);
+        exit(1);
+    }
+
+
+    int ch;
+    while ((ch = fgetc(source)) != EOF)
+        fputc(ch, target);
+
+    fclose(source);
+    fclose(target);
+}
+
 
 
 

@@ -30,9 +30,6 @@
 #include <stdbool.h>
 #include "exec_args.h"
 
-apprun_exec_args_t*
-apprun_prepend_interpreter_to_exec(char const* interpreter, char const* filename, char* const* argv);
-
 apprun_exec_args_t* apprun_duplicate_exec_args(const char* filename, char* const* argv);
 
 bool apprun_is_exec_args_change_required(const char* appdir, const char* interpreter, const char* filename);

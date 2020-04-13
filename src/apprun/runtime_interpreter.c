@@ -28,6 +28,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include "../common/file_utils.h"
 #include "../common/string_list.h"
@@ -57,30 +58,6 @@ char* parse_ld_trace_line_path(const char* line) {
 
 
     return path;
-}
-
-char** query_exec_path_dependencies() {
-    char* ld_preload_value = getenv("LD_PRELOAD");
-    unsetenv("LD_PRELOAD");
-
-#define COMMAND_PREFIX "export  LD_TRACE_LOADED_OBJECTS=1 &&"
-    const char* exec_path = getenv("EXEC_PATH");
-    char* command = calloc(strlen(COMMAND_PREFIX) + strlen(exec_path) + 1, sizeof(char));
-    strcat(command, COMMAND_PREFIX);
-    strcat(command, exec_path);
-
-    char** result = NULL;
-    FILE* fp = popen(command, "r");
-    if (fp) {
-        result = apprun_read_lines(fp);
-        pclose(fp);
-    }
-
-    if (ld_preload_value != NULL)
-        setenv("LD_PRELOAD", ld_preload_value, 1);
-
-    free(command);
-    return result;
 }
 
 char* resolve_system_glibc(char* const* dependencies) {
@@ -175,10 +152,7 @@ void configure_embed_libc() {
     free(ld_library_path);
 }
 
-void configure_system_libc(const char* system_interpreter_path) {
-    setenv("INTERPRETER", system_interpreter_path, 1);
-    setenv(APPRUN_ENV_STARTUP_PREFIX"INTERPRETER", system_interpreter_path, 1);
-
+void configure_system_libc() {
     char* ld_library_path = apprun_shell_expand_variables("$APPDIR_LIBRARY_PATH:"
                                                           "$"APPRUN_ENV_ORIG_PREFIX"LD_LIBRARY_PATH", NULL);
     setenv("LD_LIBRARY_PATH", ld_library_path, 1);
@@ -186,37 +160,58 @@ void configure_system_libc(const char* system_interpreter_path) {
     free(ld_library_path);
 }
 
+char* require_environment(char* name) {
+    char* value = getenv(name);
+    if (value == NULL) {
+        fprintf(stderr, "APPRUN ERROR: Missing %s environment", name);
+        exit(1);
+    }
+
+    return value;
+}
+
+char* resolve_libc_from_interpreter_path(char* path) {
+#define LIBC_SO_NAME "libc.so.6"
+
+    char* r_path = realpath(path, NULL);
+    char* split = strrchr(r_path, '/');
+    split++; // include the '/'
+
+    char* libc_path = calloc(strlen(LIBC_SO_NAME) + split - r_path + 1, sizeof(char));
+    strncat(libc_path, r_path, split - r_path);
+    strcat(libc_path, LIBC_SO_NAME);
+
+    free(r_path);
+    return libc_path;
+}
+
 void setup_interpreter() {
-    char** dependencies = query_exec_path_dependencies();
-    char* dependencies_str = apprun_string_list_join(dependencies, "\n\t");
+    char* system_interpreter_path = require_environment("SYSTEM_INTERP");
+    char* system_libc_path = resolve_libc_from_interpreter_path(system_interpreter_path);
 
-    char* system_libc_path = resolve_system_glibc(dependencies);
-    char* system_interpreter_path = resolve_system_interpreter(dependencies);
-
-    apprun_string_list_free(dependencies);
 
     char* system_libc_version = read_libc_version(system_libc_path);
-    char* appdir_libc_version = getenv("LIBC_VERSION");
+    char* appdir_libc_version = require_environment("APPDIR_LIBC_VERSION");
 
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_DEBUG: system glibc(%s), appdir glibc(%s) \n", system_libc_version, appdir_libc_version);
 #endif
-    if (compare_glib_version_strings(system_libc_version, appdir_libc_version) > 0)
-        configure_system_libc(system_interpreter_path);
-    else
+    if (compare_glib_version_strings(system_libc_version, appdir_libc_version) > 0) {
+        configure_system_libc();
+        deploy_interpreter(system_interpreter_path);
+    } else {
         configure_embed_libc();
-}
-
-char* resolve_system_interpreter(char* const* dependencies) {
-    char* interpreter_path = NULL;
-
-    for (char* const* itr = dependencies; itr != NULL && *itr != NULL; itr++) {
-        const char* line = *itr;
-
-        if (strstr(line, "ld-linux") != NULL)
-            interpreter_path = parse_ld_trace_line_path(line);
+        char* appdir_interpreter_path = require_environment("APPDIR_INTERP");
+        deploy_interpreter(appdir_interpreter_path);
     }
 
-
-    return interpreter_path;
+    free(system_libc_path);
 }
+
+void deploy_interpreter(char* path) {
+    char* target_path = require_environment("RUNTIME_INTERP");
+    apprun_file_copy(path, target_path);
+
+    chmod(target_path, S_IRWXU | S_IRWXG);
+}
+

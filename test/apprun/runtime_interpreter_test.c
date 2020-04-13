@@ -49,45 +49,6 @@ void test_parse_ld_trace_lib_path() {
     printf("Ok\n");
 }
 
-
-void test_resolve_system_glibc() {
-    printf("%s: ", __PRETTY_FUNCTION__);
-
-    char* dependencies[] = {
-            "\tlinux-gate.so.1 (0xf7f34000)",
-            "\tlibpcre.so.3 => /lib/i386-linux-gnu/libpcre.so.3 (0xf7e8f000)",
-            "\tlibidn.so.11 => not found",
-            "\tlibc.so.6 => /lib/i386-linux-gnu/libc.so.6 (0xf7c8b000)",
-            "\t/lib/ld-linux.so.2 (0xf7f36000)",
-            NULL
-    };
-
-    char* libc_path = resolve_system_glibc(dependencies);
-    assert_str_eq(libc_path, "/lib/i386-linux-gnu/libc.so.6");
-    free(libc_path);
-
-    printf("Ok\n");
-}
-
-void test_resolve_system_interpreter() {
-    printf("%s: ", __PRETTY_FUNCTION__);
-
-    char* dependencies[] = {
-            "\tlinux-gate.so.1 (0xf7f34000)",
-            "\tlibpcre.so.3 => /lib/i386-linux-gnu/libpcre.so.3 (0xf7e8f000)",
-            "\tlibidn.so.11 => not found",
-            "\tlibc.so.6 => /lib/i386-linux-gnu/libc.so.6 (0xf7c8b000)",
-            "\t/lib/ld-linux.so.2 (0xf7f36000)",
-            NULL
-    };
-
-    char* interpreter_path = resolve_system_interpreter(dependencies);
-    assert_str_eq(interpreter_path, "/lib/ld-linux.so.2");
-    free(interpreter_path);
-
-    printf("Ok\n");
-}
-
 void test_validate_glibc_version_string() {
     printf("%s: ", __PRETTY_FUNCTION__);
     assert_true(is_glibc_version_string_valid("2.3.4"));
@@ -125,25 +86,21 @@ void test_compare_glib_version_strings() {
     printf("Ok\n");
 }
 
-void test_query_exec_path_dependencies() {
+void test_resolve_libc_from_interp_path() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
-    setenv("EXEC_PATH", "/home/alexis/Workspace/appimage-builder/examples/wget/AppDir/usr/bin/wget", 1);
-    char** dependencies = query_exec_path_dependencies();
-    apprun_string_list_free(dependencies);
-    unsetenv("EXEC_PATH");
-
+    char* path = resolve_libc_from_interpreter_path("/lib/ld-linux.so.2");
+    assert_str_eq(path, "/lib/i386-linux-gnu/libc.so.6");
+    free(path);
     printf("Ok\n");
 }
 
 int main(int argc, char** argv, char* envp[]) {
     test_parse_ld_trace_lib_path();
-    test_resolve_system_glibc();
-    test_resolve_system_interpreter();
     test_validate_glibc_version_string();
     test_compare_glib_version_strings();
-    // test_query_exec_path_dependencies(); // only works on ubuntu amd64
     // test_read_libc_version(); // only works on ubuntu amd64
+    // test_resolve_libc_from_interp_path(); // only works on ubuntu amd64
 
     return 0;
 }
