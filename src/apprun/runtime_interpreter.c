@@ -30,12 +30,12 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include "../common/file_utils.h"
-#include "../common/string_list.h"
-#include "../common/shell_utils.h"
+#include "common/file_utils.h"
+#include "common/string_list.h"
+#include "common/shell_utils.h"
+#include "hooks/environment.h"
 
 #include "runtime_interpreter.h"
-#include "../hooks/environment.h"
 
 
 char* parse_ld_trace_line_path(const char* line) {
@@ -58,20 +58,6 @@ char* parse_ld_trace_line_path(const char* line) {
 
 
     return path;
-}
-
-char* resolve_system_glibc(char* const* dependencies) {
-    char* libc_path = NULL;
-
-    for (char* const* itr = dependencies; itr != NULL && *itr != NULL; itr++) {
-        const char* line = *itr;
-
-        if (strstr(line, "libc.so.6") != NULL)
-            libc_path = parse_ld_trace_line_path(line);
-    }
-
-
-    return libc_path;
 }
 
 bool is_glibc_version_string_valid(char* buff) {

@@ -28,7 +28,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "../common/string_list.h"
+#include "common/string_list.h"
 
 #include "exec_args.h"
 

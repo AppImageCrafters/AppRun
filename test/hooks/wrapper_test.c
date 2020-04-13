@@ -28,8 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../src/hooks/environment.h"
-#include "../../src/hooks/interpreter.h"
+#include "hooks/interpreter.h"
 #include "../common/tests_shared.h"
 
 void test_restore_original_env_for_external_binaries() {

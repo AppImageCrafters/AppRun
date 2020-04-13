@@ -29,9 +29,8 @@
 #include <libgen.h>
 #include <string.h>
 #include <unistd.h>
-#include <string_list.h>
-#include <shell_utils.h>
-#include <file_utils.h>
+#include "common/string_list.h"
+#include "common/shell_utils.h"
 
 #include "runtime_environmet.h"
 #include "runtime_interpreter.h"

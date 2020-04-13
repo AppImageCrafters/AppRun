@@ -1,7 +1,13 @@
-set(COMMON_SOURCES file_utils.c string_list.c path.c string_utils.c shell_utils.c)
+add_library(
+    common_objects OBJECT
+    file_utils.c
+    string_list.c
+    path.c
+    string_utils.c
+    shell_utils.c
+)
 
-add_library(apprun_common_static STATIC ${COMMON_SOURCES})
-target_include_directories(apprun_common_static PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_definitions(common_objects PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
+target_include_directories(common_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
 
-add_library(apprun_common_shared SHARED ${COMMON_SOURCES})
-target_include_directories(apprun_common_shared PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+set_property(TARGET common_objects PROPERTY POSITION_INDEPENDENT_CODE ON)
