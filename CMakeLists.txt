@@ -2,7 +2,10 @@ project(AppImageExecWrapper)
 cmake_minimum_required(VERSION 2.8)
 set(CMAKE_C_STANDARD 99)
 
-set(CMAKE_C_FLAGS "-fprofile-arcs -ftest-coverage")
+if (${CMAKE_BUILD_TYPE} MATCHES Debug)
+    message(STATUS "Coverage and profile build flags enabled")
+    set(CMAKE_C_FLAGS "-fprofile-arcs -ftest-coverage")
+endif (${CMAKE_BUILD_TYPE} MATCHES Debug)
 
 add_subdirectory(src)
 

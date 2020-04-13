@@ -30,7 +30,7 @@
 
 #include "tests_shared.h"
 #include "common/file_utils.h"
-#include "path.h"
+#include "common/path.h"
 
 void test_apprun_file_read_lines() {
     printf("%s: ", __PRETTY_FUNCTION__);

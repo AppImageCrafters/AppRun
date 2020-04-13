@@ -26,10 +26,10 @@
 
 #include <stdio.h>
 
-#include "../../src/hooks/environment.h"
+#include "hooks/environment.h"
+#include "common/string_list.h"
+
 #include "../common/tests_shared.h"
-#include "../../src/hooks/exec_args.h"
-#include "string_list.h"
 
 
 void test_env_item_is_changed() {

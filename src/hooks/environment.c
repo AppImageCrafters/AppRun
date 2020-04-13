@@ -26,8 +26,8 @@
 #include <malloc.h>
 #include <string.h>
 
+#include "common/string_list.h"
 #include "environment.h"
-#include "../common/string_list.h"
 
 apprun_env_item_t* apprun_env_item_unchanged_export(apprun_env_item_t const* item) {
     if (item->original_value != NULL) {

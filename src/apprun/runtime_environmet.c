@@ -29,10 +29,10 @@
 #include <string.h>
 
 #include "runtime_environmet.h"
-#include "../common/file_utils.h"
-#include "../common/shell_utils.h"
-#include "../common/string_list.h"
-#include "../hooks/environment.h"
+#include "common/file_utils.h"
+#include "common/shell_utils.h"
+#include "common/string_list.h"
+#include "hooks/environment.h"
 
 void apprun_setenv_prefixed(const char* prefix, const char* name, const char* value) {
     unsigned prefixed_name_size = strlen(prefix) + strlen(name) + 1;

@@ -28,7 +28,6 @@
 #include <stdlib.h>
 
 #include "apprun/runtime_interpreter.h"
-#include "common/string_list.h"
 #include "../common/tests_shared.h"
 
 void test_parse_ld_trace_lib_path() {
