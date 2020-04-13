@@ -37,12 +37,10 @@ char* read_libc_version(char* path);
 
 char* parse_ld_trace_line_path(const char* line);
 
-char* resolve_system_glibc(char* const* dependencies);
-
-char* resolve_system_interpreter(char* const* dependencies);
-
 void setup_interpreter();
 
-char** query_exec_path_dependencies();
+void deploy_interpreter();
+
+char* resolve_libc_from_interpreter_path(char* path);
 
 #endif //APPIMAGEEXECWRAPPER_RUNTIME_INTERPRETER_H

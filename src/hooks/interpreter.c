@@ -53,38 +53,6 @@ apprun_exec_args_t* apprun_duplicate_exec_args(const char* filename, char* const
     return result;
 }
 
-apprun_exec_args_t*
-apprun_prepend_interpreter_to_exec(char const* interpreter, char const* filename, char* const* argv) {
-    apprun_exec_args_t* result;
-    result = calloc(1, sizeof(apprun_exec_args_t));
-
-    // use original filename
-    result->file = strdup(interpreter);
-
-
-    int array_size = apprun_array_len(argv);
-
-    // alloc array size with an extra space for the interpreter
-    result->args = calloc(array_size + 1, sizeof(char*));
-
-
-    char** target_itr = result->args;
-
-    // place interpreter as first argument, not mandatory but it's a linux convention
-    *target_itr = strdup(interpreter);
-    target_itr++;
-
-    // place the target filename as second argument
-    *target_itr = strdup(filename);
-    target_itr++;
-
-    // copy arguments
-    for (char* const* src_itr = argv + 1; *src_itr != NULL; src_itr++, target_itr++)
-        *target_itr = strdup(*src_itr);
-
-    return result;
-}
-
 bool apprun_is_exec_args_change_required(const char* appdir, const char* interpreter, const char* filename) {
     if (interpreter == NULL || appdir == NULL)
         return false;

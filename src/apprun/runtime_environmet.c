@@ -58,7 +58,7 @@ void setup_appdir(const char* appdir) {
     apprun_setenv_prefixed(APPRUN_ENV_STARTUP_PREFIX, "APPDIR", appdir);
 }
 
-void setup_runtime_environment(char* appdir, char** argv) {
+char** setup_runtime_environment(char* appdir, char** argv) {
     char* env_file_path = get_env_file_path(appdir);
     char** envp = apprun_file_read_lines(env_file_path);
 

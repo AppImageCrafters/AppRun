@@ -70,40 +70,11 @@ void setup_wrapper() {
     setenv("APPRUN_STARTUP_LD_PRELOAD", wrapper_path, 0);
 }
 
-void test_prefix_interpreter_for_internal_binaries() {
-    fprintf(stdout, "Test prefix INTERPRETER when calling internal binaries: ");
-
-    set_private_env(APPRUN_ENV_APPDIR, "/bin");
-    set_private_env(APPRUN_ENV_INTERPRETER, "/bin/echo");
-
-    // grep fails if nothing matches
-    assert_command_succeed(system("/bin/false >> /dev/null"));
-    assert_command_succeed(system("/bin/false >> /dev/null"));
-
-    fprintf(stdout, "Ok\n");
-}
-
-void test_dont_prefix_interpreter_for_external_binaries() {
-    fprintf(stdout, "Test dont prefix INTERPRETER when calling external binaries: ");
-
-    set_private_env(APPRUN_ENV_APPDIR, "/usr/bin");
-    set_private_env(APPRUN_ENV_INTERPRETER, "/bin/echo");
-
-    // grep fails if nothing matches
-    assert_command_fails(system("/bin/false"));
-    assert_command_fails(system("/bin/false"));
-
-    fprintf(stdout, "Ok\n");
-}
-
 int main(int argc, char** argv) {
     setup_wrapper();
 
     test_restore_original_env_for_external_binaries();
     test_keep_appdir_env_for_internal_binaries();
-
-    test_prefix_interpreter_for_internal_binaries();
-    test_dont_prefix_interpreter_for_external_binaries();
 
     return 0;
 }
