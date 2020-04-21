@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include "common/file_utils.h"
 #include "common/string_list.h"
@@ -196,7 +197,8 @@ void setup_interpreter() {
 
 void deploy_interpreter(char* path) {
     char* target_path = require_environment("RUNTIME_INTERP");
-    apprun_file_copy(path, target_path);
+    if (access(target_path, F_OK) == -1)
+        apprun_file_copy(path, target_path);
 
     chmod(target_path, S_IRWXU | S_IRWXG);
 }
