@@ -32,7 +32,7 @@
 #include "common/string_list.h"
 #include "common/shell_utils.h"
 
-#include "runtime_environmet.h"
+#include "runtime_environment.h"
 #include "runtime_interpreter.h"
 
 #define die(...)                                    \

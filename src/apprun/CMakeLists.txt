@@ -3,8 +3,8 @@ add_library(
 
     ../hooks/environment.c
     ../hooks/exec_args.c
-    runtime_environmet.c
-    runtime_environmet.h
+    runtime_environment.c
+    runtime_environment.h
     runtime_interpreter.c
 )
 

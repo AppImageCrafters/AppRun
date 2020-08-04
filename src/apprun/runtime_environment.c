@@ -28,7 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "runtime_environmet.h"
+#include "runtime_environment.h"
 #include "common/file_utils.h"
 #include "common/shell_utils.h"
 #include "common/string_list.h"

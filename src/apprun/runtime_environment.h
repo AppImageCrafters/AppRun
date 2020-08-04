@@ -24,8 +24,8 @@
  *
  **************************************************************************/
 
-#ifndef APPRUN_RUNTIME_ENVIRONMET_H
-#define APPRUN_RUNTIME_ENVIRONMET_H
+#ifndef APPRUN_RUNTIME_ENVIRONMENT_H
+#define APPRUN_RUNTIME_ENVIRONMENT_H
 
 void apprun_update_env(const char* name, const char* value);
 
@@ -35,4 +35,4 @@ void setup_appdir(const char* appdir);
 
 char** setup_runtime_environment(char* appdir, char** argv);
 
-#endif //APPRUN_RUNTIME_ENVIRONMET_H
+#endif //APPRUN_RUNTIME_ENVIRONMENT_H
