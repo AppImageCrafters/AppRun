@@ -24,50 +24,17 @@
  *
  **************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <common/string_list.h>
 
-#include "tests_shared.h"
-#include "common/file_utils.h"
-#include "common/path.h"
+#ifndef APPIMAGEEXECWRAPPER_REDIRECT_PATH_H
+#define APPIMAGEEXECWRAPPER_REDIRECT_PATH_H
 
-void test_apprun_file_read_lines() {
-    printf("%s: ", __PRETTY_FUNCTION__);
+char*
+apprun_redirect_path(const char* pathname);
 
-    char** res = apprun_file_read_lines(TESTS_DIR"/apprun/.env");
-    assert_true(res != NULL);
+char*
+apprun_redirect_path_target(const char* pathname);
 
-    assert_str_eq(res[0], "LD_LOADER=libapprun_hooks-amd64.so");
-    assert_str_eq(res[1], "PATH=$APPDIR/bin:$PATH");
+char*
+apprun_redirect_path_if_absolute(const char* pathname);
 
-    apprun_string_list_free(res);
-
-    printf("Ok\n");
-}
-
-void test_resolve_path() {
-    char* result = NULL;
-    printf("Test resolve full path: ");
-
-    result = apprun_resolve_bin_path("/bin/bash");
-    assert_str_eq("/bin/bash", result);
-    printf("Ok\n");
-    free(result);
-
-    printf("Test resolve relative path: ");
-    result = apprun_resolve_bin_path("bash");
-    assert_str_eq("/bin/bash", result);
-
-    printf("Ok\n");
-    free(result);
-}
-
-int main(int argc, char** argv) {
-    test_apprun_file_read_lines();
-
-    test_resolve_path();
-    return 0;
-}
-
-
+#endif //APPIMAGEEXECWRAPPER_REDIRECT_PATH_H

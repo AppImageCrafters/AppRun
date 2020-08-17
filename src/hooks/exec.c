@@ -65,7 +65,7 @@ typedef int (* execvpe_func_t)(const char* file, char* const argv[], char* const
 static execvpe_func_t real_execvpe = NULL;
 
 apprun_exec_args_t* apprun_adjusted_exec_args(const char* filename, char* const* argv, char* const* envp) {
-    char* resolved_file_name = apprun_resolve_file_name(filename);
+    char* resolved_file_name = apprun_resolve_bin_path(filename);
 
 
     char* appdir = getenv("APPDIR");

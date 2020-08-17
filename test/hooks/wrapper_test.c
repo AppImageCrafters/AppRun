@@ -69,11 +69,29 @@ void setup_wrapper() {
     setenv("APPRUN_STARTUP_LD_PRELOAD", wrapper_path, 0);
 }
 
+void test_path_mappings() {
+    fprintf(stdout, "Test path mappings: ");
+
+    set_private_env(APPRUN_ENV_APPDIR, "/");
+    set_private_env("APPRUN_PATH_MAPPINGS", "/missing_path:bin/;/missing_path:usr/;");
+
+    assert_command_succeed(system("/usr/bin/stat /missing_path/bash >> /dev/null"));
+    assert_command_succeed(system("/usr/bin/stat /missing_path/bin/stat >> /dev/null"));
+    assert_command_succeed(system("/usr/bin/stat /missing_path/bin >> /dev/null"));
+    assert_command_fails(system("/usr/bin/stat /no-bash >> /dev/null"));
+
+    unsetenv("APPRUN_PATH_MAPPINGS");
+    assert_command_fails(system("/usr/bin/stat /missing_path/bash >> /dev/null"));
+
+    fprintf(stdout, "Ok\n");
+}
+
 int main(int argc, char** argv) {
     setup_wrapper();
 
     test_restore_original_env_for_external_binaries();
     test_keep_appdir_env_for_internal_binaries();
+    test_path_mappings();
 
     return 0;
 }
