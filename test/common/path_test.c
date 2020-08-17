@@ -34,13 +34,13 @@ void test_apprun_resolve_file_name() {
     char* result = NULL;
     fprintf(stderr, "Test resolve full path: ");
 
-    result = apprun_resolve_file_name("/bin/bash");
+    result = apprun_resolve_bin_path("/bin/bash");
     assert_str_eq("/bin/bash", result);
     fprintf(stderr, "Ok\n");
     free(result);
 
     fprintf(stderr, "Test resolve relative path: ");
-    result = apprun_resolve_file_name("bash");
+    result = apprun_resolve_bin_path("bash");
     assert_str_eq("/bin/bash", result);
 
     fprintf(stderr, "Ok\n");

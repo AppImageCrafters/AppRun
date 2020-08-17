@@ -37,9 +37,9 @@ char* apprun_lookup_next(char* itr, char lookup_char) {
     return itr;
 }
 
-char* apprun_resolve_file_name_from_path(const char* file_name, char* path_env) {
+char* apprun_resolve_bin_path_from_env(const char* bin, char* path_env) {
     char* resolved = NULL;
-    unsigned file_name_len = strlen(file_name);
+    unsigned file_name_len = strlen(bin);
 
     char* itr_begin = path_env;
     while (itr_begin != NULL && *itr_begin != '\0' && resolved == NULL) {
@@ -50,7 +50,7 @@ char* apprun_resolve_file_name_from_path(const char* file_name, char* path_env) 
             resolved = calloc(itr_end - itr_begin + file_name_len + 2, sizeof(char));
             strncpy(resolved, itr_begin, itr_end - itr_begin);
             resolved[itr_end - itr_begin] = '/';
-            strcat(resolved, file_name);
+            strcat(resolved, bin);
 
             if (access(resolved, F_OK) != 0) {
                 free(resolved);
@@ -69,19 +69,19 @@ char* apprun_resolve_file_name_from_path(const char* file_name, char* path_env) 
 }
 
 
-char* apprun_resolve_file_name(char const* file_name) {
+char* apprun_resolve_bin_path(char const* bin) {
     char* resolved = NULL;
 
-    resolved = realpath(file_name, NULL);
+    resolved = realpath(bin, NULL);
     if (resolved != NULL)
         return resolved;
 
     char* path_env = getenv("PATH");
     if (path_env != NULL)
-        resolved = apprun_resolve_file_name_from_path(file_name, path_env);
+        resolved = apprun_resolve_bin_path_from_env(bin, path_env);
 
     if (resolved == NULL)
-        resolved = strdup(file_name);
+        resolved = strdup(bin);
 
     return resolved;
 }

@@ -30,7 +30,7 @@
 
 #include <stdbool.h>
 
-char* apprun_resolve_file_name(char const* file_name);
+char* apprun_resolve_bin_path(char const* bin);
 
 bool apprun_is_path_child_of(const char* path, const char* base);
 
