@@ -92,7 +92,7 @@ char* redirect_path_full(const char* pathname, int check_parent, int only_if_abs
     if (only_if_absolute && pathname[0] != '/') {
         return strdup(pathname);
     }
-    
+
     char* appdir_env = getenv(APPRUN_ENV_APPDIR);
     if (appdir_env == NULL) {
         return strdup(pathname);
@@ -110,9 +110,14 @@ char* redirect_path_full(const char* pathname, int check_parent, int only_if_abs
         if (strncmp(pathname, apprun_path_mappings[i]->path, strlen(apprun_path_mappings[i]->path)) == 0) {
             memset(redirected_pathname, 0, PATH_MAX);
 
-            strcat(redirected_pathname, appdir_env);
-            strcat(redirected_pathname, apprun_path_mappings[i]->mapping);
-            strcat(redirected_pathname, pathname + strlen(apprun_path_mappings[i]->path));
+            const char* mapping = apprun_path_mappings[i]->mapping;
+            const char* path_postfix = pathname + strlen(apprun_path_mappings[i]->path);
+
+            strcat(redirected_pathname, mapping);
+            if (mapping[strlen(mapping) - 1] != '/' && path_postfix[0] != '/')
+                strcat(redirected_pathname, "/");
+
+            strcat(redirected_pathname, path_postfix);
 
             ret = _access(redirected_pathname, F_OK);
             if (ret == 0 || errno == ENOTDIR) { // ENOTDIR is OK because it exists at least
