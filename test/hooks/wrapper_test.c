@@ -72,8 +72,7 @@ void setup_wrapper() {
 void test_path_mappings() {
     fprintf(stdout, "Test path mappings: ");
 
-    set_private_env(APPRUN_ENV_APPDIR, "/");
-    set_private_env("APPRUN_PATH_MAPPINGS", "/missing_path:bin/;/missing_path:usr/;");
+    set_private_env("APPRUN_PATH_MAPPINGS", "/missing_path:/bin/;/missing_path:/usr/;");
 
     assert_command_succeed(system("/usr/bin/stat /missing_path/bash >> /dev/null"));
     assert_command_succeed(system("/usr/bin/stat /missing_path/bin/stat >> /dev/null"));
