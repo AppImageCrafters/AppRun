@@ -2,6 +2,15 @@
 
 This project holds a collection of tools to properly setup and control the AppImage (and AppDir) execution environment.
 
+## Why libc and ld-linux must be defined at runtime ?
+
+`libc` is a dependency of the major part of the binaries found in a GNU/Linux distribution. But in each release new 
+features are added therefore a binary linked against a new version of glibc will not work on system with an old version.
+Luckily a library linked against an older version will work on a system with a newer version of it. Therefore we need
+a statically linked entrypoint to setup the right (newer) ld-so and libc to use.
+
+This allows to safely mix system libraries with the bundle libraries without fearing a crash.
+
 ## AppRun
 
 AppRun is an entry point for AppImages which carry a copy of glib and ld-linux. It allows to chose at runtime the
@@ -28,7 +37,7 @@ it will not be possible to separate effectively the libaries.
 - APPDIR_LIBC_VERSION: bundled libc version. Just te save us parsing the bundled libc file on every execution
 - LD_PRELOAD: libapprun_hooks binary name.
 
-**NOTE**: Other variables added to `.env` file will be set as part of the runtime environment.  
+**NOTE**: Other variables added to `.env` file will be set as part of the runtime environment.
 
 Example `.env` file:
 ```
