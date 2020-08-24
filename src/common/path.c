@@ -80,7 +80,7 @@ char* apprun_resolve_bin_path(char const* bin) {
         return resolved;
 
     char* path_env = getenv("PATH");
-    if (path_env != NULL)
+    if (path_env != NULL && bin[0] != '/')
         resolved = apprun_resolve_bin_path_from_env(bin, path_env);
 
     if (resolved == NULL)
