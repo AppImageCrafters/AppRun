@@ -33,6 +33,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdio.h>
+#include <common/hooks_debug.h>
 
 #include "redirect_path.h"
 #include "exec_args.h"
@@ -85,16 +87,30 @@ char* redirect_path_full(const char* pathname, int check_parent, int only_if_abs
     char* redirected_pathname;
     int ret;
 
+#ifdef DEBUG
+    char* hooked_symbol = find_hooked_symbol();
+    fprintf(stderr, "APPRUN_HOOK_DEBUG: %s \"%s\"", hooked_symbol, pathname);
+#endif
+
     if (pathname == NULL) {
+#ifdef DEBUG
+        fprintf(stderr, "\n");
+#endif
         return NULL;
     }
 
     if (only_if_absolute && pathname[0] != '/') {
+#ifdef DEBUG
+        fprintf(stderr, "\n");
+#endif
         return strdup(pathname);
     }
 
     char* appdir_env = getenv(APPRUN_ENV_APPDIR);
     if (appdir_env == NULL) {
+#ifdef DEBUG
+        fprintf(stderr, "\n");
+#endif
         return strdup(pathname);
     }
 
@@ -121,12 +137,18 @@ char* redirect_path_full(const char* pathname, int check_parent, int only_if_abs
 
             ret = _access(redirected_pathname, F_OK);
             if (ret == 0 || errno == ENOTDIR) { // ENOTDIR is OK because it exists at least
+#ifdef DEBUG
+                fprintf(stderr, " --> \"%s\"\n", redirected_pathname);
+#endif
                 return redirected_pathname;
             }
         }
     }
 
     free(redirected_pathname);
+#ifdef DEBUG
+    fprintf(stderr, "\n");
+#endif
     return strdup(pathname);
 }
 
