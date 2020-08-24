@@ -72,6 +72,9 @@ char* apprun_resolve_bin_path_from_env(const char* bin, char* path_env) {
 char* apprun_resolve_bin_path(char const* bin) {
     char* resolved = NULL;
 
+    if (bin == NULL)
+        return NULL;
+
     resolved = realpath(bin, NULL);
     if (resolved != NULL)
         return resolved;
