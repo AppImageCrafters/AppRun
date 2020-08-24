@@ -99,10 +99,6 @@ apprun_exec_args_t* apprun_adjusted_exec_args(const char* filename, char* const*
 
 
 int execve(const char* filename, char* const argv[], char* const envp[]) {
-#ifdef DEBUG
-    fprintf(stderr, "APPRUN_HOOK_DEBUG: %s\n", __PRETTY_FUNCTION__);
-#endif
-
     apprun_exec_args_t* new_exec_args = apprun_adjusted_exec_args(filename, argv, envp);
 
     real_execve = dlsym(RTLD_NEXT, "execve");
@@ -113,10 +109,6 @@ int execve(const char* filename, char* const argv[], char* const envp[]) {
 }
 
 int execv(const char* filename, char* const argv[]) {
-#ifdef DEBUG
-    fprintf(stderr, "APPRUN_HOOK_DEBUG: %s\n", __PRETTY_FUNCTION__);
-#endif
-
     apprun_exec_args_t* new_exec_args = apprun_adjusted_exec_args(filename, argv, environ);
 
     real_execve = dlsym(RTLD_NEXT, "execve");
@@ -127,10 +119,6 @@ int execv(const char* filename, char* const argv[]) {
 }
 
 int execvpe(const char* filename, char* const argv[], char* const envp[]) {
-#ifdef DEBUG
-    fprintf(stderr, "APPRUN_HOOK_DEBUG: %s\n", __PRETTY_FUNCTION__);
-#endif
-
     apprun_exec_args_t* new_exec_args = apprun_adjusted_exec_args(filename, argv, envp);
 
     real_execvpe = dlsym(RTLD_NEXT, "execvpe");
@@ -141,10 +129,6 @@ int execvpe(const char* filename, char* const argv[], char* const envp[]) {
 }
 
 int execvp(const char* filename, char* const argv[]) {
-#ifdef DEBUG
-    fprintf(stderr, "APPRUN_HOOK_DEBUG: %s\n", __PRETTY_FUNCTION__);
-#endif
-
     apprun_exec_args_t* new_exec_args = apprun_adjusted_exec_args(filename, argv, environ);
 
     real_execvpe = dlsym(RTLD_NEXT, "execvpe");

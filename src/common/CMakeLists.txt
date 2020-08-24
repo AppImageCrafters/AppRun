@@ -5,6 +5,7 @@ add_library(
     path.c
     string_utils.c
     shell_utils.c
+    hook_debug.c
 )
 
 target_compile_definitions(common_objects PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
