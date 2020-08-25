@@ -37,6 +37,7 @@
 #include "environment.h"
 #include "common/path.h"
 #include "common/string_list.h"
+#include "redirect_path.h"
 
 typedef ssize_t (* execve_func_t)(const char* filename, char* const argv[], char* const envp[]);
 
@@ -65,7 +66,9 @@ typedef int (* execvpe_func_t)(const char* file, char* const argv[], char* const
 static execvpe_func_t real_execvpe = NULL;
 
 apprun_exec_args_t* apprun_adjusted_exec_args(const char* filename, char* const* argv, char* const* envp) {
-    char* resolved_file_name = apprun_resolve_bin_path(filename);
+    char* resolved_filename = apprun_resolve_bin_path(filename);
+    char* new_filename = apprun_redirect_path(resolved_filename);
+    free(resolved_filename);
 
 
     char* appdir = getenv("APPDIR");
@@ -73,27 +76,27 @@ apprun_exec_args_t* apprun_adjusted_exec_args(const char* filename, char* const*
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_HOOK_DEBUG: APPDIR: %s\n", appdir);
     fprintf(stderr, "APPRUN_HOOK_DEBUG: ORIGINAL ARGUMENTS\n");
-    apprun_print_exec_args(resolved_file_name, argv, envp);
+    apprun_print_exec_args(new_filename, argv, envp);
 #endif
 
     apprun_exec_args_t* res = NULL;
-    res = apprun_duplicate_exec_args(resolved_file_name, argv);
+    res = apprun_duplicate_exec_args(new_filename, argv);
 
 
-    if (appdir != NULL && apprun_is_path_child_of(resolved_file_name, appdir)) {
-#ifdef DEBUG
-        fprintf(stderr, "APPRUN_HOOK_DEBUG: REMOVING APPDIR PRIVATE ENVIRONMENT\n");
-#endif
+    if (appdir != NULL && apprun_is_path_child_of(new_filename, appdir)) {
         res->envp = apprun_string_list_dup(envp);
-    } else
+    } else {
+        fprintf(stderr, "APPRUN_HOOK_DEBUG: REMOVING APPDIR PRIVATE ENVIRONMENT\n");
         res->envp = apprun_export_envp(envp);
+    }
+
 
 #ifdef DEBUG
-    fprintf(stderr, "APPRUN_HOOK_DEBUG: ADJUSTED ARGUMENTS\n");
+    fprintf(stderr, "APPRUN_HOOK_DEBUG: EXEC ARGUMENTS\n");
     apprun_print_exec_args(res->file, res->args, res->envp);
 #endif
 
-    free(resolved_file_name);
+    free(new_filename);
     return res;
 }
 
