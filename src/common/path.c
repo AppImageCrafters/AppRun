@@ -90,21 +90,21 @@ char* apprun_resolve_bin_path(char const* bin) {
 }
 
 bool apprun_is_path_child_of(const char* path, const char* base) {
-    char* real_base_path = realpath(base, NULL);
+    char* real_base = realpath(base, NULL);
     char* real_path = realpath(path, NULL);
 
     bool result;
 
-    if (real_base_path != NULL && real_path != NULL) {
-        unsigned int len = strlen(real_base_path);
-        result = strncmp(real_base_path, real_path, len) == 0;
+    if (real_base != NULL && real_path != NULL) {
+        unsigned int len = strlen(real_base);
+        result = strncmp(real_base, real_path, len) == 0;
     } else {
         unsigned int len = strlen(base);
         result = strncmp(base, path, len) == 0;
     }
 
-    if (real_base_path)
-        free(real_base_path);
+    if (real_base)
+        free(real_base);
 
     if (real_path)
         free(real_path);
