@@ -40,12 +40,12 @@ install:
 
 script:
   - mkdir -p release debug && cd release
-  - cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="cmake/${TARGET_ARCH}-toolchain.cmake"
+  - cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="cmake/${TARGET_ARCH}-toolchain.cmake"
   - make -j$(nproc)
   - if [ "$(dpkg-architecture -q DEB_HOST_ARCH)" == "$TARGET_DEB_ARCH" ]; then ctest --verbose; fi
 
   - cd ../debug;
-  - cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE="cmake/${TARGET_ARCH}-toolchain.cmake"
+  - cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE="cmake/${TARGET_ARCH}-toolchain.cmake"
   - make -j$(nproc)
 
 
