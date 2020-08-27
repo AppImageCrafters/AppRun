@@ -116,8 +116,13 @@ char* redirect_path_full(const char* pathname, int check_parent, int only_if_abs
 
     // ensure that path mappings are loaded
     apprun_load_path_mappings();
-    if (apprun_path_mappings_size == 0)
+    if (apprun_path_mappings_size == 0) {
+#ifdef DEBUG
+        fprintf(stderr, "\n");
+#endif
         return strdup(pathname);
+    }
+
 
     _access = (int (*)(const char* pathname, int mode)) dlsym(RTLD_NEXT, "access");
 
