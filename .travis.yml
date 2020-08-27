@@ -60,7 +60,7 @@ after_success:
   - mv release/src/apprun/AppRun AppRun-$TARGET_DEB_ARCH
   - mv debug/src/hooks/libapprun_hooks.so libapprun_hooks-debug-$TARGET_DEB_ARCH.so
   - mv debug/src/apprun/AppRun AppRun-debug-$TARGET_DEB_ARCH
-  - bash upload.sh libapprun_hooks-$TARGET_DEB_ARCH.so AppRun-$TARGET_DEB_ARCH
+  - bash upload.sh libapprun_hooks-$TARGET_DEB_ARCH.so AppRun-$TARGET_DEB_ARCH libapprun_hooks-debug-$TARGET_DEB_ARCH.so AppRun-debug-$TARGET_DEB_ARCH
 
 branches:
   except:
