@@ -39,14 +39,16 @@ install:
     fi'
 
 script:
-  - mkdir -p release debug && cd release
-  - cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="cmake/${TARGET_ARCH}-toolchain.cmake"
+  - cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="cmake/${TARGET_ARCH}-toolchain.cmake"
   - make -j$(nproc)
   - if [ "$(dpkg-architecture -q DEB_HOST_ARCH)" == "$TARGET_DEB_ARCH" ]; then ctest --verbose; fi
+  - mv src/hooks/libapprun_hooks.so libapprun_hooks-$TARGET_DEB_ARCH.so
+  - mv src/apprun/AppRun AppRun-$TARGET_DEB_ARCH
 
-  - cd ../debug;
-  - cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE="cmake/${TARGET_ARCH}-toolchain.cmake"
+  - cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE="cmake/${TARGET_ARCH}-toolchain.cmake"
   - make -j$(nproc)
+  - mv src/hooks/libapprun_hooks.so libapprun_hooks-debug-$TARGET_DEB_ARCH.so
+  - mv src/apprun/AppRun AppRun-debug-$TARGET_DEB_ARCH
 
 
 # make the AppImage bundle
@@ -56,10 +58,6 @@ after_success:
   # get the tag version
 
   - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
-  - mv release/src/hooks/libapprun_hooks.so libapprun_hooks-$TARGET_DEB_ARCH.so
-  - mv release/src/apprun/AppRun AppRun-$TARGET_DEB_ARCH
-  - mv debug/src/hooks/libapprun_hooks.so libapprun_hooks-debug-$TARGET_DEB_ARCH.so
-  - mv debug/src/apprun/AppRun AppRun-debug-$TARGET_DEB_ARCH
   - bash upload.sh libapprun_hooks-$TARGET_DEB_ARCH.so AppRun-$TARGET_DEB_ARCH libapprun_hooks-debug-$TARGET_DEB_ARCH.so AppRun-debug-$TARGET_DEB_ARCH
 
 branches:
