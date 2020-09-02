@@ -289,8 +289,6 @@ REDIRECT_1_1(int, chdir)
 
 REDIRECT_1_3(ssize_t, readlink, char *, size_t)
 
-REDIRECT_1_2(char *, realpath, char *)
-
 REDIRECT_TARGET(int, link)
 
 REDIRECT_TARGET(int, rename)
@@ -458,6 +456,29 @@ dlopen(const char* path, int mode) {
         // a whole lookup algorithm
         result = _dlopen(path, mode);
     }
+
+    return result;
+}
+
+char*
+realpath(const char* path, char* resolved_path) {
+    char* (* _realpath)(const char*, char*);
+    char* new_path = NULL;
+    char* result;
+    _realpath = (char* (*)(const char*, char*)) dlsym(RTLD_NEXT, "realpath");
+    new_path = apprun_redirect_path(path);
+
+    // The  resolved_path == NULL feature, not standardized in POSIX.1-2001, but standardized in POSIX.1-2008.
+    // Try to follow the POSIX.1-2008 standard
+    char* _resolved_path = resolved_path;
+    if (_resolved_path == NULL)
+        _resolved_path = malloc(PATH_MAX);
+
+    result = _realpath(new_path, _resolved_path);
+    free(new_path);
+
+    if (resolved_path == NULL && result == NULL)
+        free(_resolved_path);
 
     return result;
 }

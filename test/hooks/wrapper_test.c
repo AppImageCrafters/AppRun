@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #include "hooks/interpreter.h"
 #include "../common/tests_shared.h"
@@ -85,9 +86,26 @@ void test_path_mappings() {
     fprintf(stdout, "Ok\n");
 }
 
+void test_realpath_bug_workaround() {
+    fprintf(stdout, "Test realpath resolved_path feature/bug workaround: ");
+    char* resolved_path = malloc(PATH_MAX);
+    realpath("/proc/self/exe", resolved_path);
+    assert_false(strncmp("/proc", resolved_path, 5) == 0);
+    free(resolved_path);
+
+    resolved_path = realpath("/proc/self/exe", NULL);
+    assert_false(strncmp("/proc", resolved_path, 5) == 0);
+    free(resolved_path);
+
+    resolved_path = realpath("/proc/non-existent-file", NULL);
+    assert_true(resolved_path == NULL);
+
+    fprintf(stdout, "Ok\n");
+}
+
 int main(int argc, char** argv) {
     setup_wrapper();
-
+    test_realpath_bug_workaround();
     test_restore_original_env_for_external_binaries();
     test_keep_appdir_env_for_internal_binaries();
     test_path_mappings();
