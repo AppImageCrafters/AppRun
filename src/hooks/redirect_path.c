@@ -90,6 +90,7 @@ char* redirect_path_full(const char* pathname, int check_parent, int only_if_abs
 #ifdef DEBUG
     char* hooked_symbol = find_hooked_symbol();
     fprintf(stderr, "APPRUN_HOOK_DEBUG: %s \"%s\"", hooked_symbol, pathname);
+    free(hooked_symbol);
 #endif
 
     if (pathname == NULL) {
