@@ -30,6 +30,8 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <memory.h>
+#include <limits.h>
 
 #include "common/file_utils.h"
 #include "common/string_list.h"
@@ -173,30 +175,48 @@ char* resolve_libc_from_interpreter_path(char* path) {
 }
 
 void setup_interpreter() {
+    char* appdir = require_environment("APPDIR");
     char* system_interpreter_path = require_environment("SYSTEM_INTERP");
-    char* system_libc_path = resolve_libc_from_interpreter_path(system_interpreter_path);
+    char* token = strtok(system_interpreter_path, ":");
+    while (token != NULL) {
+        char* system_libc_path = resolve_libc_from_interpreter_path(token);
 
-
-    char* system_libc_version = read_libc_version(system_libc_path);
-    char* appdir_libc_version = require_environment("APPDIR_LIBC_VERSION");
+        char* system_libc_version = read_libc_version(system_libc_path);
+        char* appdir_libc_version = require_environment("APPDIR_LIBC_VERSION");
 
 #ifdef DEBUG
-    fprintf(stderr, "APPRUN_DEBUG: system glibc(%s), appdir glibc(%s) \n", system_libc_version, appdir_libc_version);
+        fprintf(stderr, "APPRUN_DEBUG: interpreter \"%s\" \n", strrchr(token, '/') + 1);
+        fprintf(stderr, "APPRUN_DEBUG: system glibc(%s), appdir glibc(%s) \n", system_libc_version,
+                appdir_libc_version);
 #endif
-    if (compare_glib_version_strings(system_libc_version, appdir_libc_version) > 0) {
-        configure_system_libc();
-        deploy_interpreter(system_interpreter_path);
-    } else {
-        configure_embed_libc();
-        char* appdir_interpreter_path = require_environment("APPDIR_INTERP");
-        deploy_interpreter(appdir_interpreter_path);
-    }
+        if (compare_glib_version_strings(system_libc_version, appdir_libc_version) > 0) {
+            configure_system_libc();
+            deploy_interpreter(token);
+        } else {
+            configure_embed_libc();
+            char* appdir_interpreter_path = calloc(sizeof(char), PATH_MAX);
+            memset(appdir_interpreter_path, 0, PATH_MAX);
+            appdir_interpreter_path = strcat(appdir_interpreter_path, appdir);
+            appdir_interpreter_path = strcat(appdir_interpreter_path, "/opt/libc");
+            appdir_interpreter_path = strcat(appdir_interpreter_path, token);
+            deploy_interpreter(appdir_interpreter_path);
+        }
 
-    free(system_libc_path);
+        free(system_libc_path);
+
+        token = strtok(NULL, ":");
+    }
 }
 
 void deploy_interpreter(char* path) {
-    char* target_path = require_environment("RUNTIME_INTERP");
+    char* appimage_uuid = require_environment("APPIMAGE_UUID");
+    char* target_path = calloc(sizeof(char), PATH_MAX);
+    memset(target_path, 0, PATH_MAX);
+    target_path = strcat(target_path, "/tmp/appimage-");
+    target_path = strcat(target_path, appimage_uuid);
+    target_path = strcat(target_path, "-");
+    target_path = strcat(target_path, strrchr(path, '/') + 1);
+
     if (access(target_path, F_OK) == -1)
         apprun_file_copy(path, target_path);
 

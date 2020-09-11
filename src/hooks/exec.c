@@ -86,7 +86,9 @@ apprun_exec_args_t* apprun_adjusted_exec_args(const char* filename, char* const*
     if (appdir != NULL && apprun_is_path_child_of(new_filename, appdir)) {
         res->envp = apprun_string_list_dup(envp);
     } else {
+#ifdef DEBUG
         fprintf(stderr, "APPRUN_HOOK_DEBUG: REMOVING APPDIR PRIVATE ENVIRONMENT\n");
+#endif
         res->envp = apprun_export_envp(envp);
     }
 
