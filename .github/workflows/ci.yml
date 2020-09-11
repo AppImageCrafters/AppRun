@@ -1,0 +1,94 @@
+name: Build & Release
+
+on: [ push ]
+
+jobs:
+  build:
+    runs-on: ubuntu-16.04
+    strategy:
+      matrix:
+        TARGET_ARCH: [ i386, x86_64, gnueabihf, aarch64 ]
+        BUILD_TYPE: [ Debug, Release ]
+    env:
+      BUILD_TYPE: ${{ matrix.BUILD_TYPE }}
+      TARGET_ARCH: ${{ matrix.TARGET_ARCH }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install cross-compilation dependencies ${{ matrix.TARGET_ARCH }}
+        if: ${{ env.TARGET_ARCH != 'x86_64' }}
+        run: |
+          if [ "$TARGET_ARCH" == "i386" ]; then
+            export CFLAGS=-m32;
+            sudo apt-get install g++-multilib libc6-dev-i386
+            exit 0
+          fi
+
+          if [ "$TARGET_ARCH" == "gnueabihf" ]; then
+            export TARGET_DEB_ARCH="armhf";
+          fi
+
+          if [ "$TARGET_ARCH" == "aarch64" ]; then
+            export TARGET_DEB_ARCH="arm64";
+          fi
+          sudo dpkg --add-architecture $TARGET_DEB_ARCH;
+          echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports xenial main restricted multiverse universe" | sudo tee -a /etc/apt/sources.list;
+          echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports xenial-updates main restricted multiverse universe" | sudo tee -a /etc/apt/sources.list;
+          echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports xenial-security main restricted multiverse universe" | sudo tee -a /etc/apt/sources.list;
+          sudo apt-get update -y || true;
+          sudo apt-get install -y crossbuild-essential-$TARGET_DEB_ARCH;
+
+      - name: Create Build Environment
+        run: cmake -E make_directory ${{runner.workspace}}/build
+
+      - name: Configure CMake ${{ matrix.TARGET_ARCH }}
+        shell: bash
+        working-directory: ${{runner.workspace}}/build
+        run: cmake $GITHUB_WORKSPACE -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE="cmake/$TARGET_ARCH-toolchain.cmake"
+
+      - name: Build ${{ matrix.TARGET_ARCH }}
+        working-directory: ${{runner.workspace}}/build
+        shell: bash
+        run: cmake --build . --config $BUILD_TYPE
+
+      - name: Test ${{ matrix.TARGET_ARCH }}
+        working-directory: ${{runner.workspace}}/build
+        if: ${{ env.TARGET_ARCH == 'x86_64' }}
+        shell: bash
+        run: ctest -C $BUILD_TYPE
+
+      - name: Prepare artifacts
+        shell: bash
+        working-directory: ${{runner.workspace}}/build
+        run: |
+          mkdir -p ../dist
+          cp src/apprun/AppRun ../dist/AppRun-$BUILD_TYPE-$TARGET_ARCH
+          cp src/hooks/libapprun_hooks.so ../dist/libapprun_hooks-$BUILD_TYPE-$TARGET_ARCH.so
+
+      - name: Upload Artifacts ${{ env.TARGET_ARCH }}
+        uses: actions/upload-artifact@v2.1.4
+        with:
+          name: artifacts
+          path: ${{runner.workspace}}/dist/*
+
+  publish:
+    runs-on: ubuntu-16.04
+    needs: build
+    if: ${{ github.ref == 'master' }}
+    steps:
+      - name: Download artifacts from build job
+        uses: actions/download-artifact@v2
+        with:
+          name: artifacts
+
+      - name: Release In-Development AppImage
+        uses: marvinpinto/action-automatic-releases@latest
+
+        with:
+          title: Continuous Release
+          automatic_release_tag: continuous
+          prerelease: true
+          draft: false
+          files: ./*
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
