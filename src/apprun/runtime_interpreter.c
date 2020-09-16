@@ -163,15 +163,20 @@ char* resolve_libc_from_interpreter_path(char* path) {
 #define LIBC_SO_NAME "libc.so.6"
 
     char* r_path = realpath(path, NULL);
-    char* split = strrchr(r_path, '/');
-    split++; // include the '/'
+    if (r_path != NULL) {
+        char* split = strrchr(r_path, '/');
+        split++; // include the '/'
 
-    char* libc_path = calloc(strlen(LIBC_SO_NAME) + split - r_path + 1, sizeof(char));
-    strncat(libc_path, r_path, split - r_path);
-    strcat(libc_path, LIBC_SO_NAME);
+        char* libc_path = calloc(strlen(LIBC_SO_NAME) + split - r_path + 1, sizeof(char));
+        strncat(libc_path, r_path, split - r_path);
+        strcat(libc_path, LIBC_SO_NAME);
 
-    free(r_path);
-    return libc_path;
+        free(r_path);
+        return libc_path;
+    } else {
+        fprintf(stderr, "APPRUN_WARNING: Unable to find interpreter: %s\n", path);
+        return NULL;
+    }
 }
 
 void setup_interpreter() {
