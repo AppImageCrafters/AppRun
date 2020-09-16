@@ -1,6 +1,9 @@
-name: "build"
+name: "pre-release"
 
-on: [ push ]
+on:
+  push:
+    branches:
+      - "master"
 
 jobs:
   build:
@@ -71,3 +74,23 @@ jobs:
         with:
           name: artifacts
           path: ${{runner.workspace}}/dist/*
+
+  publish:
+    runs-on: ubuntu-16.04
+    needs: build
+    steps:
+      - name: Download artifacts from build job
+        uses: actions/download-artifact@v2
+        with:
+          name: artifacts
+
+      - name: Release In-Development AppImage
+        uses: marvinpinto/action-automatic-releases@latest
+
+        with:
+          title: Continuous build
+          automatic_release_tag: 'continuous'
+          prerelease: true
+          draft: false
+          files: ./*
+          repo_token: ${{ secrets.GITHUB_TOKEN }}

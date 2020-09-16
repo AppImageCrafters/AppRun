@@ -1,6 +1,9 @@
-name: "build"
+name: "tagged-release"
 
-on: [ push ]
+on:
+  push:
+    tags:
+      - "v*"
 
 jobs:
   build:
@@ -71,3 +74,18 @@ jobs:
         with:
           name: artifacts
           path: ${{runner.workspace}}/dist/*
+
+  publish:
+    runs-on: ubuntu-16.04
+    needs: build
+    steps:
+      - name: Download artifacts from build job
+        uses: actions/download-artifact@v2
+        with:
+          name: artifacts
+
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: ./*
