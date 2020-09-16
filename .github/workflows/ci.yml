@@ -75,7 +75,6 @@ jobs:
   publish:
     runs-on: ubuntu-16.04
     needs: build
-    if: ${{ github.ref == 'master' }}
     steps:
       - name: Download artifacts from build job
         uses: actions/download-artifact@v2
@@ -87,7 +86,7 @@ jobs:
 
         with:
           title: Continuous Release
-          automatic_release_tag: continuous
+          automatic_release_tag: ${{ github.ref }}-continuous
           prerelease: true
           draft: false
           files: ./*
