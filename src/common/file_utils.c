@@ -24,35 +24,37 @@
  *
  **************************************************************************/
 
-#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "file_utils.h"
-#include "string_utils.h"
 #include "string_list.h"
 
 char** apprun_read_lines(FILE* fp) {
     char** result = NULL;
     if (fp) {
-        unsigned result_capacity = 512;
-        unsigned count = 0;
-        result = calloc(result_capacity, sizeof(char*));
+        int c;
 
-        char buffer[1024];
-        while (fgets(buffer, 1024, fp) != NULL) {
-            if (count == result_capacity) {
-                result_capacity = result_capacity * 2;
-                result = apprun_extend_string_array(result, result_capacity);
-            }
-
-            char* str = apprun_string_remove_trailing_new_line(buffer);
-            result[count] = str;
-            count++;
+        int line_count = 1;
+        while ((c = fgetc(fp)) != EOF) {
+            if (c == '\n')
+                line_count++;
         }
 
-        result = adjust_string_array_size(result);
+        fseek(fp, 0, SEEK_SET);
+        result = apprun_string_list_alloc(line_count + 1);
+        char buf[1048576];
+        for (int i = 0; i < line_count; i++) {
+            fgets(buf, 1048576, fp);
+
+            // remove new line char if present
+            unsigned len = strlen(buf);
+            if (buf[len - 1] == '\n')
+                buf[len - 1] = 0;
+
+            result[i] = strdup(buf);
+        }
     }
 
     return result;
@@ -64,7 +66,7 @@ char** apprun_file_read_lines(const char* filename) {
     FILE* fp = fopen(filename, "r");
     if (fp) {
         result = apprun_read_lines(fp);
-        result = adjust_string_array_size(result);
+        result = apprun_adjust_string_array_size(result);
         fclose(fp);
     }
 

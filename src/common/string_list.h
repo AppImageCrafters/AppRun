@@ -31,7 +31,7 @@
 
 char** apprun_extend_string_array(char** array, unsigned capacity);
 
-char** adjust_string_array_size(char** array);
+char** apprun_adjust_string_array_size(char** array);
 
 int apprun_string_list_len(char* const* x);
 

@@ -43,7 +43,7 @@ char** apprun_extend_string_array(char** array, unsigned capacity) {
     return new;
 }
 
-char** adjust_string_array_size(char** array) {
+char** apprun_adjust_string_array_size(char** array) {
     unsigned new_capacity = 1;
     for (char** itr = array; itr != NULL && *itr != NULL; itr++)
         new_capacity++;
