@@ -30,19 +30,6 @@
 
 #include "string_list.h"
 
-char** apprun_extend_string_array(char** array, unsigned capacity) {
-    char** new = calloc(capacity, sizeof(char*));
-
-    char** orginal_itr = array;
-    char** new_itr = new;
-
-    for (; orginal_itr != NULL && *orginal_itr != NULL; orginal_itr++, new_itr++)
-        *new_itr = *orginal_itr;
-
-    free(array);
-    return new;
-}
-
 char** apprun_adjust_string_array_size(char** array) {
     unsigned new_capacity = 1;
     for (char** itr = array; itr != NULL && *itr != NULL; itr++)

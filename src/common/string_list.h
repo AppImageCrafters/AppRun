@@ -29,8 +29,6 @@
 
 #include <stdbool.h>
 
-char** apprun_extend_string_array(char** array, unsigned capacity);
-
 char** apprun_adjust_string_array_size(char** array);
 
 int apprun_string_list_len(char* const* x);
