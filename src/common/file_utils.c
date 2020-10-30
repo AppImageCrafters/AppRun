@@ -50,7 +50,7 @@ char** apprun_read_lines(FILE* fp) {
 
             // remove new line char if present
             unsigned len = strlen(buf);
-            if (buf[len - 1] == '\n')
+            if (len > 0 && buf[len - 1] == '\n')
                 buf[len - 1] = 0;
 
             result[i] = strdup(buf);
