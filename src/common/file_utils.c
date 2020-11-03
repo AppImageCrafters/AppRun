@@ -32,30 +32,32 @@
 #include "string_list.h"
 
 char** apprun_read_lines(FILE* fp) {
-    char** result = NULL;
+    int array_len = 1024;
+    int count = 0;
+    char** result = apprun_string_list_alloc(array_len);
+
     if (fp) {
-        int c;
+        size_t len = 0;
+        ssize_t read;
 
-        int line_count = 1;
-        while ((c = fgetc(fp)) != EOF) {
-            if (c == '\n')
-                line_count++;
-        }
+        while ((read = getline(&result[count], &len, fp)) != -1) {
+            if (read > 0 && result[count][read - 1] == '\n')
+                result[count][read - 1] = 0;
+            count++;
+            if (count == array_len) {
+                array_len = array_len * 2;
+                char** old_array = result;
 
-        fseek(fp, 0, SEEK_SET);
-        result = apprun_string_list_alloc(line_count + 1);
-        char buf[1048576];
-        for (int i = 0; i < line_count; i++) {
-            fgets(buf, 1048576, fp);
+                result = apprun_string_list_alloc(array_len);
+                for (int i = 0; i < count; i++)
+                    result[i] = old_array[i];
 
-            // remove new line char if present
-            unsigned len = strlen(buf);
-            if (len > 0 && buf[len - 1] == '\n')
-                buf[len - 1] = 0;
-
-            result[i] = strdup(buf);
+                free(old_array);
+            }
         }
     }
+
+    result[count] = NULL;
 
     return result;
 }
