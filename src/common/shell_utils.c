@@ -79,6 +79,28 @@ char* apprun_shell_extract_var_name(const char* itr) {
 }
 
 
+char* apprun_argv_to_env(char* const* string_list) {
+    unsigned string_list_len = apprun_string_list_len(string_list);
+    unsigned str_size = 0;
+
+    // space required by two quotation marks and one space
+    const unsigned extra_chars_len = 3;
+
+    for (int i = 0; i < string_list_len; i++)
+        str_size += strlen(string_list[i]) + extra_chars_len;
+
+    char* str = calloc(str_size, sizeof(char));
+    for (int i = 0; i < string_list_len; i++) {
+        strcat(str, "\"");
+        strcat(str, string_list[i]);
+        strcat(str, "\"");
+        if (i + 1 < string_list_len)
+            strcat(str, " ");
+    }
+
+    return str;
+}
+
 char* apprun_shell_resolve_var_value(char* const* argv, const char* var_name) {
     unsigned argc = 0;
     if (argv)
@@ -92,7 +114,7 @@ char* apprun_shell_resolve_var_value(char* const* argv, const char* var_name) {
     }
 
     if (strcmp(var_name, "@") == 0 && argv != NULL)
-        var_value = apprun_string_list_join(argv + 1, " ");
+        var_value = apprun_argv_to_env(argv + 1);
 
     if (isalpha(*var_name)) {
         var_value = getenv(var_name);
@@ -103,7 +125,6 @@ char* apprun_shell_resolve_var_value(char* const* argv, const char* var_name) {
 
     return var_value;
 }
-
 char* apprun_shell_expand_variables(char const* str, char** argv) {
     if (str == NULL)
         return NULL;

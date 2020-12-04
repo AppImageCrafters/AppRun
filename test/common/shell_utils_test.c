@@ -45,10 +45,10 @@ void test_apprun_shell_expand_variables() {
 
 void test_apprun_shell_expand_command_line_arguments() {
     printf("%s: ", __PRETTY_FUNCTION__);
-    char* argv[] = {"HELLO", "WORLD", NULL};
+    char* argv[] = {"HELLO", "EXTENDED WORLD", "AGAIN",NULL};
     setenv("PATH", "/sbin", 1);
     char* res = apprun_shell_expand_variables("$0:$@", argv);
-    assert_str_eq(res, "HELLO:WORLD");
+    assert_str_eq(res, "HELLO:\"EXTENDED WORLD\" \"AGAIN\"");
     free(res);
 
     printf("OK\n");
