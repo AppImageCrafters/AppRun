@@ -63,8 +63,10 @@ void launch() {
         argv[i + 1] = user_args[i];
 
 #ifdef DEBUG
-    char* debug = apprun_string_list_join(argv, " ");
-    fprintf(stderr, "APPRUN_DEBUG: %s\n", debug);
+    fprintf(stderr, "APPRUN_DEBUG:");
+    for (char** itr = argv; itr != NULL && *itr != NULL; itr++)
+        fprintf(stderr, "\"%s\" ", *itr);
+    fprintf(stderr, "\n");
 #endif
     execv(exec_path, argv);
 }
