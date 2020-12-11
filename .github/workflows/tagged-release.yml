@@ -48,12 +48,20 @@ jobs:
       - name: Configure CMake ${{ matrix.TARGET_ARCH }}
         shell: bash
         working-directory: ${{runner.workspace}}/build
-        run: cmake $GITHUB_WORKSPACE -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE="cmake/$TARGET_ARCH-toolchain.cmake"
+        run: |
+          if [ "$TARGET_ARCH" == "i386" ]; then
+                      export CFLAGS=-m32;
+          fi
+          cmake $GITHUB_WORKSPACE -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE="cmake/$TARGET_ARCH-toolchain.cmake"
 
       - name: Build ${{ matrix.TARGET_ARCH }}
         working-directory: ${{runner.workspace}}/build
         shell: bash
-        run: cmake --build . --config $BUILD_TYPE
+        run: |
+          if [ "$TARGET_ARCH" == "i386" ]; then
+            export CFLAGS=-m32;
+          fi
+          cmake --build . --config $BUILD_TYPE
 
       - name: Test ${{ matrix.TARGET_ARCH }}
         working-directory: ${{runner.workspace}}/build
