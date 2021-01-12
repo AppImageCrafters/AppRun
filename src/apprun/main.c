@@ -74,7 +74,6 @@ int main(int argc, char* argv[]) {
         apprun_load_env_file(legacy_env_file_path, argv);
     }
 
-
     setup_interpreter();
 
     launch();
@@ -131,7 +130,6 @@ char* resolve_apprun_path() {
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_DEBUG: APPRUN_PATH=%s\n", apprun_path);
 #endif
-
     return apprun_path;
 }
 
