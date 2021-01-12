@@ -111,3 +111,12 @@ char* apprun_string_list_join(char* const* string_list, char* split) {
 
     return str;
 }
+
+char* apprun_prefix_str(const char* prefix, const char* str) {
+    unsigned prefixed_str_size = strlen(prefix) + strlen(str) + 1;
+    char* prefixed_str = calloc(prefixed_str_size, sizeof(char));
+    strcat(prefixed_str, prefix);
+    strcat(prefixed_str, str);
+
+    return prefixed_str;
+}

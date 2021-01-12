@@ -29,6 +29,8 @@
 
 #include <stdbool.h>
 
+char* apprun_prefix_str(const char* prefix, const char* str);
+
 char** apprun_adjust_string_array_size(char** array);
 
 int apprun_string_list_len(char* const* x);

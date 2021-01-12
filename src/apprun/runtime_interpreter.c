@@ -134,6 +134,9 @@ long compare_glib_version_strings(char* a, char* b) {
 }
 
 void configure_embed_libc() {
+#ifdef DEBUG
+    fprintf(stderr, "APPRUN_DEBUG: using appdir libc\n");
+#endif
     char* ld_library_path = apprun_shell_expand_variables("$APPDIR_LIBRARY_PATH:$LIBC_LIBRARY_PATH:"
                                                           "$"APPRUN_ENV_ORIG_PREFIX"LD_LIBRARY_PATH", NULL);
     setenv("LD_LIBRARY_PATH", ld_library_path, 1);
@@ -142,6 +145,9 @@ void configure_embed_libc() {
 }
 
 void configure_system_libc() {
+#ifdef DEBUG
+    fprintf(stderr, "APPRUN_DEBUG: using system libc\n");
+#endif
     char* ld_library_path = apprun_shell_expand_variables("$APPDIR_LIBRARY_PATH:"
                                                           "$"APPRUN_ENV_ORIG_PREFIX"LD_LIBRARY_PATH", NULL);
     setenv("LD_LIBRARY_PATH", ld_library_path, 1);
@@ -214,6 +220,10 @@ void setup_interpreter() {
 }
 
 void deploy_interpreter(char* path) {
+#ifdef DEBUG
+    fprintf(stderr, "APPRUN_DEBUG: deploying interpreter \"%s\" \n", path);
+#endif
+
     char* appimage_uuid = require_environment("APPIMAGE_UUID");
     char* target_path = calloc(sizeof(char), PATH_MAX);
     memset(target_path, 0, PATH_MAX);
