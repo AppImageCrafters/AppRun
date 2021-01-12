@@ -27,23 +27,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "runtime_environment.h"
-#include "common/file_utils.h"
+
 #include "common/shell_utils.h"
 #include "common/string_list.h"
 #include "hooks/environment.h"
 
-void apprun_setenv_prefixed(const char* prefix, const char* name, const char* value) {
-    unsigned prefixed_name_size = strlen(prefix) + strlen(name) + 1;
-    char* prefixed_name = calloc(prefixed_name_size, sizeof(char));
-    strcat(prefixed_name, prefix);
-    strcat(prefixed_name, name);
-
-    apprun_update_env(prefixed_name, value);
-
-    free(prefixed_name);
-}
 
 void apprun_update_env(const char* name, const char* value) {
     if (value)
@@ -52,27 +41,49 @@ void apprun_update_env(const char* name, const char* value) {
         unsetenv(name);
 }
 
-void setup_appdir(const char* appdir) {
-    setenv("APPDIR", appdir, 1);
-    apprun_setenv_prefixed(APPRUN_ENV_ORIG_PREFIX, "APPDIR", "");
-    apprun_setenv_prefixed(APPRUN_ENV_STARTUP_PREFIX, "APPDIR", appdir);
+void apprun_env_set(const char* name, const char* value, const char* orig_value, const char* start_value) {
+    apprun_update_env(name, value);
+
+    char* orig_name = apprun_prefix_str(APPRUN_ENV_ORIG_PREFIX, name);
+    apprun_update_env(orig_name, orig_value);
+
+
+    char* startup_name = apprun_prefix_str(APPRUN_ENV_STARTUP_PREFIX, name);
+    apprun_update_env(startup_name, start_value);
+
+#ifdef DEBUG
+    fprintf(stderr, "APPRUN_DEBUG: set env %s=%s\n", name, value);
+#endif
+
+    free(orig_name);
+    free(startup_name);
 }
 
-char** setup_runtime_environment(char* appdir, char** argv) {
-    char* env_file_path = get_env_file_path(appdir);
-    char** envp = apprun_file_read_lines(env_file_path);
+void apprun_load_env_file(const char* path, char** argv) {
+    FILE* fp;
+    char* line = NULL;
+    size_t len = 0;
+    ssize_t read;
 
-    for (char* const* itr = envp; itr != NULL && *itr != NULL; itr++) {
-        // ignore lines starting with #
-        if (**itr != '#' && strlen(*itr) > 0) {
-            char* name = apprun_env_str_entry_extract_name(*itr);
-            char* value = apprun_env_str_entry_extract_value(*itr);
+    fp = fopen(path, "r");
+    if (fp == NULL) {
+        fprintf(stderr, "APPRUN ERROR: Unable to open file: %s", path);
+        exit(EXIT_FAILURE);
+    }
+
+    while ((read = getline(&line, &len, fp)) != -1) {
+        if (len > 0 && line[0] != '#') {
+            // Remove trailing new line chars
+            while (read > 0 && line[read - 1] == '\n') {
+                line[read - 1] = '\0';
+                read--;
+            }
+
+            char* name = apprun_env_str_entry_extract_name(line);
+            char* value = apprun_env_str_entry_extract_value(line);
             char* expanded_value = apprun_shell_expand_variables(value, argv);
 
-            char* original_value = getenv(name);
-            apprun_update_env(name, expanded_value);
-            apprun_setenv_prefixed(APPRUN_ENV_ORIG_PREFIX, name, original_value);
-            apprun_setenv_prefixed(APPRUN_ENV_STARTUP_PREFIX, name, expanded_value);
+            apprun_env_set(name, expanded_value, getenv(name), expanded_value);
 
             free(expanded_value);
             free(value);
@@ -80,13 +91,6 @@ char** setup_runtime_environment(char* appdir, char** argv) {
         }
     }
 
-    apprun_string_list_free(envp);
+    free(line);
 }
 
-char* get_env_file_path(const char* appdir) {
-    char* path = calloc(strlen(appdir) + strlen("/.env") + 1, sizeof(char));
-    strcat(path, appdir);
-    strcat(path, "/.env");
-
-    return path;
-}

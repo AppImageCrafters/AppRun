@@ -159,7 +159,7 @@ apprun_env_item_t* apprun_env_item_export(apprun_env_item_t* item) {
 
 char* apprun_env_str_entry_extract_name(char* string) {
     if (string) {
-        char* sep = strstr(string, "=");
+        char* sep = strchr(string,  '=');
         return strndup(string, sep - string);
     }
 
@@ -169,7 +169,7 @@ char* apprun_env_str_entry_extract_name(char* string) {
 char* apprun_env_str_entry_extract_value(char* string) {
     if (string && strlen(string) > 0) {
         unsigned string_len = strlen(string);
-        char* sep = strstr(string, "=");
+        char* sep = strchr(string, '=');
         unsigned value_len = string_len - (sep - string);
 
         // assume empty string value as NULL
