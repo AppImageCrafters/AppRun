@@ -185,9 +185,8 @@ char* resolve_libc_from_interpreter_path(char* path) {
     }
 }
 
-void setup_interpreter() {
+void setup_interpreter(char* system_interpreter_path) {
     char* appdir = require_environment("APPDIR");
-    char* system_interpreter_path = require_environment("SYSTEM_INTERP");
     char* token = strtok(system_interpreter_path, ":");
     while (token != NULL) {
         char* system_libc_path = resolve_libc_from_interpreter_path(token);

@@ -17,7 +17,7 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER>>>>>>> fix: allow launching executables without setting the SYSTEM_INTERP
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
@@ -74,7 +74,20 @@ int main(int argc, char* argv[]) {
         apprun_load_env_file(legacy_env_file_path, argv);
     }
 
-    setup_interpreter();
+
+    /* *
+     * The interpreter setup method is only required when a binary that relies on the bundled ld-linux and libc
+     * is being called. Such binaries must be identified at build time and the .env file must not include the
+     * SYSTEM_INTERP, LIBRARY_PATHS, LD_PRELOAD or other library that may affect the execution of binaries external
+     * to the bundle.
+     *
+     * This is required to run interpreted executables such as shell scripts, python or other executables that depend
+     * on the shebang to find their interpreter.
+     * */
+    char* system_interpreter_path = getenv("SYSTEM_INTERP");
+    if (system_interpreter_path != NULL) {
+        setup_interpreter(system_interpreter_path);
+    }
 
     launch();
 

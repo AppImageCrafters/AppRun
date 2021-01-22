@@ -102,7 +102,6 @@ apprun_exec_args_t* apprun_adjusted_exec_args(const char* filename, char* const*
     return res;
 }
 
-
 int execve(const char* filename, char* const argv[], char* const envp[]) {
     apprun_exec_args_t* new_exec_args = apprun_adjusted_exec_args(filename, argv, envp);
 
