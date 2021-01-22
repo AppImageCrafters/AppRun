@@ -30,9 +30,12 @@
 #include <unistd.h>
 #include <errno.h>
 #include <strings.h>
+#include <limits.h>
+#include <sys/stat.h>
 
 #include "common/string_list.h"
 #include "common/shell_utils.h"
+#include "common/file_utils.h"
 
 #include "runtime_environment.h"
 #include "runtime_interpreter.h"
@@ -56,6 +59,10 @@ char* find_module_env_file(char* apprun_path);
 void launch();
 
 char* resolve_origin(const char* apprun_path);
+
+void export_binaries(char* binaries);
+
+void export_binary(const char* filename);
 
 int main(int argc, char* argv[]) {
     char* apprun_path = resolve_apprun_path();
@@ -89,9 +96,43 @@ int main(int argc, char* argv[]) {
         setup_interpreter(system_interpreter_path);
     }
 
+    char* exported_binaries = getenv("EXPORTED_BINARIES");
+    if (exported_binaries != NULL)
+        export_binaries(exported_binaries);
+
     launch();
 
     return 1;
+}
+
+void export_binaries(char* binaries) {
+    char* token = strtok(binaries, ":");
+    while (token != NULL) {
+        export_binary(token);
+        token = strtok(NULL, ":");
+    }
+}
+
+void export_binary(const char* filename) {
+    char* appimage_uuid = getenv("APPIMAGE_UUID");
+    if (appimage_uuid == NULL)
+        die("Unable to export runtime binaries, missing APPIMAGE_UUID in runtime environment")
+
+    char target_path[PATH_MAX] = {0x0};
+    strcat(target_path, "/tmp/appimage-");
+    strcat(target_path, appimage_uuid);
+    strcat(target_path, "-");
+    strcat(target_path, strrchr(filename, '/') + 1);
+
+    if (access(target_path, F_OK) == -1) {
+        apprun_file_copy(filename, target_path);
+
+        // Copy permissions and ownership
+        struct stat fst;
+        stat(filename, &fst);
+        chown(target_path, fst.st_uid, fst.st_gid);
+        chmod(target_path, fst.st_mode);
+    }
 }
 
 char* resolve_origin(const char* apprun_path) {

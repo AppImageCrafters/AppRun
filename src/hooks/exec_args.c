@@ -42,8 +42,8 @@ void apprun_exec_args_free(apprun_exec_args_t* args) {
 
 
 void apprun_print_exec_args(const char* filename, char* const* argv, char* const* envp) {
-    fprintf(stderr, "APPRUN_HOOK_DEBUG:\tfilename: \"%s\"\n", filename);
-    fprintf(stderr, "APPRUN_HOOK_DEBUG:\targs: [ ");
+    fprintf(stderr, "  filename: \"%s\"\n", filename);
+    fprintf(stderr, "  args: [ ");
     if (argv) {
         for (char* const* itr = argv; *itr != 0; itr++) {
             fprintf(stderr, "\"%s\"", *itr);
@@ -54,12 +54,12 @@ void apprun_print_exec_args(const char* filename, char* const* argv, char* const
 
     fprintf(stderr, "]\n");
 
-    fprintf(stderr, "APPRUN_HOOK_DEBUG:\tenvp: [ ");
+    fprintf(stderr, "  envp: [ \n");
     if (envp) {
         for (char* const* itr = envp; *itr != 0; itr++) {
-            fprintf(stderr, "\"%s\"", *itr);
+            fprintf(stderr, "    \"%s\"", *itr);
             if (*(itr + 1) != NULL)
-                fprintf(stderr, ", ");
+                fprintf(stderr, ", \n");
         }
     }
 

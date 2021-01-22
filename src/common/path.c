@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdio.h>
 
 #include "path.h"
 
@@ -108,6 +109,8 @@ bool apprun_is_path_child_of(const char* path, const char* base) {
 
     if (real_path)
         free(real_path);
-
+#ifdef DEBUG
+    fprintf(stderr, "APPRUN_DEBUG: is %s child of %s:  %d\n", path, base, result);
+#endif
     return result;
 }

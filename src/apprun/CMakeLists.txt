@@ -25,3 +25,4 @@ install(
     TARGETS AppRun
     RUNTIME DESTINATION bin
 )
+add_dependencies(AppRun apprun_hooks)
