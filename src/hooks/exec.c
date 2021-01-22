@@ -31,6 +31,7 @@
 #include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "exec_args.h"
 #include "interpreter.h"
@@ -65,6 +66,9 @@ typedef int (* execvpe_func_t)(const char* file, char* const argv[], char* const
 
 static execvpe_func_t real_execvpe = NULL;
 
+int apprun_is_exported_binary(const char* new_filename);
+
+
 apprun_exec_args_t* apprun_adjusted_exec_args(const char* filename, char* const* argv, char* const* envp) {
     char* resolved_filename = apprun_resolve_bin_path(filename);
     char* new_filename = apprun_redirect_path(resolved_filename);
@@ -82,8 +86,7 @@ apprun_exec_args_t* apprun_adjusted_exec_args(const char* filename, char* const*
     apprun_exec_args_t* res = NULL;
     res = apprun_duplicate_exec_args(new_filename, argv);
 
-
-    if (appdir != NULL && apprun_is_path_child_of(new_filename, appdir)) {
+    if (appdir != NULL && (apprun_is_exported_binary(new_filename) || apprun_is_path_child_of(new_filename, appdir))) {
         res->envp = apprun_string_list_dup(envp);
     } else {
 #ifdef DEBUG
@@ -100,6 +103,20 @@ apprun_exec_args_t* apprun_adjusted_exec_args(const char* filename, char* const*
 
     free(new_filename);
     return res;
+}
+
+int apprun_is_exported_binary(const char* new_filename) {
+    char exported_file_prefix[46] = {0x0};
+    strcat(exported_file_prefix, "/tmp/appimage-");
+    char* uuid = getenv("APPIMAGE_UUID");
+    if (uuid != NULL)
+        strcat(exported_file_prefix, getenv("APPIMAGE_UUID"));
+
+    int is_exported_binary = (strncmp(exported_file_prefix, new_filename, strlen(exported_file_prefix)) == 0);
+#ifdef DEBUG
+    fprintf(stderr, "APPRUN_HOOK_DEBUG: IS EXPORTED BINARY %d\n", is_exported_binary);
+#endif
+    return is_exported_binary;
 }
 
 int execve(const char* filename, char* const argv[], char* const envp[]) {

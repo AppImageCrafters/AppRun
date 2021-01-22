@@ -17,7 +17,7 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER>>>>>>> fix: allow launching executables without setting the SYSTEM_INTERP
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
@@ -30,12 +30,9 @@
 #include <unistd.h>
 #include <errno.h>
 #include <strings.h>
-#include <limits.h>
-#include <sys/stat.h>
 
 #include "common/string_list.h"
 #include "common/shell_utils.h"
-#include "common/file_utils.h"
 
 #include "runtime_environment.h"
 #include "runtime_interpreter.h"
@@ -60,10 +57,6 @@ void launch();
 
 char* resolve_origin(const char* apprun_path);
 
-void export_binaries(char* binaries);
-
-void export_binary(const char* filename);
-
 int main(int argc, char* argv[]) {
     char* apprun_path = resolve_apprun_path();
     char* origin_path = resolve_origin(apprun_path);
@@ -82,6 +75,7 @@ int main(int argc, char* argv[]) {
     }
 
 
+
     /* *
      * The interpreter setup method is only required when a binary that relies on the bundled ld-linux and libc
      * is being called. Such binaries must be identified at build time and the .env file must not include the
@@ -96,43 +90,9 @@ int main(int argc, char* argv[]) {
         setup_interpreter(system_interpreter_path);
     }
 
-    char* exported_binaries = getenv("EXPORTED_BINARIES");
-    if (exported_binaries != NULL)
-        export_binaries(exported_binaries);
-
     launch();
 
     return 1;
-}
-
-void export_binaries(char* binaries) {
-    char* token = strtok(binaries, ":");
-    while (token != NULL) {
-        export_binary(token);
-        token = strtok(NULL, ":");
-    }
-}
-
-void export_binary(const char* filename) {
-    char* appimage_uuid = getenv("APPIMAGE_UUID");
-    if (appimage_uuid == NULL)
-        die("Unable to export runtime binaries, missing APPIMAGE_UUID in runtime environment")
-
-    char target_path[PATH_MAX] = {0x0};
-    strcat(target_path, "/tmp/appimage-");
-    strcat(target_path, appimage_uuid);
-    strcat(target_path, "-");
-    strcat(target_path, strrchr(filename, '/') + 1);
-
-    if (access(target_path, F_OK) == -1) {
-        apprun_file_copy(filename, target_path);
-
-        // Copy permissions and ownership
-        struct stat fst;
-        stat(filename, &fst);
-        chown(target_path, fst.st_uid, fst.st_gid);
-        chmod(target_path, fst.st_mode);
-    }
 }
 
 char* resolve_origin(const char* apprun_path) {
@@ -184,6 +144,7 @@ char* resolve_apprun_path() {
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_DEBUG: APPRUN_PATH=%s\n", apprun_path);
 #endif
+
     return apprun_path;
 }
 
