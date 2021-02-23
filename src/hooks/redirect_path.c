@@ -49,6 +49,13 @@ typedef struct {
 static apprun_path_mapping** apprun_path_mappings = NULL;
 static int apprun_path_mappings_size = 0;
 
+char* apprun_get_proc_pid_exe_path() {
+    char* path = malloc(250);
+    memset(path, 0, 250);
+    sprintf(path, "/proc/%d/exe", getpid());
+    return path;
+}
+
 void apprun_load_path_mappings() {
     char* path_mappings_env = getenv(APPRUN_PATH_MAPPINGS);
     if (path_mappings_env == NULL || apprun_path_mappings != NULL) {
@@ -89,40 +96,44 @@ char* redirect_path_full(const char* pathname, int check_parent, int only_if_abs
 
 #ifdef DEBUG
     char* hooked_symbol = find_hooked_symbol();
-    fprintf(stderr, "APPRUN_HOOK_DEBUG: %s \"%s\"", hooked_symbol, pathname);
+    fprintf(stderr, "APPRUN_HOOK_DEBUG: %s \"%s\"\n", hooked_symbol, pathname);
     free(hooked_symbol);
 #endif
 
     if (pathname == NULL) {
-#ifdef DEBUG
-        fprintf(stderr, "\n");
-#endif
         return NULL;
     }
 
-    if (only_if_absolute && pathname[0] != '/') {
+    // replace proc/<pid>/exec and proc/self/exec call with the real EXE path
+    const char* real_exe_path = getenv("EXEC_PATH");
+    if (real_exe_path != NULL && strncmp("/proc", pathname, 5) == 0) {
+        char* proc_pid_exe_path = apprun_get_proc_pid_exe_path();
+        const char proc_self_exe_path[] = "/proc/self/exe";
+
+        if (strcmp(proc_pid_exe_path, pathname) == 0 || strcmp(proc_self_exe_path, pathname) == 0) {
 #ifdef DEBUG
-        fprintf(stderr, "\n");
+            fprintf(stderr, " --> \"%s\"\n", real_exe_path);
 #endif
-        return strdup(pathname);
+            free(proc_pid_exe_path);
+            return strdup(real_exe_path);
+        }
+
+        free(proc_pid_exe_path);
     }
 
-    char* appdir_env = getenv(APPRUN_ENV_APPDIR);
-    if (appdir_env == NULL) {
-#ifdef DEBUG
-        fprintf(stderr, "\n");
-#endif
+
+    if (only_if_absolute && pathname[0] != '/')
         return strdup(pathname);
-    }
+
+    char* appdir_env = getenv(APPRUN_ENV_APPDIR);
+    if (appdir_env == NULL)
+        return strdup(pathname);
+
 
     // ensure that path mappings are loaded
     apprun_load_path_mappings();
-    if (apprun_path_mappings_size == 0) {
-#ifdef DEBUG
-        fprintf(stderr, "\n");
-#endif
+    if (apprun_path_mappings_size == 0)
         return strdup(pathname);
-    }
 
 
     _access = (int (*)(const char* pathname, int mode)) dlsym(RTLD_NEXT, "access");
