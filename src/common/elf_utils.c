@@ -44,7 +44,7 @@ APPRUN_ELF_INFO* apprun_parse_elf(const char* elfFile) {
         // check so its really an elf file
         if (memcmp(header.e_ident, ELFMAG, SELFMAG) == 0) {
             info = malloc(sizeof(APPRUN_ELF_INFO));
-            info->PT_INTER = apprun_read_elf_64_pt_interp(file, header);
+            info->interpreter_path = apprun_read_elf_64_pt_interp(file, header);
         }
 
         // finally close the file
@@ -69,8 +69,9 @@ char* apprun_read_elf_64_pt_interp(FILE* file, Elf64_Ehdr h) {
             char* data = malloc(phdr_ent.p_filesz + 1);
             memset(data, 0, phdr_ent.p_filesz + 1);
             fread(data, phdr_ent.p_filesz, 1, file);
-            printf("PT_INTERP at %lu \"%s\"\n", phdr_ent_itr, data);
-
+#ifdef DEBUG
+            fprintf(stderr, "APPRUN_DEBUG: ELF PT_INTERP \"%s\"\n", data);
+#endif
             return data;
         }
     }

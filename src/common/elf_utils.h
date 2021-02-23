@@ -35,7 +35,7 @@
 
 // Information from the ELF file relevant to AppRun
 typedef struct {
-    char* PT_INTER;
+    char* interpreter_path;
 } APPRUN_ELF_INFO;
 
 APPRUN_ELF_INFO* apprun_parse_elf(const char* elfFile);

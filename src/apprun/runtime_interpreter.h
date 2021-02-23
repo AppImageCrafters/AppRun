@@ -28,6 +28,7 @@
 #define APPIMAGEEXECWRAPPER_RUNTIME_INTERPRETER_H
 
 #include <stdbool.h>
+#include <common/elf_utils.h>
 
 long compare_glib_version_strings(char* a, char* b);
 
@@ -37,7 +38,7 @@ char* read_libc_version(char* path);
 
 char* parse_ld_trace_line_path(const char* line);
 
-void setup_interpreter(char*);
+void select_runtime_glibc(APPRUN_ELF_INFO* elf_info);
 
 void deploy_interpreter();
 

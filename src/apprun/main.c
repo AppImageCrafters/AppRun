@@ -91,10 +91,9 @@ int main(int argc, char* argv[]) {
      * This is required to run interpreted executables such as shell scripts, python or other executables that depend
      * on the shebang to find their interpreter.
      * */
-    char* system_interpreter_path = getenv("SYSTEM_INTERP");
-    if (system_interpreter_path != NULL) {
-        setup_interpreter(system_interpreter_path);
-    }
+    char* exec_path = getenv("EXEC_PATH");
+    APPRUN_ELF_INFO* elf_info = apprun_parse_elf(exec_path);
+    select_runtime_glibc(elf_info);
 
     char* exported_binaries = getenv("EXPORTED_BINARIES");
     if (exported_binaries != NULL)
@@ -221,13 +220,19 @@ char* build_env_file_path(char* apprun_path, unsigned long i) {
 
 
 void launch() {
+    char* interpreter_path = getenv("APPRUN_INTERP");
     char* exec_path = getenv("EXEC_PATH");
     char* exec_args = getenv("EXEC_ARGS");
 
     char** user_args = apprun_shell_split_arguments(exec_args);
     unsigned user_args_len = apprun_string_list_len(user_args);
-    char** argv = calloc(user_args_len + 2, sizeof(char*));
-    argv[0] = exec_path;
+    char** argv = calloc(user_args_len + 3, sizeof(char*));
+    if (interpreter_path != NULL) {
+        argv[0] = interpreter_path;
+        argv[1] = exec_path;
+    } else
+        argv[0] = exec_path;
+
     for (int i = 0; i < user_args_len; i++)
         argv[i + 1] = user_args[i];
 
@@ -237,6 +242,9 @@ void launch() {
         fprintf(stderr, "\"%s\" ", *itr);
     fprintf(stderr, "\n");
 #endif
+    if (interpreter_path != NULL)
+        exec_path = interpreter_path;
+
     int ret = execv(exec_path, argv);
     fprintf(stderr, "APPRUN_ERROR: %s", strerror(errno));
 }
