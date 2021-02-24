@@ -56,15 +56,6 @@ void test_validate_glibc_version_string() {
     printf("Ok\n");
 }
 
-void test_read_libc_version() {
-    printf("%s: ", __PRETTY_FUNCTION__);
-    char* version = read_libc_version("/lib/x86_64-linux-gnu/libc-2.27.so");
-    assert_str_eq(version, "2.27");
-    free(version);
-
-    printf("Ok\n");
-}
-
 void test_compare_glib_version_strings() {
     printf("%s: ", __PRETTY_FUNCTION__);
 

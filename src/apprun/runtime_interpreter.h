@@ -34,13 +34,7 @@ long apprun_compare_version_strings(char* a, char* b);
 
 bool is_glibc_version_string_valid(char* buff);
 
-char* read_libc_version(char* path);
-
 char* parse_ld_trace_line_path(const char* line);
-
-void select_runtime_glibc(const char* appdir, const char* exec_path);
-
-void deploy_interpreter();
 
 char* resolve_libc_from_interpreter_path(char* path);
 

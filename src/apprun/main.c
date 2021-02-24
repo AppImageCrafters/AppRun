@@ -36,6 +36,7 @@
 #include "common/string_list.h"
 #include "common/shell_utils.h"
 #include "common/file_utils.h"
+#include "hooks/environment.h"
 
 #include "runtime_environment.h"
 #include "runtime_interpreter.h"
@@ -52,7 +53,7 @@ char* find_legacy_env_file(char* apprun_path);
 
 char* build_env_file_path(char* apprun_path, unsigned long i);
 
-char* resole_appdir_path(const char* root_env_file_path);
+char* resolve_appdir_path(const char* root_env_file_path);
 
 char* find_module_env_file(char* apprun_path);
 
@@ -63,6 +64,8 @@ char* resolve_origin(const char* apprun_path);
 void export_binaries(char* binaries);
 
 void export_binary(const char* filename);
+
+char* add_appdir_libc_prefix_to_path(const char* appdir, const char* path);
 
 int main(int argc, char* argv[]) {
     char* apprun_path = resolve_apprun_path();
@@ -75,35 +78,65 @@ int main(int argc, char* argv[]) {
 
     if (module_env_file_path == NULL) {
         char* legacy_env_file_path = find_legacy_env_file(apprun_path);
-        char* appdir_path = resole_appdir_path(legacy_env_file_path);
+        char* appdir_path = resolve_appdir_path(legacy_env_file_path);
 
         apprun_env_set("APPDIR", appdir_path, NULL, appdir_path);
         apprun_load_env_file(legacy_env_file_path, argv);
     }
 
 
-    /* *
-     * The interpreter setup method is only required when a binary that relies on the bundled ld-linux and libc
-     * is being called. Such binaries must be identified at build time and the .env file must not include the
-     * SYSTEM_INTERP, LIBRARY_PATHS, LD_PRELOAD or other library that may affect the execution of binaries external
-     * to the bundle.
-     *
-     * This is required to run interpreted executables such as shell scripts, python or other executables that depend
-     * on the shebang to find their interpreter.
-     * */
-
     const char* exec_path = require_environment("EXEC_PATH");
     const char* appdir = require_environment("APPDIR");
-    select_runtime_glibc(appdir, exec_path);
+
+    char* system_interpreter_path = apprun_elf_read_pt_interp(exec_path);
+
+    char* system_libc_path = resolve_libc_from_interpreter_path(system_interpreter_path);
+    char* system_libc_version = apprun_elf_read_glibc_version(system_libc_path);
+    char* appdir_libc_version = require_environment("APPDIR_LIBC_VERSION");
+
+#ifdef DEBUG
+    fprintf(stderr, "APPRUN_DEBUG: interpreter \"%s\" \n", strrchr(system_interpreter_path, '/') + 1);
+    fprintf(stderr, "APPRUN_DEBUG: system glibc(%s), appdir glibc(%s) \n", system_libc_version,
+            appdir_libc_version);
+#endif
+
+    bool use_system_glibc = apprun_compare_version_strings(system_libc_version, appdir_libc_version) >= 0;
+    char* runtime_library_path = NULL;
+    char* runtime_interpreter_path = NULL;
+    if (use_system_glibc == true) {
+        runtime_interpreter_path = system_interpreter_path;
+        runtime_library_path = apprun_shell_expand_variables(
+                "$APPDIR_LIBRARY_PATH:"
+                "$"APPRUN_ENV_ORIG_PREFIX"LD_LIBRARY_PATH",
+                NULL);
+    } else {
+        runtime_interpreter_path = add_appdir_libc_prefix_to_path(appdir, system_interpreter_path);
+        runtime_library_path = apprun_shell_expand_variables(
+                "$APPDIR_LIBRARY_PATH:"
+                "$LIBC_LIBRARY_PATH:"
+                "$"APPRUN_ENV_ORIG_PREFIX"LD_LIBRARY_PATH",
+                NULL);
+    }
 
 
     char* exported_binaries = getenv("EXPORTED_BINARIES");
     if (exported_binaries != NULL)
         export_binaries(exported_binaries);
 
-    launch();
+    launch(runtime_interpreter_path, runtime_library_path);
 
     return 1;
+}
+
+char* add_appdir_libc_prefix_to_path(const char* appdir, const char* path) {
+    char* appdir_interpreter_path = calloc(sizeof(char), PATH_MAX);
+    memset(appdir_interpreter_path, 0, PATH_MAX);
+
+    appdir_interpreter_path = strcat(appdir_interpreter_path, appdir);
+    appdir_interpreter_path = strcat(appdir_interpreter_path, "/opt/libc");
+    appdir_interpreter_path = strcat(appdir_interpreter_path, path);
+
+    return appdir_interpreter_path;
 }
 
 void export_binaries(char* binaries) {
@@ -143,7 +176,7 @@ char* resolve_origin(const char* apprun_path) {
     return origin_path;
 }
 
-char* resole_appdir_path(const char* root_env_file_path) {
+char* resolve_appdir_path(const char* root_env_file_path) {
     char* appdir = getenv("APPDIR");
     if (appdir == NULL) {
         if (root_env_file_path != NULL) {
@@ -221,22 +254,20 @@ char* build_env_file_path(char* apprun_path, unsigned long i) {
 }
 
 
-void launch() {
-    char* interpreter_path = getenv("APPRUN_INTERP");
+void launch(char* interpreter_path, char* library_path) {
     char* exec_path = getenv("EXEC_PATH");
     char* exec_args = getenv("EXEC_ARGS");
 
     char** user_args = apprun_shell_split_arguments(exec_args);
     unsigned user_args_len = apprun_string_list_len(user_args);
-    char** argv = calloc(user_args_len + 3, sizeof(char*));
-    if (interpreter_path != NULL) {
-        argv[0] = interpreter_path;
-        argv[1] = exec_path;
-    } else
-        argv[0] = exec_path;
+    char** argv = calloc(user_args_len + 5, sizeof(char*));
+    argv[0] = interpreter_path;
+    argv[1] = "--library-path";
+    argv[2] = library_path;
+    argv[3] = exec_path;
 
     for (int i = 0; i < user_args_len; i++)
-        argv[i + 1] = user_args[i];
+        argv[i + 4] = user_args[i];
 
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_DEBUG: executing ");
@@ -244,9 +275,7 @@ void launch() {
         fprintf(stderr, "\"%s\" ", *itr);
     fprintf(stderr, "\n");
 #endif
-    if (interpreter_path != NULL)
-        exec_path = interpreter_path;
 
-    int ret = execv(exec_path, argv);
+    int ret = execv(interpreter_path, argv);
     fprintf(stderr, "APPRUN_ERROR: %s", strerror(errno));
 }
