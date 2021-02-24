@@ -32,13 +32,8 @@
 #include <stdio.h>
 #include <string.h>
 
+char* apprun_elf_read_pt_interp(const char* path);
 
-// Information from the ELF file relevant to AppRun
-typedef struct {
-    char* interpreter_path;
-} APPRUN_ELF_INFO;
-
-APPRUN_ELF_INFO* apprun_parse_elf(const char* elfFile);
-
+char* apprun_elf_read_glibc_version(const char* path);
 
 #endif //APPIMAGEEXECWRAPPER_ELF_UTILS_H
