@@ -159,7 +159,7 @@ apprun_env_item_t* apprun_env_item_export(apprun_env_item_t* item) {
 
 char* apprun_env_str_entry_extract_name(char* string) {
     if (string) {
-        char* sep = strchr(string,  '=');
+        char* sep = strchr(string, '=');
         return strndup(string, sep - string);
     }
 

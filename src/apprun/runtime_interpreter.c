@@ -30,7 +30,6 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <memory.h>
 #include <limits.h>
 
 #include "common/elf_utils.h"
@@ -40,6 +39,7 @@
 #include "hooks/environment.h"
 
 #include "runtime_interpreter.h"
+#include "runtime_environment.h"
 
 
 char* parse_ld_trace_line_path(const char* line) {
@@ -101,7 +101,7 @@ char* read_libc_version(char* path) {
             if (itr == 'G') {
                 char* new_version = try_read_glibc_version_string(fp);
                 if (new_version != NULL) {
-                    if (compare_glib_version_strings(new_version, version) > 0)
+                    if (apprun_compare_version_strings(new_version, version) > 0)
                         strcpy(version, new_version);
 
                     free(new_version);
@@ -113,25 +113,6 @@ char* read_libc_version(char* path) {
     }
 
     return strdup(version);
-}
-
-long compare_glib_version_strings(char* a, char* b) {
-    if (a == NULL || b == NULL)
-        return a - b;
-
-    long a_vals[3] = {0x0};
-    long b_vals[3] = {0x0};
-
-    sscanf(a, "%ld.%ld.%ld", a_vals, a_vals + 1, a_vals + 2);
-    sscanf(b, "%ld.%ld.%ld", b_vals, b_vals + 1, b_vals + 2);
-
-    for (int i = 0; i < 3; i++) {
-        long diff = a_vals[i] - b_vals[i];
-        if (diff != 0)
-            return diff;
-    }
-
-    return 0;
 }
 
 void configure_embed_libc() {
@@ -156,16 +137,6 @@ void configure_system_libc() {
     free(ld_library_path);
 }
 
-char* require_environment(char* name) {
-    char* value = getenv(name);
-    if (value == NULL) {
-        fprintf(stderr, "APPRUN ERROR: Missing %s environment", name);
-        exit(1);
-    }
-
-    return value;
-}
-
 char* resolve_libc_from_interpreter_path(char* path) {
 #define LIBC_SO_NAME "libc.so.6"
 
@@ -186,20 +157,20 @@ char* resolve_libc_from_interpreter_path(char* path) {
     }
 }
 
-void select_runtime_glibc(APPRUN_ELF_INFO* elf_info) {
-    char* appdir = require_environment("APPDIR");
+void select_runtime_glibc(const char* appdir, const char* exec_path) {
+    char* interpreter_path = apprun_elf_read_pt_interp(exec_path);
+    char* system_libc_path = resolve_libc_from_interpreter_path(interpreter_path);
 
-    char* system_libc_path = resolve_libc_from_interpreter_path(elf_info->interpreter_path);
-    char* system_libc_version = read_libc_version(system_libc_path);
+    char* system_libc_version = apprun_elf_read_glibc_version(system_libc_path);
     char* appdir_libc_version = require_environment("APPDIR_LIBC_VERSION");
 
 #ifdef DEBUG
-    fprintf(stderr, "APPRUN_DEBUG: interpreter \"%s\" \n", strrchr(elf_info->interpreter_path, '/') + 1);
+    fprintf(stderr, "APPRUN_DEBUG: interpreter \"%s\" \n", strrchr(interpreter_path, '/') + 1);
     fprintf(stderr, "APPRUN_DEBUG: system glibc(%s), appdir glibc(%s) \n", system_libc_version,
             appdir_libc_version);
 #endif
 
-    if (compare_glib_version_strings(system_libc_version, appdir_libc_version) > 0) {
+    if (apprun_compare_version_strings(system_libc_version, appdir_libc_version) > 0) {
         configure_system_libc();
     } else {
         configure_embed_libc();
@@ -207,7 +178,7 @@ void select_runtime_glibc(APPRUN_ELF_INFO* elf_info) {
         memset(appdir_interpreter_path, 0, PATH_MAX);
         appdir_interpreter_path = strcat(appdir_interpreter_path, appdir);
         appdir_interpreter_path = strcat(appdir_interpreter_path, "/opt/libc");
-        appdir_interpreter_path = strcat(appdir_interpreter_path, elf_info->interpreter_path);
+        appdir_interpreter_path = strcat(appdir_interpreter_path, interpreter_path);
         setenv("APPRUN_INTERP", appdir_interpreter_path, 1);
         free(appdir_interpreter_path);
     }

@@ -68,19 +68,19 @@ void test_read_libc_version() {
 void test_compare_glib_version_strings() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
-    assert_eq(compare_glib_version_strings("1", "1"), 0);
-    assert_eq(compare_glib_version_strings("2", "1"), 1);
-    assert_eq(compare_glib_version_strings("1", "2"), -1);
-    assert_eq(compare_glib_version_strings("1.1", "1.1"), 0);
-    assert_eq(compare_glib_version_strings("1.2", "1.1"), 1);
-    assert_eq(compare_glib_version_strings("1.1", "1.2"), -1);
-    assert_eq(compare_glib_version_strings("1.2", "1.2.1"), -1);
-    assert_eq(compare_glib_version_strings("1.2.1", "1.2.1"), 0);
-    assert_eq(compare_glib_version_strings("1.2.1", "1.2"), 1);
+    assert_eq(apprun_compare_version_strings("1", "1"), 0);
+    assert_eq(apprun_compare_version_strings("2", "1"), 1);
+    assert_eq(apprun_compare_version_strings("1", "2"), -1);
+    assert_eq(apprun_compare_version_strings("1.1", "1.1"), 0);
+    assert_eq(apprun_compare_version_strings("1.2", "1.1"), 1);
+    assert_eq(apprun_compare_version_strings("1.1", "1.2"), -1);
+    assert_eq(apprun_compare_version_strings("1.2", "1.2.1"), -1);
+    assert_eq(apprun_compare_version_strings("1.2.1", "1.2.1"), 0);
+    assert_eq(apprun_compare_version_strings("1.2.1", "1.2"), 1);
 
-    assert_true(compare_glib_version_strings(NULL, "1") < 0);
-    assert_true(compare_glib_version_strings("1", NULL) > 0);
-    assert_true(compare_glib_version_strings(NULL, NULL) == 0);
+    assert_true(apprun_compare_version_strings(NULL, "1") < 0);
+    assert_true(apprun_compare_version_strings("1", NULL) > 0);
+    assert_true(apprun_compare_version_strings(NULL, NULL) == 0);
 
     printf("Ok\n");
 }

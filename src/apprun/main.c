@@ -91,9 +91,11 @@ int main(int argc, char* argv[]) {
      * This is required to run interpreted executables such as shell scripts, python or other executables that depend
      * on the shebang to find their interpreter.
      * */
-    char* exec_path = getenv("EXEC_PATH");
-    APPRUN_ELF_INFO* elf_info = apprun_parse_elf(exec_path);
-    select_runtime_glibc(elf_info);
+
+    const char* exec_path = require_environment("EXEC_PATH");
+    const char* appdir = require_environment("APPDIR");
+    select_runtime_glibc(appdir, exec_path);
+
 
     char* exported_binaries = getenv("EXPORTED_BINARIES");
     if (exported_binaries != NULL)

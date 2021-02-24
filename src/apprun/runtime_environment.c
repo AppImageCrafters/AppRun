@@ -94,3 +94,12 @@ void apprun_load_env_file(const char* path, char** argv) {
     free(line);
 }
 
+char* require_environment(const char* name) {
+    char* value = getenv(name);
+    if (value == NULL) {
+        fprintf(stderr, "APPRUN ERROR: Missing %s environment", name);
+        exit(1);
+    }
+
+    return value;
+}

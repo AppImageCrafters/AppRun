@@ -27,6 +27,8 @@
 #ifndef APPRUN_RUNTIME_ENVIRONMENT_H
 #define APPRUN_RUNTIME_ENVIRONMENT_H
 
+char* require_environment(const char* name);
+
 void apprun_env_set(const char* name, const char* value, const char* orig_value, const char* start_value);
 
 void apprun_load_env_file(const char* path, char** argv);
