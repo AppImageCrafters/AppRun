@@ -34,4 +34,6 @@ char* apprun_string_extend(char* string, unsigned int new_size);
 
 const char* apprun_string_consume_until(const char* itr, const char delimiters[]);
 
+long apprun_compare_version_strings(const char* a, const char* b);
+
 #endif //APPIMAGEEXECWRAPPER_STRING_UTILS_H

@@ -26,7 +26,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
+#include <stdio.h>
 
 #include "string_utils.h"
 
@@ -56,4 +56,23 @@ const char* apprun_string_consume_until(const char* itr, const char* delimiters)
         itr++;
 
     return itr;
+}
+
+long apprun_compare_version_strings(const char* a, const char* b) {
+    if (a == NULL || b == NULL)
+        return a - b;
+
+    long a_vals[3] = {0x0};
+    long b_vals[3] = {0x0};
+
+    sscanf(a, "%ld.%ld.%ld", a_vals, a_vals + 1, a_vals + 2);
+    sscanf(b, "%ld.%ld.%ld", b_vals, b_vals + 1, b_vals + 2);
+
+    for (int i = 0; i < 3; i++) {
+        long diff = a_vals[i] - b_vals[i];
+        if (diff != 0)
+            return diff;
+    }
+
+    return 0;
 }
