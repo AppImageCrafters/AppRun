@@ -67,4 +67,6 @@ char* apprun_env_str_entry_extract_name(char* string);
 
 char* apprun_env_str_entry_extract_value(char* string);
 
+char** apprun_envp_set(char** envp, const char* key, const char* value);
+
 #endif //APPDIR_RUMTIME_ENVIRONMENT_H

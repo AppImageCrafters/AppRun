@@ -369,3 +369,19 @@ char** apprun_export_envp(char* const* envp) {
 
     return adjusted_envp;
 }
+
+char** apprun_envp_set(char* envp[], const char* key, const char* value) {
+    size_t key_len = strlen(key);
+    size_t value_len = strlen(value);
+
+    for (char** itr = envp; itr != NULL && *itr != NULL; itr++) {
+        if (strncmp(key, *itr, key_len) == 0) {
+            *itr = calloc(sizeof(char), key_len + value_len + 2);
+            strcat(*itr, key);
+            strcat(*itr, "=");
+            strcat(*itr, value);
+        }
+    }
+
+    return envp;
+}

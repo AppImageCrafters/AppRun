@@ -337,6 +337,34 @@ void test_env_item_list_to_envp() {
     fprintf(stdout, "Ok\n");
 }
 
+void test_apprun_envp_set() {
+    fprintf(stdout, "%s: ", __PRETTY_FUNCTION__);
+
+    char* envp[] = {
+            "K1=V1",
+            "APPRUN_ORIGINAL_K1=V0",
+            "APPRUN_STARTUP_K1=V1",
+            "K3=0:1:2",
+            "APPRUN_ORIGINAL_K4=V0",
+            NULL,
+    };
+
+    char** res = apprun_envp_set(envp, "K1", "VNEW");
+
+    char* expected_envp[] = {
+            "K1=VNEW",
+            "APPRUN_ORIGINAL_K1=V0",
+            "APPRUN_STARTUP_K1=V1",
+            "K3=0:1:2",
+            "APPRUN_ORIGINAL_K4=V0",
+            NULL,
+    };
+
+    assert_str_list_eq(expected_envp, res);
+
+    fprintf(stdout, "Ok\n");
+}
+
 int main(int argc, char** argv, char* envp[]) {
     test_env_item_is_changed();
 
@@ -356,6 +384,8 @@ int main(int argc, char** argv, char* envp[]) {
     test_env_item_list_from_envp();
     test_export_env_item_list();
     test_env_item_list_to_envp();
+
+    test_apprun_envp_set();
 
     return 0;
 }
