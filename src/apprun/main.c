@@ -17,7 +17,7 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER>>>>>>> fix: allow launching executables without setting the SYSTEM_INTERP
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
@@ -36,7 +36,7 @@
 #include "common/string_list.h"
 #include "common/shell_utils.h"
 #include "common/file_utils.h"
-#include "hooks/environment.h"
+#include "common/exe_utils.h"
 
 #include "runtime_environment.h"
 #include "runtime_interpreter.h"
@@ -47,7 +47,8 @@
         exit(1);                                    \
     } while(0);
 
-char* add_appdir_libc_prefix_to_path(const char* appdir, const char* path) {
+char* add_appdir_libc_prefix_to_path(const char* path) {
+    const char* appdir = getenv("APPDIR");
     char* appdir_interpreter_path = calloc(sizeof(char), PATH_MAX);
     memset(appdir_interpreter_path, 0, PATH_MAX);
 
@@ -171,9 +172,17 @@ char* find_legacy_env_file(char* apprun_path) {
     return NULL;
 }
 
-void launch(char* interpreter_path) {
+void launch() {
     char* exec_path = getenv("EXEC_PATH");
     char* exec_args = getenv("EXEC_ARGS");
+
+    char* interpreter_path = apprun_elf_read_pt_interp(exec_path);
+    bool use_bundle_libc = getenv(APPRUN_USE_BUNDLE_LIBC) != NULL;
+    if (use_bundle_libc) {
+        char* old_interpreter_path = interpreter_path;
+        interpreter_path = add_appdir_libc_prefix_to_path(interpreter_path);
+        free(old_interpreter_path);
+    }
 
     char** user_args = apprun_shell_split_arguments(exec_args);
     unsigned user_args_len = apprun_string_list_len(user_args);
@@ -195,19 +204,48 @@ void launch(char* interpreter_path) {
     fprintf(stderr, "APPRUN_ERROR: %s", strerror(errno));
 }
 
-void set_runtime_library_paths(bool use_system_glibc) {
+/**
+ * Compare the bundled glibc version with the system one and configures the LD_LIBRARY_PATH to use the
+ * newer one.
+ *
+ * The configuration proceeds as follows:
+ *  - If the bundled glibc is newer:
+ *      - LD_LIBRARY_PATH will be set to: $LIBC_LIBRARY_PATH:$APPDIR_LIBRARY_PATH:$LD_LIBRARY_PATH
+ *      - APPRUN_USE_BUNDLE_LIBC will be set to "yes"
+ *  - If the system glibc is newer:
+ *      - LD_LIBRARY_PATH will be set to: $APPDIR_LIBRARY_PATH:$LD_LIBRARY_PATH
+ *      - APPRUN_USE_BUNDLE_LIBC will not be set
+ * */
+void configure_runtime() {
+    const char* exec_path = require_environment("EXEC_PATH");
+    char* system_interpreter_path = apprun_elf_read_pt_interp(exec_path);
+
+    char* system_libc_path = resolve_libc_from_interpreter_path(system_interpreter_path);
+    char* system_libc_version = apprun_elf_read_glibc_version(system_libc_path);
+    char* appdir_libc_version = require_environment("APPDIR_LIBC_VERSION");
+
+#ifdef DEBUG
+    fprintf(stderr, "APPRUN_DEBUG: interpreter \"%s\" \n", strrchr(system_interpreter_path, '/') + 1);
+    fprintf(stderr, "APPRUN_DEBUG: system glibc(%s), appdir glibc(%s) \n", system_libc_version,
+            appdir_libc_version);
+#endif
+
+    bool use_bundle_glibc = apprun_compare_version_strings(appdir_libc_version, system_libc_version) > 0;
+
     char* runtime_library_path = NULL;
-    if (use_system_glibc == true)
-        runtime_library_path = apprun_shell_expand_variables("$APPDIR_LIBRARY_PATH:$LD_LIBRARY_PATH", NULL);
-    else
+    if (use_bundle_glibc == true) {
+        apprun_env_set(APPRUN_USE_BUNDLE_LIBC, "yes", NULL, "yes");
         runtime_library_path = apprun_shell_expand_variables(
                 "$LIBC_LIBRARY_PATH:$APPDIR_LIBRARY_PATH:$LD_LIBRARY_PATH",
                 NULL);
+    } else
+        runtime_library_path = apprun_shell_expand_variables("$APPDIR_LIBRARY_PATH:$LD_LIBRARY_PATH", NULL);
+
 
     apprun_env_set("LD_LIBRARY_PATH", runtime_library_path, getenv("LD_LIBRARY_PATH"), runtime_library_path);
 }
 
-int main(int argc, char* argv[]) {
+void load_env_file(char* argv[]) {
     char* apprun_path = resolve_apprun_path();
     char* origin_path = resolve_origin(apprun_path);
     apprun_env_set("ORIGIN", origin_path, NULL, origin_path);
@@ -223,41 +261,17 @@ int main(int argc, char* argv[]) {
         apprun_env_set("APPDIR", appdir_path, NULL, appdir_path);
         apprun_load_env_file(legacy_env_file_path, argv);
     }
+}
 
-
-    const char* exec_path = require_environment("EXEC_PATH");
-    const char* appdir = require_environment("APPDIR");
-
-    char* system_interpreter_path = apprun_elf_read_pt_interp(exec_path);
-
-    char* system_libc_path = resolve_libc_from_interpreter_path(system_interpreter_path);
-    char* system_libc_version = apprun_elf_read_glibc_version(system_libc_path);
-    char* appdir_libc_version = require_environment("APPDIR_LIBC_VERSION");
-
-#ifdef DEBUG
-    fprintf(stderr, "APPRUN_DEBUG: interpreter \"%s\" \n", strrchr(system_interpreter_path, '/') + 1);
-    fprintf(stderr, "APPRUN_DEBUG: system glibc(%s), appdir glibc(%s) \n", system_libc_version,
-            appdir_libc_version);
-#endif
-
-    bool use_system_glibc = apprun_compare_version_strings(system_libc_version, appdir_libc_version) >= 0;
-
-    set_runtime_library_paths(use_system_glibc);
-
-    char* runtime_interpreter_path = NULL;
-    if (use_system_glibc == true)
-        runtime_interpreter_path = system_interpreter_path;
-    else
-        runtime_interpreter_path = add_appdir_libc_prefix_to_path(appdir, system_interpreter_path);
-
-
-
+int main(int argc, char* argv[]) {
+    load_env_file(argv);
+    configure_runtime();
 
     char* exported_binaries = getenv("EXPORTED_BINARIES");
     if (exported_binaries != NULL)
         export_binaries(exported_binaries);
 
-    launch(runtime_interpreter_path);
+    launch();
 
     return 1;
 }
