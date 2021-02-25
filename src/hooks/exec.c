@@ -70,7 +70,7 @@ static execvpe_func_t real_execvpe = NULL;
 int apprun_is_exported_binary(const char* new_filename);
 
 
-apprun_execve_args_t* apprun_adjusted_exec_args(const char* filename, char* const* argv, char* const* envp) {
+apprun_execve_params_t* apprun_adjusted_exec_args(const char* filename, char* const* argv, char* const* envp) {
     char* resolved_filename = apprun_resolve_bin_path(filename);
     char* new_filename = apprun_redirect_path(resolved_filename);
     free(resolved_filename);
@@ -81,10 +81,10 @@ apprun_execve_args_t* apprun_adjusted_exec_args(const char* filename, char* cons
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_HOOK_DEBUG: APPDIR: %s\n", appdir);
     fprintf(stderr, "APPRUN_HOOK_DEBUG: ORIGINAL EXEC_ARGS\n");
-    apprun_print_exec_args(filename, argv, envp);
+    apprun_print_execve_params(filename, argv, envp);
 #endif
 
-    apprun_execve_args_t* res = NULL;
+    apprun_execve_params_t* res = NULL;
     res = apprun_duplicate_exec_args(new_filename, argv);
 
     int is_exported_binary = apprun_is_exported_binary(new_filename);
@@ -105,7 +105,7 @@ apprun_execve_args_t* apprun_adjusted_exec_args(const char* filename, char* cons
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_HOOK_DEBUG: APPDIR: %s\n", appdir);
     fprintf(stderr, "APPRUN_HOOK_DEBUG: REAL EXEC_ARGS\n");
-    apprun_print_exec_args(res->file, res->args, res->envp);
+    apprun_print_execve_params(res->file, res->args, res->envp);
 #endif
 
     free(new_filename);
@@ -130,41 +130,41 @@ int apprun_is_exported_binary(const char* new_filename) {
 }
 
 int execve(const char* filename, char* const argv[], char* const envp[]) {
-    apprun_execve_args_t* new_exec_args = apprun_adjusted_exec_args(filename, argv, envp);
+    apprun_execve_params_t* new_exec_args = apprun_adjusted_exec_args(filename, argv, envp);
 
     real_execve = dlsym(RTLD_NEXT, "execve");
     int ret = real_execve(new_exec_args->file, new_exec_args->args, new_exec_args->envp);
 
-    apprun_exec_args_free(new_exec_args);
+    apprun_execve_params_free(new_exec_args);
     return ret;
 }
 
 int execv(const char* filename, char* const argv[]) {
-    apprun_execve_args_t* new_exec_args = apprun_adjusted_exec_args(filename, argv, environ);
+    apprun_execve_params_t* new_exec_args = apprun_adjusted_exec_args(filename, argv, environ);
 
     real_execve = dlsym(RTLD_NEXT, "execve");
     int ret = real_execve(new_exec_args->file, new_exec_args->args, new_exec_args->envp);
 
-    apprun_exec_args_free(new_exec_args);
+    apprun_execve_params_free(new_exec_args);
     return ret;
 }
 
 int execvpe(const char* filename, char* const argv[], char* const envp[]) {
-    apprun_execve_args_t* new_exec_args = apprun_adjusted_exec_args(filename, argv, envp);
+    apprun_execve_params_t* new_exec_args = apprun_adjusted_exec_args(filename, argv, envp);
 
     real_execvpe = dlsym(RTLD_NEXT, "execvpe");
     int ret = real_execvpe(new_exec_args->file, new_exec_args->args, new_exec_args->envp);
 
-    apprun_exec_args_free(new_exec_args);
+    apprun_execve_params_free(new_exec_args);
     return ret;
 }
 
 int execvp(const char* filename, char* const argv[]) {
-    apprun_execve_args_t* new_exec_args = apprun_adjusted_exec_args(filename, argv, environ);
+    apprun_execve_params_t* new_exec_args = apprun_adjusted_exec_args(filename, argv, environ);
 
     real_execvpe = dlsym(RTLD_NEXT, "execvpe");
     int ret = real_execvpe(new_exec_args->file, new_exec_args->args, new_exec_args->envp);
 
-    apprun_exec_args_free(new_exec_args);
+    apprun_execve_params_free(new_exec_args);
     return ret;
 }

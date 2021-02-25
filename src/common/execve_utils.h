@@ -37,12 +37,12 @@ typedef struct {
     char* file;
     char** args;
     char** envp;
-} apprun_execve_args_t;
+} apprun_execve_params_t;
 
 char* apprun_resolve_runtime_interpreter(const char* exec_path);
 
-void apprun_exec_args_free(apprun_execve_args_t* args);
+void apprun_execve_params_free(apprun_execve_params_t* args);
 
-void apprun_print_exec_args(const char* filename, char* const* argv, char* const* envp);
+void apprun_print_execve_params(const char* filename, char* const* argv, char* const* envp);
 
 #endif //APPIMAGEEXECWRAPPER_EXECVE_UTILS_H

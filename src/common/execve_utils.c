@@ -49,14 +49,14 @@ char* apprun_resolve_runtime_interpreter(const char* exec_path) {
     return interpreter_path;
 }
 
-void apprun_exec_args_free(apprun_execve_args_t* args) {
+void apprun_execve_params_free(apprun_execve_params_t* args) {
     apprun_string_list_free(args->args);
     apprun_string_list_free(args->envp);
     free(args->file);
     free(args);
 }
 
-void apprun_print_exec_args(const char* filename, char* const* argv, char* const* envp) {
+void apprun_print_execve_params(const char* filename, char* const* argv, char* const* envp) {
     fprintf(stderr, "  filename: \"%s\"\n", filename);
     fprintf(stderr, "  args: [ ");
     if (argv) {
