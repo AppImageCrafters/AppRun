@@ -94,7 +94,7 @@ char** apprun_string_list_dup(char* const* envp) {
         return NULL;
 }
 
-char* apprun_string_list_join(const char* const string_list[], char* split) {
+char* apprun_string_list_join(const char* const* string_list, char* split) {
     unsigned string_list_len = apprun_string_list_len(string_list);
     unsigned split_len = strlen(split);
     unsigned str_size = 0;

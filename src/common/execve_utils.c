@@ -30,6 +30,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "execve_utils.h"
 #include "elf_utils.h"
@@ -40,12 +41,18 @@ char* apprun_resolve_runtime_interpreter(const char* exec_path) {
     bool use_bundle_libc = getenv(APPRUN_USE_BUNDLE_LIBC) != NULL;
 
     if (use_bundle_libc) {
-        char* old_interpreter_path = interpreter_path;
-        char* path_parts[] = {getenv("APPDIR"), "opt/libc", interpreter_path, NULL};
-        interpreter_path = apprun_string_list_join(path_parts, "/");
-
-        free(old_interpreter_path);
+        const char* path_parts[] = {getenv("APPDIR"), "opt/libc", interpreter_path, NULL};
+        char* bundled_interpreter_path = apprun_string_list_join(path_parts, "/");
+        if (access(bundled_interpreter_path, X_OK) == 0) {
+            free(interpreter_path);
+            return bundled_interpreter_path;
+        } else {
+            // fallback to the system interpreter if none is bundled
+            fprintf(stderr, "APPRUN_ERROR: Unable to find bundled interpreter at %s", bundled_interpreter_path);
+            free(bundled_interpreter_path);
+        }
     }
+    
     return interpreter_path;
 }
 

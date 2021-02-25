@@ -196,6 +196,28 @@ void launch() {
     fprintf(stderr, "APPRUN_ERROR: %s", strerror(errno));
 }
 
+char* resolve_system_libc_version() {
+    char* system_libc_version = NULL;
+    char* system_interp = strdup(getenv("SYSTEM_INTERP"));
+    char* token;
+
+    /* get the first token */
+    token = strtok(system_interp, ":");
+
+    /* walk through other tokens */
+    while (token != NULL) {
+        char* system_libc_path = resolve_libc_from_interpreter_path(token);
+        char* resolved_version = apprun_elf_read_glibc_version(system_libc_path);
+        if (apprun_compare_version_strings(resolved_version, system_libc_version) > 0)
+            system_libc_version = resolved_version;
+
+        free(system_libc_path);
+        token = strtok(NULL, system_interp);
+    }
+
+    return system_libc_version;
+}
+
 /**
  * Compare the bundled glibc version with the system one and configures the LD_LIBRARY_PATH to use the
  * newer one.
@@ -210,14 +232,13 @@ void launch() {
  * */
 void configure_runtime() {
     const char* exec_path = require_environment("EXEC_PATH");
-    char* system_interpreter_path = apprun_elf_read_pt_interp(exec_path);
+    if (access(exec_path, X_OK) != 0)
+        die("APPRUN_ERROR: File not found or not executable: '%s'", exec_path);
 
-    char* system_libc_path = resolve_libc_from_interpreter_path(system_interpreter_path);
-    char* system_libc_version = apprun_elf_read_glibc_version(system_libc_path);
+    char* system_libc_version = resolve_system_libc_version();
     char* appdir_libc_version = require_environment("APPDIR_LIBC_VERSION");
 
 #ifdef DEBUG
-    fprintf(stderr, "APPRUN_DEBUG: interpreter \"%s\" \n", strrchr(system_interpreter_path, '/') + 1);
     fprintf(stderr, "APPRUN_DEBUG: system glibc(%s), appdir glibc(%s) \n", system_libc_version,
             appdir_libc_version);
 #endif
