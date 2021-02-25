@@ -32,8 +32,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <common/exe_utils.h>
 
-#include "exec_args.h"
+
 #include "interpreter.h"
 #include "environment.h"
 #include "common/path.h"

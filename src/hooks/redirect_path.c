@@ -34,10 +34,12 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <common/hooks_debug.h>
+
+#include "common/hooks_debug.h"
+#include "common/exe_utils.h"
 
 #include "redirect_path.h"
-#include "exec_args.h"
+
 
 #define APPRUN_PATH_MAPPINGS "APPRUN_PATH_MAPPINGS"
 

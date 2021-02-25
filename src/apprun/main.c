@@ -178,7 +178,7 @@ void launch() {
     char* exec_args = getenv("EXEC_ARGS");
     char** user_args = apprun_shell_split_arguments(exec_args);
     char** argv = NULL;
-
+    
     char* interpreter_path = apprun_resolve_runtime_interpreter(exec_path);
 
     // we are in presence of an dynamically linked binary

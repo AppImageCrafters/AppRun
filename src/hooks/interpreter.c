@@ -29,7 +29,6 @@
 #include <stdbool.h>
 
 #include "interpreter.h"
-#include "exec_args.h"
 #include "common/string_list.h"
 #include "common/path.h"
 

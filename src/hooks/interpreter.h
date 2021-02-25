@@ -28,7 +28,8 @@
 #define APPDIR_RUMTIME_INTERPRETER_H
 
 #include <stdbool.h>
-#include "exec_args.h"
+
+#include "common/exe_utils.h"
 
 apprun_exec_args_t* apprun_duplicate_exec_args(const char* filename, char* const* argv);
 

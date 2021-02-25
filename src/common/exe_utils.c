@@ -25,6 +25,9 @@
  **************************************************************************/
 
 
+
+#include <stdio.h>
+#include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -44,4 +47,37 @@ char* apprun_resolve_runtime_interpreter(const char* exec_path) {
         free(old_interpreter_path);
     }
     return interpreter_path;
+}
+
+void apprun_exec_args_free(apprun_exec_args_t* args) {
+    apprun_string_list_free(args->args);
+    apprun_string_list_free(args->envp);
+    free(args->file);
+    free(args);
+}
+
+void apprun_print_exec_args(const char* filename, char* const* argv, char* const* envp) {
+    fprintf(stderr, "  filename: \"%s\"\n", filename);
+    fprintf(stderr, "  args: [ ");
+    if (argv) {
+        for (char* const* itr = argv; *itr != 0; itr++) {
+            fprintf(stderr, "\"%s\"", *itr);
+            if (*(itr + 1) != NULL)
+                fprintf(stderr, ", ");
+        }
+    }
+
+    fprintf(stderr, "]\n");
+
+    fprintf(stderr, "  envp: [ \n");
+    if (envp) {
+        for (char* const* itr = envp; *itr != 0; itr++) {
+            fprintf(stderr, "    \"%s\"", *itr);
+            if (*(itr + 1) != NULL)
+                fprintf(stderr, ", \n");
+        }
+    }
+
+
+    fprintf(stderr, "]\n");
 }

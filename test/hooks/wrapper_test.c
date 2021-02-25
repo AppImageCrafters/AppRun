@@ -29,8 +29,8 @@
 #include <string.h>
 #include <limits.h>
 
-#include "hooks/interpreter.h"
 #include "../common/tests_shared.h"
+#include "common/exe_utils.h"
 
 void test_restore_original_env_for_external_binaries() {
     fprintf(stdout, "Test restore original environment when calling external binaries: ");
