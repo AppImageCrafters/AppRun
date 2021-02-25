@@ -179,20 +179,14 @@ void launch() {
     char* exec_args = getenv("EXEC_ARGS");
     char** user_args = apprun_shell_split_arguments(exec_args);
 
-    apprun_execve_params_t execve_params;
-    execve_params.file = apprun_resolve_runtime_interpreter(exec_path);
-
-    // we are in presence of an dynamically linked binary so we prefix the interpreter to our execve call
-    const char* interpreter_args[] = {execve_params.file, exec_path, NULL};
-    execve_params.args = apprun_string_list_extend(interpreter_args, user_args);
-    execve_params.envp = environ;
+    apprun_execve_params_t* execve_params = apprun_prepare_execve_params(exec_path, user_args, environ);
 
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_DEBUG: Launching\n");
-    apprun_print_execve_params(execve_params.file, execve_params.args, execve_params.envp);
+    apprun_print_execve_params(execve_params->file, execve_params->args, execve_params->envp);
 #endif
 
-    execve(execve_params.file, execve_params.args, execve_params.envp);
+    execve(execve_params->file, execve_params->args, execve_params->envp);
     fprintf(stderr, "APPRUN_ERROR: %s", strerror(errno));
 }
 

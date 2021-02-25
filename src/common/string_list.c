@@ -72,19 +72,19 @@ char** apprun_string_list_alloc(unsigned int size) {
     return ret;
 }
 
-int apprun_array_len(char* const* arr) {
+int apprun_array_len(const char* const* arr) {
     if (arr)
         return apprun_string_list_len(arr) + APPRUN_STRING_LIST_NULL_TERMINATION_PADDING;
     else
         return 0;
 }
 
-char** apprun_string_list_dup(char* const* envp) {
-    if (envp != NULL) {
-        unsigned size = apprun_array_len(envp);
+char** apprun_string_list_dup(const char* const* list) {
+    if (list != NULL) {
+        unsigned size = apprun_array_len(list);
         char** copy = apprun_string_list_alloc(size);
 
-        char* const* itr1 = envp;
+        char const* const* itr1 = list;
         char** itr2 = copy;
         for (; *itr1 != NULL; itr1++, itr2++)
             *itr2 = strdup(*itr1);

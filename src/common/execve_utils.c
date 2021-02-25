@@ -52,7 +52,7 @@ char* apprun_resolve_runtime_interpreter(const char* exec_path) {
             free(bundled_interpreter_path);
         }
     }
-    
+
     return interpreter_path;
 }
 
@@ -87,4 +87,17 @@ void apprun_print_execve_params(const char* filename, char* const* argv, char* c
 
 
     fprintf(stderr, "]\n");
+}
+
+apprun_execve_params_t*
+apprun_prepare_execve_params(const char* exec_path, const char* const* user_args, const char* const* user_envp) {
+    apprun_execve_params_t* execve_params = malloc(sizeof(apprun_execve_params_t));
+    execve_params->file = apprun_resolve_runtime_interpreter(exec_path);
+
+    // we are in presence of an dynamically linked binary so we prefix the interpreter to our execve call
+    const char* interpreter_args[] = {execve_params->file, exec_path, NULL};
+    execve_params->args = apprun_string_list_extend(interpreter_args, user_args);
+    execve_params->envp = apprun_string_list_dup(user_envp);
+
+    return execve_params;
 }
