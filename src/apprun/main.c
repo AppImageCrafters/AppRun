@@ -172,26 +172,19 @@ char* find_legacy_env_file(char* apprun_path) {
     return NULL;
 }
 
+
 void launch() {
     char* exec_path = getenv("EXEC_PATH");
     char* exec_args = getenv("EXEC_ARGS");
-
-    char* interpreter_path = apprun_elf_read_pt_interp(exec_path);
-    bool use_bundle_libc = getenv(APPRUN_USE_BUNDLE_LIBC) != NULL;
-    if (use_bundle_libc) {
-        char* old_interpreter_path = interpreter_path;
-        interpreter_path = add_appdir_libc_prefix_to_path(interpreter_path);
-        free(old_interpreter_path);
-    }
-
     char** user_args = apprun_shell_split_arguments(exec_args);
-    unsigned user_args_len = apprun_string_list_len(user_args);
-    char** argv = calloc(user_args_len + 3, sizeof(char*));
-    argv[0] = interpreter_path;
-    argv[1] = exec_path;
+    char** argv = NULL;
 
-    for (int i = 0; i < user_args_len; i++)
-        argv[i + 2] = user_args[i];
+    char* interpreter_path = apprun_resolve_runtime_interpreter(exec_path);
+
+    // we are in presence of an dynamically linked binary
+    const char* interpreter_args[] = {interpreter_path, exec_path, NULL};
+    argv = apprun_string_list_extend(interpreter_args, user_args);
+
 
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_DEBUG: executing ");

@@ -31,8 +31,6 @@
 #include <assert.h>
 #include <archive.h>
 
-unsigned char* apprun_elf_require_ident(FILE* f);
-
 char* apprun_elf_32_load_str_table(FILE* file, const Elf32_Shdr* str_table_shdr);
 
 char* apprun_elf_64_load_str_table(FILE* file, const Elf64_Shdr* str_table_shdr);

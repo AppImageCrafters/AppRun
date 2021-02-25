@@ -32,6 +32,8 @@
 #include <stdio.h>
 #include <string.h>
 
+unsigned char* apprun_elf_require_ident(FILE* f);
+
 char* apprun_elf_read_pt_interp(const char* path);
 
 char* apprun_elf_read_glibc_version(const char* path);

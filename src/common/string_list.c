@@ -47,12 +47,12 @@ char** apprun_adjust_string_array_size(char** array) {
     return new;
 }
 
-int apprun_string_list_len(char* const* x) {
+int apprun_string_list_len(const char* const x[]) {
     if (x == NULL)
         return 0;
 
     int len = 0;
-    while (x[len] != 0)
+    while (x[len] != NULL)
         len++;
 
     return len;
@@ -74,7 +74,7 @@ char** apprun_string_list_alloc(unsigned int size) {
 
 int apprun_array_len(char* const* arr) {
     if (arr)
-        return apprun_string_list_len(arr) + 1; // allocate extra space for the 0 termination
+        return apprun_string_list_len(arr) + APPRUN_STRING_LIST_NULL_TERMINATION_PADDING;
     else
         return 0;
 }
@@ -94,7 +94,7 @@ char** apprun_string_list_dup(char* const* envp) {
         return NULL;
 }
 
-char* apprun_string_list_join(char* const* string_list, char* split) {
+char* apprun_string_list_join(const char* const string_list[], char* split) {
     unsigned string_list_len = apprun_string_list_len(string_list);
     unsigned split_len = strlen(split);
     unsigned str_size = 0;
@@ -113,10 +113,27 @@ char* apprun_string_list_join(char* const* string_list, char* split) {
 }
 
 char* apprun_prefix_str(const char* prefix, const char* str) {
-    unsigned prefixed_str_size = strlen(prefix) + strlen(str) + 1;
+    unsigned prefixed_str_size = strlen(prefix) + strlen(str) + APPRUN_STRING_LIST_NULL_TERMINATION_PADDING;
     char* prefixed_str = calloc(prefixed_str_size, sizeof(char));
     strcat(prefixed_str, prefix);
     strcat(prefixed_str, str);
 
     return prefixed_str;
+}
+
+char** apprun_string_list_extend(const char* const* base, const char* const* extension) {
+    unsigned base_len = apprun_string_list_len(base);
+    unsigned extension_len = apprun_string_list_len(extension);
+    size_t result_len = base_len + extension_len + APPRUN_STRING_LIST_NULL_TERMINATION_PADDING;
+
+    char** result = calloc(base_len + extension_len + 1, sizeof(char*));
+    memset(result, 0, result_len);
+
+    for (int i = 0; i < base_len; i++)
+        result[i] = strdup(base[i]);
+
+    for (int i = 0; i < extension_len; i++)
+        result[base_len + i] = strdup(extension[i]);
+
+    return result;
 }

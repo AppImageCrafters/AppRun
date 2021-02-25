@@ -25,4 +25,23 @@
  **************************************************************************/
 
 
+#include <stdbool.h>
+#include <stdlib.h>
+
 #include "exe_utils.h"
+#include "elf_utils.h"
+#include "string_list.h"
+
+char* apprun_resolve_runtime_interpreter(const char* exec_path) {
+    char* interpreter_path = apprun_elf_read_pt_interp(exec_path);
+    bool use_bundle_libc = getenv(APPRUN_USE_BUNDLE_LIBC) != NULL;
+
+    if (use_bundle_libc) {
+        char* old_interpreter_path = interpreter_path;
+        char* path_parts[] = {getenv("APPDIR"), "opt/libc", interpreter_path, NULL};
+        interpreter_path = apprun_string_list_join(path_parts, "/");
+
+        free(old_interpreter_path);
+    }
+    return interpreter_path;
+}

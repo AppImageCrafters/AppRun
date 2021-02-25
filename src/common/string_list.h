@@ -29,11 +29,13 @@
 
 #include <stdbool.h>
 
+#define APPRUN_STRING_LIST_NULL_TERMINATION_PADDING 1
+
 char* apprun_prefix_str(const char* prefix, const char* str);
 
 char** apprun_adjust_string_array_size(char** array);
 
-int apprun_string_list_len(char* const* x);
+int apprun_string_list_len(const char* const* x);
 
 void apprun_string_list_free(char** string_list);
 
@@ -43,6 +45,8 @@ int apprun_array_len(char* const* arr);
 
 char** apprun_string_list_dup(char* const* envp);
 
-char* apprun_string_list_join(char* const* string_list, char* split);
+char* apprun_string_list_join(const char* const* string_list, char* split);
+
+char** apprun_string_list_extend(const char* const base[], const char* const* extension);
 
 #endif //APPRUN_STRING_LIST_H

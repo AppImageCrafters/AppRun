@@ -30,4 +30,6 @@
 
 #define APPRUN_USE_BUNDLE_LIBC "APPRUN_USE_BUNDLE_LIBC"
 
+char* apprun_resolve_runtime_interpreter(const char* exec_path);
+
 #endif //APPIMAGEEXECWRAPPER_EXE_UTILS_H
