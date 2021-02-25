@@ -36,7 +36,7 @@
 #include "common/string_list.h"
 #include "common/shell_utils.h"
 #include "common/file_utils.h"
-#include "common/exe_utils.h"
+#include "common/execve_utils.h"
 
 #include "runtime_environment.h"
 #include "runtime_interpreter.h"
@@ -178,7 +178,7 @@ void launch() {
     char* exec_args = getenv("EXEC_ARGS");
     char** user_args = apprun_shell_split_arguments(exec_args);
     char** argv = NULL;
-    
+
     char* interpreter_path = apprun_resolve_runtime_interpreter(exec_path);
 
     // we are in presence of an dynamically linked binary

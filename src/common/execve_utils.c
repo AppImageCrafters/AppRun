@@ -31,7 +31,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "exe_utils.h"
+#include "execve_utils.h"
 #include "elf_utils.h"
 #include "string_list.h"
 
@@ -49,7 +49,7 @@ char* apprun_resolve_runtime_interpreter(const char* exec_path) {
     return interpreter_path;
 }
 
-void apprun_exec_args_free(apprun_exec_args_t* args) {
+void apprun_exec_args_free(apprun_execve_args_t* args) {
     apprun_string_list_free(args->args);
     apprun_string_list_free(args->envp);
     free(args->file);
