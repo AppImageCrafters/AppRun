@@ -26,7 +26,7 @@
 
 #include <stdio.h>
 
-#include "hooks/environment.h"
+#include "common/environment.h"
 #include "common/string_list.h"
 
 #include "../common/tests_shared.h"

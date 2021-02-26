@@ -6,7 +6,10 @@ add_library(
     string_utils.c
     shell_utils.c
     hook_debug.c
-    elf_utils.c elf_utils.h execve_utils.c execve_utils.h)
+    elf_utils.c
+    execve_utils.c
+    environment.c
+)
 
 target_compile_definitions(common_objects PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
 target_include_directories(common_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")

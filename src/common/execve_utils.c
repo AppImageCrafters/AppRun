@@ -35,6 +35,7 @@
 #include "execve_utils.h"
 #include "elf_utils.h"
 #include "string_list.h"
+#include "environment.h"
 
 char* apprun_resolve_runtime_interpreter(const char* exec_path) {
     char* interpreter_path = apprun_elf_read_pt_interp(exec_path);
@@ -89,15 +90,36 @@ void apprun_print_execve_params(const char* filename, char* const* argv, char* c
     fprintf(stderr, "]\n");
 }
 
+char** apprun_replace_exec_path_and_args_in_envp(const char* exec_path, const char* const* user_args,
+                                                 const char* const* user_envp) {
+    apprun_env_item_list_t* envp_list = apprun_env_item_list_from_envp(user_envp);
+    for (apprun_env_item_list_t* itr = envp_list; itr != NULL && *itr != NULL; itr++) {
+        apprun_env_item_t* item = *itr;
+        if (strncmp("EXEC_PATH", item->name, 9) == 0) {
+            item->current_value = strdup(exec_path);
+            item->startup_value = strdup(exec_path);
+        }
+        if (strncmp("EXEC_ARGS", item->name, 9) == 0) {
+            // +1 to ignore self filename
+            char* args_string = apprun_string_list_join(user_args + 1, " ");
+
+            item->current_value = args_string;
+            item->startup_value = args_string;
+        }
+    }
+
+    return apprun_env_item_list_to_envp(envp_list);
+}
+
 apprun_execve_params_t*
-apprun_prepare_execve_params(const char* exec_path, const char* const* user_args, const char* const* user_envp) {
-    apprun_execve_params_t* execve_params = malloc(sizeof(apprun_execve_params_t));
-    execve_params->file = apprun_resolve_runtime_interpreter(exec_path);
+apprun_execve_params_prepare_bundle(const char* exec_path, const char* const* argv_orig, const char* const* envp_orig) {
+    apprun_execve_params_t* params = malloc(sizeof(apprun_execve_params_t));
+    params->file = apprun_resolve_runtime_interpreter(exec_path);
 
     // we are in presence of an dynamically linked binary so we prefix the interpreter to our execve call
-    const char* interpreter_args[] = {execve_params->file, exec_path, NULL};
-    execve_params->args = apprun_string_list_extend(interpreter_args, user_args);
-    execve_params->envp = apprun_string_list_dup(user_envp);
+    const char* interpreter_prefix[] = {params->file, NULL};
+    params->args = apprun_string_list_extend(interpreter_prefix, argv_orig);
+    params->envp = apprun_replace_exec_path_and_args_in_envp(exec_path, argv_orig, envp_orig);
 
-    return execve_params;
+    return params;
 }

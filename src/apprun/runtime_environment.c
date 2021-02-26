@@ -31,7 +31,7 @@
 
 #include "common/shell_utils.h"
 #include "common/string_list.h"
-#include "hooks/environment.h"
+#include "common/environment.h"
 
 
 void apprun_update_env(const char* name, const char* value) {

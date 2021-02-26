@@ -177,9 +177,12 @@ extern char** environ;
 void launch() {
     char* exec_path = getenv("EXEC_PATH");
     char* exec_args = getenv("EXEC_ARGS");
-    char** user_args = apprun_shell_split_arguments(exec_args);
 
-    apprun_execve_params_t* execve_params = apprun_prepare_execve_params(exec_path, user_args, environ);
+    const char* interpreter_args[] = {exec_path, NULL};
+    char** argv = apprun_shell_split_arguments(exec_args);
+    char** user_args = apprun_string_list_extend(interpreter_args, argv);
+
+    apprun_execve_params_t* execve_params = apprun_execve_params_prepare_bundle(exec_path, user_args, environ);
 
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_DEBUG: Launching\n");

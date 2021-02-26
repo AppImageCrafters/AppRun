@@ -46,6 +46,6 @@ void apprun_execve_params_free(apprun_execve_params_t* args);
 void apprun_print_execve_params(const char* filename, char* const* argv, char* const* envp);
 
 apprun_execve_params_t*
-apprun_prepare_execve_params(const char* exec_path, char const* const* user_args, char const* const* user_envp);
+apprun_execve_params_prepare_bundle(const char* exec_path, const char* const* argv_orig, const char* const* envp_orig);
 
 #endif //APPIMAGEEXECWRAPPER_EXECVE_UTILS_H
