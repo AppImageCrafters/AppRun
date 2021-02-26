@@ -57,6 +57,9 @@ char* apprun_elf_64_read_pt_interp(FILE* file, const Elf64_Ehdr* ehdr);
 
 char* apprun_elf_read_pt_interp(const char* path) {
     FILE* elf = fopen(path, "rb");
+    if (elf == NULL)
+        return NULL;
+
     unsigned char* e_ident = apprun_elf_require_ident(elf);
     if (e_ident == NULL) {
         fprintf(stderr, "APPRUN_ERROR: Missing ELF ident on: %s", path);

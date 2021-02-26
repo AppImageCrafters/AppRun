@@ -41,7 +41,7 @@ char* apprun_resolve_runtime_interpreter(const char* exec_path) {
     char* interpreter_path = apprun_elf_read_pt_interp(exec_path);
     bool use_bundle_libc = getenv(APPRUN_USE_BUNDLE_LIBC) != NULL;
 
-    if (use_bundle_libc) {
+    if (use_bundle_libc && interpreter_path) {
         const char* path_parts[] = {getenv("APPDIR"), "opt/libc", interpreter_path, NULL};
         char* bundled_interpreter_path = apprun_string_list_join(path_parts, "/");
         if (access(bundled_interpreter_path, X_OK) == 0) {
@@ -114,12 +114,18 @@ char** apprun_replace_exec_path_and_args_in_envp(const char* exec_path, const ch
 apprun_execve_params_t*
 apprun_execve_params_prepare_bundle(const char* exec_path, const char* const* argv_orig, const char* const* envp_orig) {
     apprun_execve_params_t* params = malloc(sizeof(apprun_execve_params_t));
-    params->file = apprun_resolve_runtime_interpreter(exec_path);
+    char* interpreter_path = apprun_resolve_runtime_interpreter(exec_path);
+    if (interpreter_path != NULL) {
+        params->file = interpreter_path;
+        // we are in presence of an dynamically linked binary so we prefix the interpreter to our execve call
+        const char* interpreter_prefix[] = {params->file, NULL};
+        params->args = apprun_string_list_extend(interpreter_prefix, argv_orig);
+    } else {
+        // We are in presence of a statically linked or interpreted executable
+        params->file = strdup(exec_path);
+        params->args = apprun_string_list_dup(argv_orig);
+    }
 
-    // we are in presence of an dynamically linked binary so we prefix the interpreter to our execve call
-    const char* interpreter_prefix[] = {params->file, NULL};
-    params->args = apprun_string_list_extend(interpreter_prefix, argv_orig);
     params->envp = apprun_replace_exec_path_and_args_in_envp(exec_path, argv_orig, envp_orig);
-
     return params;
 }
