@@ -28,8 +28,6 @@
 #include "string_utils.h"
 
 #include <stdlib.h>
-#include <assert.h>
-#include <archive.h>
 
 char* apprun_elf_32_load_str_table(FILE* file, const Elf32_Shdr* str_table_shdr);
 
