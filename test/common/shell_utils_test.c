@@ -45,7 +45,7 @@ void test_apprun_shell_expand_variables() {
 
 void test_apprun_shell_expand_command_line_arguments() {
     printf("%s: ", __PRETTY_FUNCTION__);
-    char* argv[] = {"HELLO", "EXTENDED WORLD", "AGAIN",NULL};
+    char* argv[] = {"HELLO", "EXTENDED WORLD", "AGAIN", NULL};
     setenv("PATH", "/sbin", 1);
     char* res = apprun_shell_expand_variables("$0:$@", argv);
     assert_str_eq(res, "HELLO:\"EXTENDED WORLD\" \"AGAIN\"");
@@ -54,78 +54,94 @@ void test_apprun_shell_expand_command_line_arguments() {
     printf("OK\n");
 }
 
-void test_apprun_shell_split_arguments_with_simple_string() {
+
+void test_apprun_shell_split_arguments_single_arg() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
-    setenv("PATH", "/sbin", 1);
-    char** res = apprun_shell_split_arguments("hello world");
-    char* expected[] = {
-            "hello",
-            "world",
-            NULL
-    };
+    char** res = apprun_shell_split_arguments("/bin/bash");
+    char* expected[] = {"/bin/bash", 0};
     assert_str_list_eq(res, expected);
-    apprun_string_list_free(res);
+    free(res);
 
-    printf("OK\n");
+    printf("Ok\n");
 }
 
-void test_apprun_shell_split_arguments_with_single_quoted_string() {
+void test_apprun_shell_split_arguments_many_args() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
-    setenv("PATH", "/sbin", 1);
-    char** res = apprun_shell_split_arguments("\'hello world\' 1");
-    char* expected[] = {"hello world", "1", NULL};
+    char** res = apprun_shell_split_arguments("/bin/bash ls $PWD");
+    char* expected[] = {"/bin/bash", "ls", "$PWD", 0};
     assert_str_list_eq(res, expected);
-    apprun_string_list_free(res);
+    free(res);
 
-    printf("OK\n");
+    printf("Ok\n");
 }
 
-void test_apprun_shell_split_arguments_with_double_quoted_string() {
+void test_apprun_shell_split_arguments_many_args_including_double_quotes() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
-    setenv("PATH", "/sbin", 1);
-    char** res = apprun_shell_split_arguments("\"hello world\" 2");
-    char* expected[] = {"hello world", "2", NULL};
+    char** res = apprun_shell_split_arguments("/bin/bash ls /this\"/spaced path\"/here");
+    char* expected[] = {"/bin/bash", "ls", "/this/spaced path/here", 0};
     assert_str_list_eq(res, expected);
-    apprun_string_list_free(res);
+    free(res);
 
-    printf("OK\n");
+    printf("Ok\n");
 }
 
-void test_apprun_shell_split_arguments_with_escapeped_quotes_string() {
+void test_apprun_shell_split_arguments_many_args_including_single_quotes() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
-    setenv("PATH", "/sbin", 1);
-    char** res = apprun_shell_split_arguments("\\\"hello world\\\'");
-    char* expected[] = {"\"hello", "world\'", NULL};
+    char** res = apprun_shell_split_arguments("/bin/bash ls /this\'/spaced path\'/here");
+    char* expected[] = {"/bin/bash", "ls", "/this/spaced path/here", 0};
     assert_str_list_eq(res, expected);
-    apprun_string_list_free(res);
+    free(res);
 
-    printf("OK\n");
+    printf("Ok\n");
 }
 
-void test_apprun_shell_split_arguments_with_complex_string() {
+void test_apprun_shell_split_arguments_many_args_including_mixed_quotes() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
-    setenv("PATH", "/sbin", 1);
-    char** res = apprun_shell_split_arguments("\"\\\'world\'\" \\\\ \\\"hello world\\\' \'\"hello\"\'");
-    char* expected[] = {"\\\'world\'", "\\", "\"hello", "world\'", "\"hello\"", NULL};
+    char** res = apprun_shell_split_arguments("/bin/bash ls '\"echo\"'");
+    char* expected[] = {"/bin/bash", "ls", "\"echo\"", 0};
     assert_str_list_eq(res, expected);
-    apprun_string_list_free(res);
+    free(res);
 
-    printf("OK\n");
+    printf("Ok\n");
+}
+
+void test_apprun_shell_split_arguments_many_args_including_mixed_quotes_inverse() {
+    printf("%s: ", __PRETTY_FUNCTION__);
+
+    char** res = apprun_shell_split_arguments("/bin/bash ls \"'echo'\"");
+    char* expected[] = {"/bin/bash", "ls", "'echo'", 0};
+    assert_str_list_eq(res, expected);
+    free(res);
+
+    printf("Ok\n");
+}
+
+void test_apprun_shell_split_arguments_many_args_including_scape_char() {
+    printf("%s: ", __PRETTY_FUNCTION__);
+
+    char** res = apprun_shell_split_arguments("/bin/bash ls \\ dir");
+    char* expected[] = {"/bin/bash", "ls", " dir", 0};
+    assert_str_list_eq(res, expected);
+    free(res);
+
+    printf("Ok\n");
 }
 
 int main(int argc, char** argv) {
     test_apprun_shell_expand_variables();
     test_apprun_shell_expand_command_line_arguments();
-    test_apprun_shell_split_arguments_with_simple_string();
-    test_apprun_shell_split_arguments_with_single_quoted_string();
-    test_apprun_shell_split_arguments_with_double_quoted_string();
-    test_apprun_shell_split_arguments_with_escapeped_quotes_string();
-    test_apprun_shell_split_arguments_with_complex_string();
+    test_apprun_shell_split_arguments_single_arg();
+    test_apprun_shell_split_arguments_many_args();
+    test_apprun_shell_split_arguments_many_args_including_double_quotes();
+    test_apprun_shell_split_arguments_many_args_including_single_quotes();
+    test_apprun_shell_split_arguments_many_args_including_mixed_quotes();
+    test_apprun_shell_split_arguments_many_args_including_mixed_quotes_inverse();
+    test_apprun_shell_split_arguments_many_args_including_scape_char();
     return 0;
 }
 

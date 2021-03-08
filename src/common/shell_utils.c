@@ -78,7 +78,6 @@ char* apprun_shell_extract_var_name(const char* itr) {
     return strndup(being, itr - being);
 }
 
-
 char* apprun_argv_to_env(char* const* string_list) {
     unsigned string_list_len = apprun_string_list_len(string_list);
     unsigned str_size = 0;
@@ -179,67 +178,90 @@ char* apprun_shell_expand_variables(char const* str, char** argv) {
     return buffer;
 }
 
-const char* apprun_string_consume_spaces(const char* itr) {
-    while (itr != NULL && *itr != '\0' && isspace(*itr))
+char** apprun_shell_split_arguments(char const* command) {
+    char* result[1024] = {0x0};
+    int result_size = 0;
+
+    const char* itr = command;
+    const char* section_start = itr;
+
+    char scape_char = 0;
+    char buff[1024] = {0x0};
+
+
+    while (*itr != '\0') {
+        if (*itr == ' ' && scape_char == 0) {
+            // save partial to buff
+            strncat(buff, section_start, itr - section_start);
+            result[result_size] = strdup(buff);
+            result_size++;
+
+            memset(buff, 0, 1024);
+
+            // reset section start pointer skipping the whitespace char
+            section_start = itr + 1;
+        }
+
+        if (*itr == '"') {
+            if (scape_char == 0) {
+                scape_char = '"';
+
+                // save partial to buff
+                strncat(buff, section_start, itr - section_start);
+
+                // skip double quote char from next partial
+                section_start = itr + 1;
+            } else if (scape_char == '"') {
+                // save partial to buff
+                strncat(buff, section_start, itr - section_start);
+
+                // skip double quote char from next partial
+                section_start = itr + 1;
+
+                scape_char = 0;
+            }
+        }
+
+        if (*itr == '\'') {
+            if (scape_char == 0) {
+                scape_char = '\'';
+
+                // save partial to buff
+                strncat(buff, section_start, itr - section_start);
+
+                // skip double quote char from next partial
+                section_start = itr + 1;
+            } else if (scape_char == '\'') {
+                // save partial to buff
+                strncat(buff, section_start, itr - section_start);
+
+                // skip double quote char from next partial
+                section_start = itr + 1;
+
+                scape_char = 0;
+            }
+        }
+
+        if (*itr == '\\' && scape_char == 0) {
+            // save partial to buff
+            strncat(buff, section_start, itr - section_start);
+
+            // skip \ char from next partial
+            section_start = itr + 1;
+
+            itr ++;
+        }
+
+        // consume char
         itr++;
-
-    return itr;
-}
-
-char** apprun_shell_split_arguments(char const* str) {
-    if (str == NULL)
-        return NULL;
-
-    static const char single_quote_delimiter[] = "\'";
-    static const char double_quote_delimiter[] = "\"";
-    static const char regular_quote_delimiter[] = "\"\'\\ \t";
-
-    char** splits = calloc(strlen(str) + 1, sizeof(char*));
-    unsigned split_count = 0;
-
-    const char* begin = str;
-    const char* end = str;
-    char buffer[1024] = {0x0};
-
-    while (*begin != '\0') {
-        begin = apprun_string_consume_spaces(begin);
-        bool consumed = false;
-
-        if (*begin == '\\') {
-            strncat(buffer, begin + 1, 1);
-            end = begin + 2;
-            consumed = true;
-        }
-
-        if (!consumed && *begin == '\'') {
-            end = apprun_string_consume_until(begin + 1, single_quote_delimiter);
-            strncat(buffer, begin + 1, end - begin - 1);
-            consumed = true;
-
-            end++;
-        }
-
-        if (!consumed && *begin == '\"') {
-            end = apprun_string_consume_until(begin + 1, double_quote_delimiter);
-            strncat(buffer, begin + 1, end - begin - 1);
-            consumed = true;
-
-            end++;
-        }
-
-        if (!consumed && *begin != '\'' && *begin != '\"' && *begin != '\\') {
-            end = apprun_string_consume_until(begin, regular_quote_delimiter);
-            strncat(buffer, begin, end - begin);
-        }
-
-        if (isspace(*end) || *end == 0) {
-            splits[split_count] = strdup(buffer);
-            memset(buffer, 0, 1024);
-            split_count++;
-        }
-
-        begin = end;
     }
 
-    return splits;
+    // add last section
+    if (itr != section_start || buff[0] != '\0') {
+        strncat(buff, section_start, itr - section_start);
+        result[result_size] = strdup(buff);
+        result_size++;
+    }
+
+    return apprun_string_list_dup(result);
 }
