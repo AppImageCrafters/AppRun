@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * Copyright (c) 2021 Alexis Lopez Zubieta <contact@azubieta.net>
+ * Copyright (c) 2020 Alexis Lopez Zubieta <contact@azubieta.net>
  *
  * All Rights Reserved.
  *
@@ -24,33 +24,26 @@
  *
  **************************************************************************/
 
-
-#ifndef APPIMAGEEXECWRAPPER_EXECVE_UTILS_H
-#define APPIMAGEEXECWRAPPER_EXECVE_UTILS_H
-
+#include <stdlib.h>
 #include <stdio.h>
+#include <common/execve_utils.h>
 
-#define APPRUN_USE_BUNDLE_LIBC "APPRUN_USE_BUNDLE_LIBC"
+#include "tests_shared.h"
 
-#define APPRUN_ENV_APPDIR "APPDIR"
-#define APPRUN_ENV_INTERPRETER "INTERPRETER"
 
-typedef struct {
-    char* file;
-    char** args;
-    char** envp;
-} apprun_execve_params_t;
+void test_apprun_execve_params_prepare_bundled_interpreted_executable_args() {
+    printf("%s: ", __PRETTY_FUNCTION__);
 
-char* apprun_resolve_runtime_interpreter(FILE* file, unsigned char* e_ident);
+    char shebang[] = "/usr/bin/python";
+    char * expected[] = {"/usr/bin/python", 0};
 
-void apprun_execve_params_free(apprun_execve_params_t* args);
+//    assert_str_eq(args.file, "/bin/bash");
 
-void apprun_print_execve_params(const char* filename, const char* const* argv, const char* const* envp);
+    printf("Ok\n");
+}
 
-apprun_execve_params_t*
-apprun_execve_params_prepare_bundle(const char* exec_path, const char* const* argv_orig, const char* const* envp_orig);
+int main(int argc, char** argv) {
+    test_apprun_execve_params_prepare_bundled_interpreted_executable_args();
+    return 0;
+}
 
-void
-apprun_execve_params_prepare_interpreted_executable_args(apprun_execve_params_t* params, char* const* shebang_parts,
-                                                         const char* const* argv_orig);
-#endif //APPIMAGEEXECWRAPPER_EXECVE_UTILS_H

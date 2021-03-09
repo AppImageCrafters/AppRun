@@ -191,7 +191,7 @@ apprun_env_item_t* apprun_env_item_list_find(apprun_env_item_list_t* list, char*
     return NULL;
 }
 
-apprun_env_item_list_t* apprun_env_item_list_from_envp(char* const* envp) {
+apprun_env_item_list_t* apprun_env_item_list_from_envp(const char* const* envp) {
     unsigned env_origin_prefix_len = strlen(APPRUN_ENV_ORIG_PREFIX);
     unsigned env_startup_prefix_len = strlen(APPRUN_ENV_STARTUP_PREFIX);
 
@@ -200,8 +200,8 @@ apprun_env_item_list_t* apprun_env_item_list_from_envp(char* const* envp) {
     unsigned envp_size = apprun_array_len(envp);
     apprun_env_item_list_t* list = calloc(envp_size, sizeof(apprun_env_item_t*));
 
-    for (char* const* itr = envp; *itr != NULL; itr++) {
-        char* prefixed_str = *itr;
+    for (const char* const* itr = envp; *itr != NULL; itr++) {
+        const char* prefixed_str = *itr;
         unsigned prefixed_str_len = strlen(prefixed_str);
 
         char* str = NULL;
@@ -356,7 +356,7 @@ char** apprun_env_item_list_to_envp(apprun_env_item_list_t* list) {
     return envp;
 }
 
-char** apprun_export_envp(char* const* envp) {
+char** apprun_export_envp(const char* const* envp) {
     if (envp == NULL)
         return NULL;
 

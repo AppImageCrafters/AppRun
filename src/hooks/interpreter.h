@@ -31,7 +31,7 @@
 
 #include "common/execve_utils.h"
 
-apprun_execve_params_t* apprun_duplicate_exec_args(const char* filename, char* const* argv);
+apprun_execve_params_t* apprun_duplicate_exec_args(const char* filename, const char* const* argv);
 
 bool apprun_is_exec_args_change_required(const char* appdir, const char* interpreter, const char* filename);
 

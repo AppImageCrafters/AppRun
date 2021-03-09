@@ -29,10 +29,6 @@
 
 #include <stdlib.h>
 
-char* apprun_elf_32_load_str_table(FILE* file, const Elf32_Shdr* str_table_shdr);
-
-char* apprun_elf_64_load_str_table(FILE* file, const Elf64_Shdr* str_table_shdr);
-
 unsigned char* apprun_elf_require_ident(FILE* f) {
     unsigned char* e_ident = malloc(EI_NIDENT);
     const unsigned char expected_e_ident[] = {0x7F, 'E', 'L', 'F'};
@@ -47,23 +43,17 @@ unsigned char* apprun_elf_require_ident(FILE* f) {
         return e_ident;
 }
 
+char* apprun_elf_32_load_str_table(FILE* file, const Elf32_Shdr* str_table_shdr);
+
+char* apprun_elf_64_load_str_table(FILE* file, const Elf64_Shdr* str_table_shdr);
+
 // Read PT_INTERP implementations
 
 char* apprun_elf_32_read_pt_interp(FILE* file, const Elf32_Ehdr* ehdr);
 
 char* apprun_elf_64_read_pt_interp(FILE* file, const Elf64_Ehdr* ehdr);
 
-char* apprun_elf_read_pt_interp(const char* path) {
-    FILE* elf = fopen(path, "rb");
-    if (elf == NULL)
-        return NULL;
-
-    unsigned char* e_ident = apprun_elf_require_ident(elf);
-    if (e_ident == NULL) {
-        fprintf(stderr, "APPRUN_ERROR: Missing ELF ident on: %s", path);
-        exit(1);
-    }
-
+char* apprun_elf_read_pt_interp(FILE* elf, unsigned char* e_ident) {
     // select implementation according to the class
     if (e_ident[EI_CLASS] == ELFCLASS32) {
         Elf32_Ehdr ehdr;
@@ -81,8 +71,8 @@ char* apprun_elf_read_pt_interp(const char* path) {
         return apprun_elf_64_read_pt_interp(elf, &ehdr);
     }
 
-    fprintf(stderr, "APPRUN_ERROR: Unknown ELF class '%d' on: %s", e_ident[EI_CLASS], path);
-    exit(1);
+    fprintf(stderr, "APPRUN_ERROR: Unknown ELF class '%d'", e_ident[EI_CLASS]);
+    return NULL;
 }
 
 char* apprun_elf_32_read_pt_interp(FILE* file, const Elf32_Ehdr* ehdr) {

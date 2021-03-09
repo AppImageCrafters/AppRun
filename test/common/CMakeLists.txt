@@ -25,3 +25,12 @@ add_executable(
 )
 
 add_test(NAME TEST_SHELL_UTILS COMMAND shell_utils_test)
+
+add_executable(
+    test_execve_utils
+    test_execve_utils.c
+    tests_shared.c
+    $<TARGET_OBJECTS:common_objects>
+)
+
+add_test(NAME TEST_EXECVE_UTILS COMMAND test_execve_utils)

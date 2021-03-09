@@ -70,7 +70,7 @@ static execvpe_func_t real_execvpe = NULL;
 int apprun_is_exported_binary(const char* new_filename);
 
 
-apprun_execve_params_t* apprun_execve_params_prepare(const char* filename, char* const* argv, char* const* envp) {
+apprun_execve_params_t* apprun_execve_params_prepare(const char* filename, const char* const* argv, const char* const* envp) {
     char* resolved_filename = apprun_resolve_bin_path(filename);
     char* new_filename = apprun_redirect_path(resolved_filename);
     free(resolved_filename);
