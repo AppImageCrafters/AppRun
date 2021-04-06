@@ -31,4 +31,6 @@ char* apprun_shell_expand_variables(char const* str, char** argv);
 
 char** apprun_shell_split_arguments(char const* str);
 
+char* apprun_shell_resolve_var_value(char* const* argv, const char* var_name);
+
 #endif //APPIMAGEEXECWRAPPER_SHELL_UTILS_H

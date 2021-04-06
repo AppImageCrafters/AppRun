@@ -32,6 +32,29 @@
 #include "common/string_list.h"
 #include "common/shell_utils.h"
 
+void test_apprun_shell_resolve_var_value_expand_argv_at() {
+    printf("%s: ", __PRETTY_FUNCTION__);
+
+    char* argv[] = {"/bin", "arg", NULL};
+    char* res = apprun_shell_resolve_var_value( argv, "@");
+    assert_str_eq(res, "\"arg\"");
+    free(res);
+
+    printf("OK\n");
+}
+
+void test_apprun_shell_resolve_var_value_expand_argv_empty_at() {
+    printf("%s: ", __PRETTY_FUNCTION__);
+
+    char* argv[] = {"/bin", NULL};
+    char* res = apprun_shell_resolve_var_value( argv, "@");
+    assert_str_eq(res, "");
+    free(res);
+
+    printf("OK\n");
+}
+
+
 void test_apprun_shell_expand_variables() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
@@ -54,10 +77,19 @@ void test_apprun_shell_expand_command_line_arguments() {
     printf("OK\n");
 }
 
+void test_apprun_shell_expand_command_line_arguments_empty() {
+    printf("%s: ", __PRETTY_FUNCTION__);
+    char* argv[] = {"HELLO", NULL};
+    char* res = apprun_shell_expand_variables("/bin $@", argv);
+    assert_str_eq(res, "/bin ");
+    free(res);
+
+    printf("OK\n");
+}
+
 void test_apprun_shell_split_arguments_with_simple_string() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
-    setenv("PATH", "/sbin", 1);
     char** res = apprun_shell_split_arguments("hello world");
     char* expected[] = {
             "hello",
@@ -94,7 +126,7 @@ void test_apprun_shell_split_arguments_with_double_quoted_string() {
     printf("OK\n");
 }
 
-void test_apprun_shell_split_arguments_with_escapeped_quotes_string() {
+void test_apprun_shell_split_arguments_with_escaped_quotes_string() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
     setenv("PATH", "/sbin", 1);
@@ -118,14 +150,30 @@ void test_apprun_shell_split_arguments_with_complex_string() {
     printf("OK\n");
 }
 
+void test_apprun_shell_split_arguments_with_at_symbol() {
+    printf("%s: ", __PRETTY_FUNCTION__);
+
+    char** res = apprun_shell_split_arguments("'hello' \"$@\"");
+    char* expected[] = {"hello", "$@", NULL};
+    assert_str_list_eq(res, expected);
+    apprun_string_list_free(res);
+
+    printf("OK\n");
+}
+
 int main(int argc, char** argv) {
+    test_apprun_shell_resolve_var_value_expand_argv_at();
+    test_apprun_shell_resolve_var_value_expand_argv_empty_at();
     test_apprun_shell_expand_variables();
     test_apprun_shell_expand_command_line_arguments();
+    test_apprun_shell_expand_command_line_arguments_empty();
     test_apprun_shell_split_arguments_with_simple_string();
     test_apprun_shell_split_arguments_with_single_quoted_string();
     test_apprun_shell_split_arguments_with_double_quoted_string();
-    test_apprun_shell_split_arguments_with_escapeped_quotes_string();
+    test_apprun_shell_split_arguments_with_escaped_quotes_string();
     test_apprun_shell_split_arguments_with_complex_string();
+    test_apprun_shell_split_arguments_with_at_symbol();
+
     return 0;
 }
 

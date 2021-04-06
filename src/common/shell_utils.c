@@ -125,6 +125,7 @@ char* apprun_shell_resolve_var_value(char* const* argv, const char* var_name) {
 
     return var_value;
 }
+
 char* apprun_shell_expand_variables(char const* str, char** argv) {
     if (str == NULL)
         return NULL;
