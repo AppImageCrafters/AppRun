@@ -32,28 +32,6 @@
 #include "common/string_list.h"
 #include "common/shell_utils.h"
 
-void test_apprun_shell_resolve_var_value_expand_argv_at() {
-    printf("%s: ", __PRETTY_FUNCTION__);
-
-    char* argv[] = {"/bin", "arg", NULL};
-    char* res = apprun_shell_resolve_var_value( argv, "@");
-    assert_str_eq(res, "\"arg\"");
-    free(res);
-
-    printf("OK\n");
-}
-
-void test_apprun_shell_resolve_var_value_expand_argv_empty_at() {
-    printf("%s: ", __PRETTY_FUNCTION__);
-
-    char* argv[] = {"/bin", NULL};
-    char* res = apprun_shell_resolve_var_value( argv, "@");
-    assert_str_eq(res, "");
-    free(res);
-
-    printf("OK\n");
-}
-
 
 void test_apprun_shell_expand_variables() {
     printf("%s: ", __PRETTY_FUNCTION__);
@@ -162,8 +140,6 @@ void test_apprun_shell_split_arguments_with_trailing_spaces() {
 }
 
 int main(int argc, char** argv) {
-    test_apprun_shell_resolve_var_value_expand_argv_at();
-    test_apprun_shell_resolve_var_value_expand_argv_empty_at();
     test_apprun_shell_expand_variables();
     test_apprun_shell_expand_command_line_arguments();
     test_apprun_shell_expand_command_line_arguments_empty();

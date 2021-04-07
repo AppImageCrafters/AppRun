@@ -32,13 +32,13 @@ add_executable(
 add_test(NAME TEST_SHELL_UTILS COMMAND shell_utils_test)
 
 add_executable(
-    utils_test
-    utils_test.c
+    common_test
+    common_test.c
 
     $<TARGET_OBJECTS:common_objects>
 )
 
-target_link_libraries(utils_test ${CHECK_LIBRARIES} pthread)
+target_link_libraries(common_test ${CHECK_LIBRARIES} pthread)
 
-add_test(NAME TEST_UTILS COMMAND utils_test)
+add_test(NAME TEST_COMMON COMMAND common_test)
 
