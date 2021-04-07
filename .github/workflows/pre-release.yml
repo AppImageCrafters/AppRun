@@ -19,6 +19,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Install tests dependencies
+        run: sudo apt-get install -y check
+
       - name: Install cross-compilation dependencies ${{ matrix.TARGET_ARCH }}
         if: ${{ env.TARGET_ARCH != 'x86_64' }}
         run: |
