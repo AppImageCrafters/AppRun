@@ -236,7 +236,7 @@ char** apprun_shell_split_arguments(char const* str) {
 
         if (isspace(*end) || *end == 0) {
             if (!apprun_string_is_all_blanks(buffer)) {
-                splits[split_count] = strdup(buffer);
+                splits[split_count] = apprun_string_trim(buffer);
                 split_count++;
             }
 
