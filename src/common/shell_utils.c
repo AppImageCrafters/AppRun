@@ -233,9 +233,12 @@ char** apprun_shell_split_arguments(char const* str) {
         }
 
         if (isspace(*end) || *end == 0) {
-            splits[split_count] = strdup(buffer);
+            if (!apprun_string_is_all_blanks(buffer)) {
+                splits[split_count] = strdup(buffer);
+                split_count++;
+            }
+
             memset(buffer, 0, 1024);
-            split_count++;
         }
 
         begin = end;

@@ -34,4 +34,6 @@ char* apprun_string_extend(char* string, unsigned int new_size);
 
 const char* apprun_string_consume_until(const char* itr, const char delimiters[]);
 
+bool apprun_string_is_all_blanks(const char* str);
+
 #endif //APPIMAGEEXECWRAPPER_STRING_UTILS_H

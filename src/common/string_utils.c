@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdbool.h>
 
 #include "string_utils.h"
 
@@ -56,4 +57,13 @@ const char* apprun_string_consume_until(const char* itr, const char* delimiters)
         itr++;
 
     return itr;
+}
+
+bool apprun_string_is_all_blanks(const char* str) {
+    for (const char* itr = str; *itr != '\0'; itr++) {
+        if (!isspace(*itr))
+            return false;
+    }
+
+    return true;
 }

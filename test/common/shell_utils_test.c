@@ -150,11 +150,11 @@ void test_apprun_shell_split_arguments_with_complex_string() {
     printf("OK\n");
 }
 
-void test_apprun_shell_split_arguments_with_at_symbol() {
+void test_apprun_shell_split_arguments_with_trailing_spaces() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
-    char** res = apprun_shell_split_arguments("'hello' \"$@\"");
-    char* expected[] = {"hello", "$@", NULL};
+    char** res = apprun_shell_split_arguments("'hello' ");
+    char* expected[] = {"hello", NULL};
     assert_str_list_eq(res, expected);
     apprun_string_list_free(res);
 
@@ -172,7 +172,7 @@ int main(int argc, char** argv) {
     test_apprun_shell_split_arguments_with_double_quoted_string();
     test_apprun_shell_split_arguments_with_escaped_quotes_string();
     test_apprun_shell_split_arguments_with_complex_string();
-    test_apprun_shell_split_arguments_with_at_symbol();
+    test_apprun_shell_split_arguments_with_trailing_spaces();
 
     return 0;
 }
