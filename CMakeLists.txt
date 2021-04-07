@@ -9,5 +9,7 @@ endif (${CMAKE_BUILD_TYPE} MATCHES Profile)
 
 add_subdirectory(src)
 
-enable_testing()
-add_subdirectory(test)
+if (BUILD_TESTING)
+    enable_testing()
+    add_subdirectory(test)
+endif ()
