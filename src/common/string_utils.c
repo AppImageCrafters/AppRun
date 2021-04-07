@@ -67,3 +67,22 @@ bool apprun_string_is_all_blanks(const char* str) {
 
     return true;
 }
+
+
+char* apprun_string_trim(char* str) {
+    char* useful_section_start = str;
+
+    while (isspace(*useful_section_start))
+        useful_section_start++;
+
+    char* useful_section_end = useful_section_start;
+    while (*useful_section_end != '\0')
+        useful_section_end++;
+
+    while (((useful_section_end - 1) > useful_section_start) && isspace(*(useful_section_end - 1)))
+        useful_section_end--;
+
+    char* result = strndup(useful_section_start, useful_section_end - useful_section_start);
+    return result;
+}
+

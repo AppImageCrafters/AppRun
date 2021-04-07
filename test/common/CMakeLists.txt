@@ -1,3 +1,8 @@
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(CHECK REQUIRED check)
+include_directories(${CHECK_INCLUDE_DIRS})
+
+
 add_executable(
     file_utils_test
     file_utils_test.c
@@ -25,3 +30,15 @@ add_executable(
 )
 
 add_test(NAME TEST_SHELL_UTILS COMMAND shell_utils_test)
+
+add_executable(
+    utils_test
+    utils_test.c
+
+    $<TARGET_OBJECTS:common_objects>
+)
+
+target_link_libraries(utils_test ${CHECK_LIBRARIES} pthread)
+
+add_test(NAME TEST_UTILS COMMAND utils_test)
+
