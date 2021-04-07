@@ -89,7 +89,9 @@ char* apprun_argv_to_env(char* const* string_list) {
     for (int i = 0; i < string_list_len; i++)
         str_size += strlen(string_list[i]) + extra_chars_len;
 
-    char* str = calloc(str_size, sizeof(char));
+    char* str = calloc(str_size + 1, sizeof(char));
+    memset(str, 0, str_size + 1);
+
     for (int i = 0; i < string_list_len; i++) {
         strcat(str, "\"");
         strcat(str, string_list[i]);
