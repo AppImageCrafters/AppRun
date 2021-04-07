@@ -52,10 +52,16 @@ jobs:
         shell: bash
         working-directory: ${{runner.workspace}}/build
         run: |
+          if [ "$TARGET_ARCH" == "x86_64" ]; then
+              export BUILD_TESTING=True;
+          else
+            export BUILD_TESTING=False;
+          fi
           if [ "$TARGET_ARCH" == "i386" ]; then
                       export CFLAGS=-m32;
           fi
-          cmake $GITHUB_WORKSPACE -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE="cmake/$TARGET_ARCH-toolchain.cmake"
+          cmake $GITHUB_WORKSPACE -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+            -DBUILD_TESTING=$BUILD_TESTING -DCMAKE_TOOLCHAIN_FILE="cmake/$TARGET_ARCH-toolchain.cmake"
 
       - name: Build ${{ matrix.TARGET_ARCH }}
         working-directory: ${{runner.workspace}}/build
