@@ -234,6 +234,6 @@ void deploy_interpreter(char* path) {
     if (access(target_path, F_OK) == -1)
         apprun_file_copy(path, target_path);
 
-    chmod(target_path, S_IRWXU | S_IRWXG);
+    chmod(target_path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH );
 }
 
