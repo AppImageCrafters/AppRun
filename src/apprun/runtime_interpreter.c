@@ -39,6 +39,7 @@
 #include "hooks/environment.h"
 
 #include "runtime_interpreter.h"
+#include "runtime_environment.h"
 
 
 char* parse_ld_trace_line_path(const char* line) {
@@ -139,8 +140,8 @@ void configure_embed_libc() {
 #endif
     char* ld_library_path = apprun_shell_expand_variables("$APPDIR_LIBRARY_PATH:$LIBC_LIBRARY_PATH:"
                                                           "$"APPRUN_ENV_ORIG_PREFIX"LD_LIBRARY_PATH", NULL);
-    setenv("LD_LIBRARY_PATH", ld_library_path, 1);
-    setenv(APPRUN_ENV_STARTUP_PREFIX"LD_LIBRARY_PATH", ld_library_path, 1);
+
+    apprun_env_set("LD_LIBRARY_PATH", ld_library_path, "", ld_library_path);
     free(ld_library_path);
 }
 
@@ -150,8 +151,8 @@ void configure_system_libc() {
 #endif
     char* ld_library_path = apprun_shell_expand_variables("$APPDIR_LIBRARY_PATH:"
                                                           "$"APPRUN_ENV_ORIG_PREFIX"LD_LIBRARY_PATH", NULL);
-    setenv("LD_LIBRARY_PATH", ld_library_path, 1);
-    setenv(APPRUN_ENV_STARTUP_PREFIX"LD_LIBRARY_PATH", ld_library_path, 1);
+
+    apprun_env_set("LD_LIBRARY_PATH", ld_library_path, "", ld_library_path);
     free(ld_library_path);
 }
 
@@ -234,6 +235,6 @@ void deploy_interpreter(char* path) {
     if (access(target_path, F_OK) == -1)
         apprun_file_copy(path, target_path);
 
-    chmod(target_path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH );
+    chmod(target_path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 }
 
