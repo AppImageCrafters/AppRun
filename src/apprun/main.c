@@ -92,9 +92,10 @@ int main(int argc, char* argv[]) {
      * on the shebang to find their interpreter.
      * */
     char* system_interpreter_path = getenv("SYSTEM_INTERP");
-    if (system_interpreter_path != NULL) {
+    if (system_interpreter_path != NULL)
         setup_interpreter(system_interpreter_path);
-    }
+    else
+        configure_system_libc();
 
     char* exported_binaries = getenv("EXPORTED_BINARIES");
     if (exported_binaries != NULL)

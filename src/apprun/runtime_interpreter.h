@@ -39,7 +39,7 @@ char* parse_ld_trace_line_path(const char* line);
 
 void setup_interpreter(char*);
 
-void deploy_interpreter();
+void configure_system_libc();
 
 char* resolve_libc_from_interpreter_path(char* path);
 
