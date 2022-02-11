@@ -6,6 +6,7 @@ add_library(
     runtime_environment.c
     runtime_environment.h
     runtime_interpreter.c
+    runtime_files.c
 )
 
 target_compile_definitions(apprun_objects PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
@@ -18,7 +19,7 @@ add_executable(
     $<TARGET_OBJECTS:common_objects>
 )
 
-target_link_libraries(AppRun -static)
+target_link_libraries(AppRun -static rt pthread)
 target_compile_definitions(AppRun PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
 target_include_directories(AppRun PRIVATE $<TARGET_PROPERTY:common_objects,INCLUDE_DIRECTORIES>)
 install(

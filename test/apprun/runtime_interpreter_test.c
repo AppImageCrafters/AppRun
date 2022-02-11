@@ -26,7 +26,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/mman.h>
+#include <unistd.h>
 
+
+#include "apprun/runtime_files.h"
 #include "apprun/runtime_interpreter.h"
 #include "../common/tests_shared.h"
 
@@ -94,7 +98,25 @@ void test_resolve_libc_from_interp_path() {
     printf("Ok\n");
 }
 
+
+void test_exec_app_with_exported_linker() {
+    printf("%s: ", __PRETTY_FUNCTION__);
+
+    printf("%s\n", PATCHED_BIN_PATH);
+    unlink("/dev/shm/" INTERP_FILE_NAME);
+    export_file_to_shm("/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2", INTERP_FILE_NAME);
+
+    int ret = system(PATCHED_BIN_PATH);
+
+
+    assert_eq(ret, 0);
+    printf("Ok\n");
+}
+
 int main(int argc, char** argv, char* envp[]) {
+    fprintf(stderr, "PID: %d\n", getpid());
+    test_exec_app_with_exported_linker();
+
     test_parse_ld_trace_lib_path();
     test_validate_glibc_version_string();
     test_compare_glib_version_strings();
