@@ -98,6 +98,8 @@ void test_resolve_libc_from_interp_path() {
     printf("Ok\n");
 }
 
+\
+
 
 void test_exec_app_with_exported_linker() {
     printf("%s: ", __PRETTY_FUNCTION__);
@@ -113,13 +115,30 @@ void test_exec_app_with_exported_linker() {
     printf("Ok\n");
 }
 
+extern char** environ;
+
+void test_exec_patched_bin() {
+    printf("%s: ", __PRETTY_FUNCTION__);
+    printf("%s\n", PATCHED_BIN_PATH);
+
+    char* argv[2];
+    argv[0] = PATCHED_BIN_PATH;
+    argv[1] = NULL;
+
+    bool res = exec_portable_bin(PATCHED_BIN_PATH, argv, environ);
+    assert_eq(res, true);
+    printf("Ok\n");
+}
+
+
 int main(int argc, char** argv, char* envp[]) {
     fprintf(stderr, "PID: %d\n", getpid());
-    test_exec_app_with_exported_linker();
+    test_exec_patched_bin();
+//    test_exec_app_with_exported_linker();
 
-    test_parse_ld_trace_lib_path();
-    test_validate_glibc_version_string();
-    test_compare_glib_version_strings();
+//    test_parse_ld_trace_lib_path();
+//    test_validate_glibc_version_string();
+//    test_compare_glib_version_strings();
     // test_read_libc_version(); // only works on ubuntu amd64
     // test_resolve_libc_from_interp_path(); // only works on ubuntu amd64
 

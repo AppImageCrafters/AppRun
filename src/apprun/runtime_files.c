@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <sys/mman.h>
 #include <string.h>
@@ -5,17 +6,17 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdbool.h>
-#include <malloc.h>
+#include <sys/stat.h>
 
 #include "runtime_files.h"
 
 typedef struct {
     char* buffer;
     size_t size;
-} read_result_t;
+} buffer_t;
 
-read_result_t read_file(const char* const path) {
-    read_result_t result;
+buffer_t read_file(const char* const path) {
+    buffer_t result;
     result.buffer = NULL;
     result.size = -1;
 
@@ -43,7 +44,7 @@ read_result_t read_file(const char* const path) {
 }
 
 bool copy_file_to_fd(int output_fd, const char* const path) {
-    read_result_t read_result = read_file(path);
+    buffer_t read_result = read_file(path);
     if (read_result.buffer != NULL) {
         write(output_fd, read_result.buffer, read_result.size);
         free(read_result.buffer);
@@ -80,4 +81,49 @@ int export_file_to_shm(const char* const source_path, const char* const target_p
     // close writable fd and return readable one
     close(writable_fd);
     return readable_fd;
+}
+
+
+int create_tmp_file(buffer_t const data) {
+    char tmp_path[] = "/tmp/.appimage-bin-XXXXXX";
+    int target_fd = mkostemp(tmp_path, O_EXCL | O_CREAT | O_RDWR);
+    if (target_fd < 0) {
+        fprintf(stderr, "mkstemp failed: %s\n", strerror(errno));
+        return -1;
+    }
+
+    int result_fd = open(tmp_path, O_RDONLY);
+    fchmod(target_fd, S_IRUSR | S_IXUSR);
+    unlink(tmp_path);
+
+    write(target_fd, data.buffer, data.size);
+    close(target_fd);
+
+    return result_fd;
+}
+
+void patch_bin(buffer_t data) {
+}
+
+int exec_bin(int fd, char* const argv[], char* const envp[]) {
+    int ret = fexecve(fd, argv, envp);
+    if (ret != 0) {
+        fprintf(stderr, "fexecve failed: %s\n", strerror(errno));
+        return -1;
+    }
+    return ret == 0;
+}
+
+bool exec_portable_bin(char const* const path, char* const argv[], char* const envp[]) {
+    buffer_t data = read_file(path);
+    if (data.buffer == NULL)
+        return false;
+
+    patch_bin(data);
+
+    int bin_fd = create_tmp_file(data);
+    if (bin_fd < 0)
+        return false;
+
+    return exec_bin(bin_fd, argv, envp);
 }
