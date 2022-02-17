@@ -31,16 +31,16 @@
 
 long compare_glib_version_strings(char* a, char* b);
 
-bool is_glibc_version_string_valid(char* buff);
+long compare_version_strings(char *a, char *b);
 
-char* read_libc_version(char* path);
+bool is_linker_version_string_valid(char *buff);
+
+char *read_ld_version(char *path);
 
 char* parse_ld_trace_line_path(const char* line);
 
 void setup_interpreter(char*);
 
 void configure_system_libc();
-
-char* resolve_libc_from_interpreter_path(char* path);
 
 #endif //APPIMAGEEXECWRAPPER_RUNTIME_INTERPRETER_H

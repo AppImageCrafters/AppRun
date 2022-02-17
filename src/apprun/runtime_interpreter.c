@@ -64,44 +64,50 @@ char* parse_ld_trace_line_path(const char* line) {
     return path;
 }
 
-bool is_glibc_version_string_valid(char* buff) {
+bool is_linker_version_string_valid(char *buff) {
     unsigned buff_len = strlen(buff);
     return (isdigit(buff[0]) && isdigit(buff[buff_len - 1]));
 }
 
 
-char* try_read_glibc_version_string(FILE* fp) {
-    char glibc_version_prefix[] = "GLIBC_";
+char *try_read_ld_version_string(FILE *fp) {
+    char glibc_version_prefix[] = "ld-";
+    int c = NULL;
     for (int i = 1; i < strlen(glibc_version_prefix); i++) {
-        if (fgetc(fp) != glibc_version_prefix[i])
+        c = fgetc(fp);
+        if (c != glibc_version_prefix[i])
             return NULL;
     }
 
     char buff[256] = {0x0};
     for (int i = 0; i < 256; i++) {
-        int c = fgetc(fp);
+        c = fgetc(fp);
         if (c == '\0' || c == -1)
             break;
 
         buff[i] = c;
     }
 
-    if (is_glibc_version_string_valid(buff))
+    char *suffix_idx = strstr(buff, ".so");
+    if (suffix_idx)
+        *suffix_idx = NULL;
+
+    if (is_linker_version_string_valid(buff))
         return strdup(buff);
 
     return NULL;
 }
 
-char* read_libc_version(char* path) {
+char *read_ld_version(char *path) {
     char version[254] = {0x0};
-    FILE* fp = fopen(path, "r");
+    FILE *fp = fopen(path, "r");
     if (fp) {
         int itr;
         while ((itr = fgetc(fp)) != EOF) {
-            if (itr == 'G') {
-                char* new_version = try_read_glibc_version_string(fp);
+            if (itr == 'l') {
+                char *new_version = try_read_ld_version_string(fp);
                 if (new_version != NULL) {
-                    if (compare_glib_version_strings(new_version, version) > 0)
+                    if (compare_version_strings(new_version, version) > 0)
                         strcpy(version, new_version);
 
                     free(new_version);
@@ -115,7 +121,7 @@ char* read_libc_version(char* path) {
     return strdup(version);
 }
 
-long compare_glib_version_strings(char* a, char* b) {
+long compare_version_strings(char *a, char *b) {
     if (a == NULL || b == NULL)
         return a - b;
 
