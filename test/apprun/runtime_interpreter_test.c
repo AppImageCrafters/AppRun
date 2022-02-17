@@ -26,6 +26,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <gnu/libc-version.h>
 
 #include "apprun/runtime_interpreter.h"
 #include "../common/tests_shared.h"
@@ -33,15 +34,15 @@
 void test_parse_ld_trace_lib_path() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
-    char* libc_path = parse_ld_trace_line_path("        libc.so.6 => /lib/i386-linux-gnu/libc.so.6 (0xf7c8b000)");
+    char *libc_path = parse_ld_trace_line_path("        libc.so.6 => /lib/i386-linux-gnu/libc.so.6 (0xf7c8b000)");
     assert_str_eq(libc_path, "/lib/i386-linux-gnu/libc.so.6");
     free(libc_path);
 
-    char* interpreter_path = parse_ld_trace_line_path("        /lib/ld-linux.so.2 (0xf7f36000)");
+    char *interpreter_path = parse_ld_trace_line_path("        /lib/ld-linux.so.2 (0xf7f36000)");
     assert_str_eq(interpreter_path, "/lib/ld-linux.so.2");
     free(interpreter_path);
 
-    char* not_found_path = parse_ld_trace_line_path("        libidn.so.11 => not found");
+    char *not_found_path = parse_ld_trace_line_path("        libidn.so.11 => not found");
     assert_str_eq(not_found_path, "not found");
     free(not_found_path);
 
@@ -50,16 +51,17 @@ void test_parse_ld_trace_lib_path() {
 
 void test_validate_glibc_version_string() {
     printf("%s: ", __PRETTY_FUNCTION__);
-    assert_true(is_glibc_version_string_valid("2.3.4"));
-    assert_false(is_glibc_version_string_valid("PRIVATE"));
+    assert_true(is_linker_version_string_valid("2.3.4"));
+    assert_false(is_linker_version_string_valid("PRIVATE"));
 
     printf("Ok\n");
 }
 
-void test_read_libc_version() {
+void test_read_ld_version() {
     printf("%s: ", __PRETTY_FUNCTION__);
-    char* version = read_libc_version("/lib/x86_64-linux-gnu/libc-2.27.so");
-    assert_str_eq(version, "2.27");
+    char *version = read_ld_version("/lib64/ld-linux-x86-64.so.2");
+    const char *expected_version = gnu_get_libc_version();
+    assert_str_eq(version, expected_version);
     free(version);
 
     printf("Ok\n");
@@ -68,38 +70,29 @@ void test_read_libc_version() {
 void test_compare_glib_version_strings() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
-    assert_eq(compare_glib_version_strings("1", "1"), 0);
-    assert_eq(compare_glib_version_strings("2", "1"), 1);
-    assert_eq(compare_glib_version_strings("1", "2"), -1);
-    assert_eq(compare_glib_version_strings("1.1", "1.1"), 0);
-    assert_eq(compare_glib_version_strings("1.2", "1.1"), 1);
-    assert_eq(compare_glib_version_strings("1.1", "1.2"), -1);
-    assert_eq(compare_glib_version_strings("1.2", "1.2.1"), -1);
-    assert_eq(compare_glib_version_strings("1.2.1", "1.2.1"), 0);
-    assert_eq(compare_glib_version_strings("1.2.1", "1.2"), 1);
+    assert_eq(compare_version_strings("1", "1"), 0);
+    assert_eq(compare_version_strings("2", "1"), 1);
+    assert_eq(compare_version_strings("1", "2"), -1);
+    assert_eq(compare_version_strings("1.1", "1.1"), 0);
+    assert_eq(compare_version_strings("1.2", "1.1"), 1);
+    assert_eq(compare_version_strings("1.1", "1.2"), -1);
+    assert_eq(compare_version_strings("1.2", "1.2.1"), -1);
+    assert_eq(compare_version_strings("1.2.1", "1.2.1"), 0);
+    assert_eq(compare_version_strings("1.2.1", "1.2"), 1);
 
-    assert_true(compare_glib_version_strings(NULL, "1") < 0);
-    assert_true(compare_glib_version_strings("1", NULL) > 0);
-    assert_true(compare_glib_version_strings(NULL, NULL) == 0);
+    assert_true(compare_version_strings(NULL, "1") < 0);
+    assert_true(compare_version_strings("1", NULL) > 0);
+    assert_true(compare_version_strings(NULL, NULL) == 0);
 
     printf("Ok\n");
 }
 
-void test_resolve_libc_from_interp_path() {
-    printf("%s: ", __PRETTY_FUNCTION__);
 
-    char* path = resolve_libc_from_interpreter_path("/lib/ld-linux.so.2");
-    assert_str_eq(path, "/lib/i386-linux-gnu/libc.so.6");
-    free(path);
-    printf("Ok\n");
-}
-
-int main(int argc, char** argv, char* envp[]) {
+int main(int argc, char **argv, char *envp[]) {
     test_parse_ld_trace_lib_path();
     test_validate_glibc_version_string();
     test_compare_glib_version_strings();
-    // test_read_libc_version(); // only works on ubuntu amd64
-    // test_resolve_libc_from_interp_path(); // only works on ubuntu amd64
+    test_read_ld_version();
 
     return 0;
 }
