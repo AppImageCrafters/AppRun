@@ -31,7 +31,7 @@
 #include <unistd.h>
 
 #include "hooks/interpreter.h"
-#include "hooks/main.h"
+#include "hooks/main_hook.h"
 #include "../common/tests_shared.h"
 
 void test_restore_original_env_for_external_binaries() {
