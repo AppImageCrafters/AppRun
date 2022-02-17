@@ -29,7 +29,15 @@
 
 #include <stdbool.h>
 
-long compare_glib_version_strings(char* a, char* b);
+#define LD_PATHS_ENV "APPRUN_LD_PATHS"
+#define LD_PATHS_ENV_SEPARATOR ";"
+#define COMPAT_RUNTIME_PREFIX "runtime/compat/"
+#define DEFAULT_RUNTIME_PREFIX "runtime/default/"
+
+
+char *resolve_runtime_path(char const *prefix);
+
+char *resolve_linker_path(char *relpath, char const *prefix);
 
 long compare_version_strings(char *a, char *b);
 
@@ -37,9 +45,9 @@ bool is_linker_version_string_valid(char *buff);
 
 char *read_ld_version(char *path);
 
-char* parse_ld_trace_line_path(const char* line);
+char *parse_ld_trace_line_path(const char *line);
 
-void setup_interpreter(char*);
+void setup_runtime();
 
 void configure_system_libc();
 

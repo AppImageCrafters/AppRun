@@ -40,11 +40,12 @@
 
 #include "runtime_interpreter.h"
 #include "runtime_environment.h"
+#include "hooks/main_hook.h"
 
 
-char* parse_ld_trace_line_path(const char* line) {
-    char* path = NULL;
-    const char* path_start = strstr(line, "=> ");
+char *parse_ld_trace_line_path(const char *line) {
+    char *path = NULL;
+    const char *path_start = strstr(line, "=> ");
     if (path_start != NULL) {
         path_start += 3;
     } else {
@@ -53,7 +54,7 @@ char* parse_ld_trace_line_path(const char* line) {
             path_start++;
     }
 
-    char* path_end = strstr(path_start, " (");
+    char *path_end = strstr(path_start, " (");
 
     if (path_end != NULL)
         path = strndup(path_start, path_end - path_start);
@@ -144,7 +145,7 @@ void configure_embed_libc() {
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_DEBUG: using appdir libc\n");
 #endif
-    char* ld_library_path = apprun_shell_expand_variables("$APPDIR_LIBRARY_PATH:$LIBC_LIBRARY_PATH:"
+    char *ld_library_path = apprun_shell_expand_variables("$APPDIR_LIBRARY_PATH:$LIBC_LIBRARY_PATH:"
                                                           "$"APPRUN_ENV_ORIG_PREFIX"LD_LIBRARY_PATH", NULL);
 
     apprun_env_set("LD_LIBRARY_PATH", ld_library_path, "", ld_library_path);
@@ -155,15 +156,15 @@ void configure_system_libc() {
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_DEBUG: using system libc\n");
 #endif
-    char* ld_library_path = apprun_shell_expand_variables("$APPDIR_LIBRARY_PATH:"
+    char *ld_library_path = apprun_shell_expand_variables("$APPDIR_LIBRARY_PATH:"
                                                           "$"APPRUN_ENV_ORIG_PREFIX"LD_LIBRARY_PATH", NULL);
 
     apprun_env_set("LD_LIBRARY_PATH", ld_library_path, "", ld_library_path);
     free(ld_library_path);
 }
 
-char* require_environment(char* name) {
-    char* value = getenv(name);
+char *require_environment(char *name) {
+    char *value = getenv(name);
     if (value == NULL) {
         fprintf(stderr, "APPRUN ERROR: Missing %s environment", name);
         exit(1);
@@ -172,75 +173,66 @@ char* require_environment(char* name) {
     return value;
 }
 
-char* resolve_libc_from_interpreter_path(char* path) {
-#define LIBC_SO_NAME "libc.so.6"
+void setup_runtime() {
+    char *linkers = strdup(getenv(LD_PATHS_ENV));
+    char *ld_relpath = strtok(linkers, LD_PATHS_ENV_SEPARATOR);
+    if (ld_relpath != NULL) {
+        char *compat_ld_path = resolve_linker_path(ld_relpath, COMPAT_RUNTIME_PREFIX);
+        char *default_ld_path = resolve_linker_path(ld_relpath, DEFAULT_RUNTIME_PREFIX);
 
-    char* r_path = realpath(path, NULL);
-    if (r_path != NULL) {
-        char* split = strrchr(r_path, '/');
-        split++; // include the '/'
-
-        char* libc_path = calloc(strlen(LIBC_SO_NAME) + split - r_path + 1, sizeof(char));
-        strncat(libc_path, r_path, split - r_path);
-        strcat(libc_path, LIBC_SO_NAME);
-
-        free(r_path);
-        return libc_path;
-    } else {
-        fprintf(stderr, "APPRUN_WARNING: Unable to find interpreter: %s\n", path);
-        return NULL;
-    }
-}
-
-void setup_interpreter(char* system_interpreter_path) {
-    char* appdir = require_environment("APPDIR");
-    char* token = strtok(system_interpreter_path, ":");
-    while (token != NULL) {
-        char* system_libc_path = resolve_libc_from_interpreter_path(token);
-
-        char* system_libc_version = read_libc_version(system_libc_path);
-        char* appdir_libc_version = require_environment("APPDIR_LIBC_VERSION");
+        char *system_ld_version = read_ld_version(default_ld_path);
+        char *appdir_ld_version = read_ld_version(compat_ld_path);
 
 #ifdef DEBUG
-        fprintf(stderr, "APPRUN_DEBUG: interpreter \"%s\" \n", strrchr(token, '/') + 1);
-        fprintf(stderr, "APPRUN_DEBUG: system glibc(%s), appdir glibc(%s) \n", system_libc_version,
-                appdir_libc_version);
+        fprintf(stderr, "APPRUN_DEBUG: interpreter \"%s\" \n", strrchr(ld_relpath, '/') + 1);
+        fprintf(stderr, "APPRUN_DEBUG: system ld(%s), appdir ld(%s) \n", system_ld_version, appdir_ld_version);
 #endif
-        if (compare_glib_version_strings(system_libc_version, appdir_libc_version) > 0) {
+        char *runtime_path = NULL;
+        if (compare_version_strings(system_ld_version, appdir_ld_version) > 0) {
+            runtime_path = resolve_runtime_path(DEFAULT_RUNTIME_PREFIX);
             configure_system_libc();
-            deploy_interpreter(token);
         } else {
+            runtime_path = resolve_runtime_path(COMPAT_RUNTIME_PREFIX);
             configure_embed_libc();
-            char* appdir_interpreter_path = calloc(sizeof(char), PATH_MAX);
-            memset(appdir_interpreter_path, 0, PATH_MAX);
-            appdir_interpreter_path = strcat(appdir_interpreter_path, appdir);
-            appdir_interpreter_path = strcat(appdir_interpreter_path, "/opt/libc");
-            appdir_interpreter_path = strcat(appdir_interpreter_path, token);
-            deploy_interpreter(appdir_interpreter_path);
         }
 
-        free(system_libc_path);
 
-        token = strtok(NULL, ":");
+        apprun_env_set(APPRUN_ENV_RUNTIME, runtime_path, "", runtime_path);
+
+        char cwd[PATH_MAX];
+        getcwd(cwd, PATH_MAX);
+        apprun_env_set(APPRUN_ENV_ORIG_WORKDIR, cwd, "", cwd);
+        chdir(runtime_path);
     }
 }
 
-void deploy_interpreter(char* path) {
-#ifdef DEBUG
-    fprintf(stderr, "APPRUN_DEBUG: deploying interpreter \"%s\" \n", path);
-#endif
+char *resolve_runtime_path(const char *prefix) {
+    char *appdir = require_environment("APPDIR");
+    int appdir_len = strlen(appdir);
+    int runtime_prefix_len = strlen(prefix);
 
-    char* appimage_uuid = require_environment("APPIMAGE_UUID");
-    char* target_path = calloc(sizeof(char), PATH_MAX);
-    memset(target_path, 0, PATH_MAX);
-    target_path = strcat(target_path, "/tmp/appimage-");
-    target_path = strcat(target_path, appimage_uuid);
-    target_path = strcat(target_path, "-");
-    target_path = strcat(target_path, strrchr(path, '/') + 1);
+    int path_len = appdir_len + runtime_prefix_len + 1;
+    char *path = calloc(path_len, sizeof(char));
+    memset(path, 0, path_len);
+    strcat(path, appdir);
+    strcat(path, prefix);
 
-    if (access(target_path, F_OK) == -1)
-        apprun_file_copy(path, target_path);
+    return path;
+}
 
-    chmod(target_path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+char *resolve_linker_path(char *relpath, char const *prefix) {
+    char *appdir = require_environment("APPDIR");
+    int appdir_len = strlen(appdir);
+    int runtime_prefix_len = strlen(prefix);
+    int relpath_len = strlen(relpath);
+
+    int path_len = appdir_len + runtime_prefix_len + relpath_len + 1;
+    char *path = calloc(path_len, sizeof(char));
+    memset(path, 0, path_len);
+    strcat(path, appdir);
+    strcat(path, prefix);
+    strcat(path, relpath);
+
+    return path;
 }
 

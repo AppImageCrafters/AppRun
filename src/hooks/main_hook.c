@@ -5,7 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "main.h"
+#include "main_hook.h"
 
 /* Trampoline for the real main() */
 static int (*main_orig)(int, char **, char **);
