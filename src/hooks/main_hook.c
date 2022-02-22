@@ -36,7 +36,6 @@ void restore_workdir() {
 #endif
 
         chdir(original_pwd);
-        unsetenv(APPRUN_ENV_ORIGINAL_WORKDIR);
     }
 }
 

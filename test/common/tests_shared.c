@@ -43,11 +43,16 @@ void assert_str_eq(const char* str1, const char* str2) {
     if (str1 == NULL && str2 == NULL)
         return;
 
-    if ((str1 == NULL) || (str2 == NULL))
+    if ((str1 == NULL) || (str2 == NULL)) {
+        fprintf(stderr, "assert error: strings differ: %s  %s\n", str1, str2);
         bailout();
+    }
 
-    if (strcmp(str1, str2) != 0)
+
+    if (strcmp(str1, str2) != 0) {
+        fprintf(stderr, "assert error: strings differ: %s  %s\n", str1, str2);
         bailout();
+    }
 }
 
 void bailout() {

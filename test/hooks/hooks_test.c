@@ -33,7 +33,7 @@
 #include "hooks/exec_args.h"
 #include "../common/tests_shared.h"
 
-void test_restore_original_env_for_external_binaries() {
+void test_pwd_changed() {
     fprintf(stdout, "%s: ", __FUNCTION__);
 
     set_private_env(APPRUN_ENV_APPDIR, "/tmp");
@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
     test_keep_appdir_env_for_internal_binaries();
     test_cwd_to_runtime();
     test_realpath_bug_workaround();
-    test_restore_original_env_for_external_binaries();
+    test_pwd_changed();
     test_path_mappings();
 
     return 0;
