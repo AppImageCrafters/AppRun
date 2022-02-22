@@ -65,7 +65,7 @@ typedef int (*execvpe_func_t)(const char *file, char *const argv[], char *const 
 
 static execvpe_func_t real_execvpe = NULL;
 
-void chdir_to_runtime();
+
 
 apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const *argv, char *const *envp) {
     char *resolved_filename = apprun_resolve_bin_path(filename);
@@ -107,16 +107,6 @@ apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const 
     return res;
 }
 
-void chdir_to_runtime() {
-    char const *runtime_path = getenv(APPRUN_ENV_RUNTIME);
-    if (runtime_path != NULL) {
-        chdir(runtime_path);
-    } else {
-        fprintf(stderr,
-                "APPRUN_HOOK_WARNING: %s environment variable not set, execution of bundled binaries may fail!\n",
-                APPRUN_ENV_RUNTIME);
-    }
-}
 
 int execve(const char *filename, char *const argv[], char *const envp[]) {
     apprun_exec_args_t *new_exec_args = apprun_adjusted_exec_args(filename, argv, envp);

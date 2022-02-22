@@ -35,7 +35,7 @@
 #include "environment.h"
 
 
-void apprun_exec_args_free(apprun_exec_args_t* args) {
+void apprun_exec_args_free(apprun_exec_args_t *args) {
     apprun_string_list_free(args->args);
     apprun_string_list_free(args->envp);
     free(args->file);
@@ -43,11 +43,11 @@ void apprun_exec_args_free(apprun_exec_args_t* args) {
 }
 
 
-void apprun_print_exec_args(const char* filename, char* const* argv, char* const* envp) {
+void apprun_print_exec_args(const char *filename, char *const *argv, char *const *envp) {
     fprintf(stderr, "  filename: \"%s\"\n", filename);
     fprintf(stderr, "  args: [ ");
     if (argv) {
-        for (char* const* itr = argv; *itr != 0; itr++) {
+        for (char *const *itr = argv; *itr != 0; itr++) {
             fprintf(stderr, "\"%s\"", *itr);
             if (*(itr + 1) != NULL)
                 fprintf(stderr, ", ");
@@ -58,7 +58,7 @@ void apprun_print_exec_args(const char* filename, char* const* argv, char* const
 
     fprintf(stderr, "  envp: [ \n");
     if (envp) {
-        for (char* const* itr = envp; *itr != 0; itr++) {
+        for (char *const *itr = envp; *itr != 0; itr++) {
             fprintf(stderr, "    \"%s\"", *itr);
             if (*(itr + 1) != NULL)
                 fprintf(stderr, ", \n");
@@ -70,17 +70,17 @@ void apprun_print_exec_args(const char* filename, char* const* argv, char* const
 }
 
 
-apprun_exec_args_t* apprun_duplicate_exec_args(const char* filename, char* const* argv) {
-    apprun_exec_args_t* result;
+apprun_exec_args_t *apprun_duplicate_exec_args(const char *filename, char *const *argv) {
+    apprun_exec_args_t *result;
     result = calloc(1, sizeof(apprun_exec_args_t));
 
     // use original filename
     result->file = strdup(filename);
 
     int array_size = apprun_array_len(argv);
-    result->args = calloc(array_size, sizeof(char*));
-    char* const* src_itr = argv;
-    char** target_itr = result->args;
+    result->args = calloc(array_size, sizeof(char *));
+    char *const *src_itr = argv;
+    char **target_itr = result->args;
 
     // copy arguments
     for (; *src_itr != NULL; src_itr++, target_itr++)
@@ -100,4 +100,15 @@ char **apprun_set_original_workdir_env(char *const *envp) {
 #endif
 
     return new_envp;
+}
+
+void chdir_to_runtime() {
+    char const *runtime_path = getenv(APPRUN_ENV_RUNTIME);
+    if (runtime_path != NULL) {
+        chdir(runtime_path);
+    } else {
+        fprintf(stderr,
+                "APPRUN_HOOK_WARNING: %s environment variable not set, execution of bundled binaries may fail!\n",
+                APPRUN_ENV_RUNTIME);
+    }
 }
