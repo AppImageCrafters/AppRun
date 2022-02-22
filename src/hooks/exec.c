@@ -65,8 +65,6 @@ typedef int (*execvpe_func_t)(const char *file, char *const argv[], char *const 
 
 static execvpe_func_t real_execvpe = NULL;
 
-int apprun_is_exported_binary(const char *new_filename);
-
 char *apprun_format_original_cwd_env();
 
 char **apprun_set_original_workdir_env(char *const *envp) {
@@ -94,7 +92,6 @@ apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const 
     char *new_filename = apprun_redirect_path(resolved_filename);
     free(resolved_filename);
 
-
     char *appdir = getenv("APPDIR");
 
 #ifdef DEBUG
@@ -106,9 +103,8 @@ apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const 
     apprun_exec_args_t *res = NULL;
     res = apprun_duplicate_exec_args(new_filename, argv);
 
-    int is_exported_binary = apprun_is_exported_binary(new_filename);
     int is_nested_path = apprun_is_path_child_of(new_filename, appdir);
-    if (appdir != NULL && (is_exported_binary || is_nested_path)) {
+    if (appdir != NULL && is_nested_path) {
 #ifdef DEBUG
         fprintf(stderr, "APPRUN_HOOK_DEBUG: USING BUNDLE RUNTIME\n");
 #endif
@@ -133,23 +129,6 @@ apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const 
 
     free(new_filename);
     return res;
-}
-
-int apprun_is_exported_binary(const char *new_filename) {
-    char exported_file_prefix[100] = {0x0};
-    strcat(exported_file_prefix, "/tmp/appimage-");
-    char *uuid = getenv("APPIMAGE_UUID");
-    if (uuid != NULL) {
-        unsigned uuid_len = strlen(uuid);
-        unsigned len = 36 < uuid_len ? 36 : uuid_len;
-        strncat(exported_file_prefix, uuid, len);
-    }
-
-    int is_exported_binary = (strncmp(exported_file_prefix, new_filename, strlen(exported_file_prefix)) == 0);
-#ifdef DEBUG
-    fprintf(stderr, "APPRUN_DEBUG: is_exported_binary %d\n", is_exported_binary);
-#endif
-    return is_exported_binary;
 }
 
 int execve(const char *filename, char *const argv[], char *const envp[]) {
