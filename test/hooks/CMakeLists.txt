@@ -11,6 +11,14 @@ add_test(NAME TEST_ENVIRONMENT_CLEANUP COMMAND environment_test)
 string(RANDOM LENGTH 6 MAPPED_APPDIR_PATH_HASH)
 set(MAPPED_APPDIR_PATH "/AppDir-${MAPPED_APPDIR_PATH_HASH}")
 
+add_executable(hooks_outer_target_test hooks_outer_target_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
+target_compile_definitions(
+        hooks_outer_target_test PRIVATE
+        -DEXPECTED_WORKDIR="${CMAKE_CURRENT_BINARY_DIR}"
+        -DMAPPED_APPDIR_PATH="${MAPPED_APPDIR_PATH}"
+)
+add_test(NAME TEST_HOOKS_OUTER_TARGET COMMAND hooks_outer_target_test WORKDIR ${CMAKE_CURRENT_BINARY_DIR})
+
 add_executable(hooks_inner_target_test hooks_inner_target_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
 target_compile_definitions(
         hooks_inner_target_test PRIVATE
@@ -39,7 +47,8 @@ target_compile_definitions(
         exec_hooks_test PRIVATE
         -DAPPDIR_MOCK="${APPDIR_MOCK_PATH}"
         -DMAPPED_APPDIR_PATH="${MAPPED_APPDIR_PATH}"
-        -DINTERNAL_TARGET="${APPDIR_MOCK_PATH}/$<TARGET_FILE_BASE_NAME:hooks_inner_target_test>"
+        -DINNER_TARGET="${APPDIR_MOCK_PATH}/$<TARGET_FILE_BASE_NAME:hooks_inner_target_test>"
+        -DOUTER_TARGET="${APPDIR_MOCK_PATH}/$<TARGET_FILE_BASE_NAME:hooks_outer_target_test>"
 )
 add_test(NAME TEST_EXEC_HOOKS COMMAND exec_hooks_test)
 set_tests_properties(
@@ -58,3 +67,4 @@ APPRUN_ORIGINAL_APPRUN_CWD=;\
 APPRUN_ORIGINAL_APPRUN_PATH_MAPPINGS=;\
 "
 )
+
