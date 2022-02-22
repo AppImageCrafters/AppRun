@@ -34,7 +34,7 @@
 
 #include "../common/tests_shared.h"
 
-void test_pwd_not_changed() {
+void test_pwd_changed() {
     fprintf(stdout, "%s: ", __FUNCTION__);
 
     char cwd[PATH_MAX] = {0x0};
@@ -46,7 +46,7 @@ void test_pwd_not_changed() {
 
 extern char **environ;
 
-void test_bundle_appdir_env_not_received() {
+void test_bundle_appdir_env_received() {
     fprintf(stdout, "%s: ", __FUNCTION__);
 
     char *appdir_env = getenv("APPDIR");
@@ -55,7 +55,7 @@ void test_bundle_appdir_env_not_received() {
     fprintf(stdout, "Ok\n");
 }
 
-void test_bundle_ld_preload_env_not_received() {
+void test_bundle_ld_preload_env_received() {
     fprintf(stdout, "%s: ", __FUNCTION__);
 
     char *env = getenv("LD_PRELOAD");
@@ -64,7 +64,7 @@ void test_bundle_ld_preload_env_not_received() {
     fprintf(stdout, "Ok\n");
 }
 
-void test_bundle_apprun_cwd_env_not_received() {
+void test_bundle_apprun_cwd_env_received() {
     fprintf(stdout, "%s: ", __FUNCTION__);
 
     char *env = getenv("APPRUN_CWD");
@@ -73,7 +73,7 @@ void test_bundle_apprun_cwd_env_not_received() {
     fprintf(stdout, "Ok\n");
 }
 
-void test_bundle_apprun_path_mappings_env_not_received() {
+void test_bundle_apprun_path_mappings_env_received() {
     fprintf(stdout, "%s: ", __FUNCTION__);
 
     char *env = getenv("APPRUN_PATH_MAPPINGS");
@@ -115,12 +115,12 @@ void test_fstat_hook() {
 }
 
 int main(int argc, char **argv) {
-    test_pwd_not_changed();
+    test_pwd_changed();
 
-    test_bundle_appdir_env_not_received();
-    test_bundle_ld_preload_env_not_received();
-    test_bundle_apprun_cwd_env_not_received();
-    test_bundle_apprun_path_mappings_env_not_received();
+    test_bundle_appdir_env_received();
+    test_bundle_ld_preload_env_received();
+    test_bundle_apprun_cwd_env_received();
+    test_bundle_apprun_path_mappings_env_received();
 
     test_realpath_hook();
     test_stat_hook();

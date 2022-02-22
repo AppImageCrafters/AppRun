@@ -28,11 +28,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <linux/limits.h>
 
 #include "../common/tests_shared.h"
 
-int check_execv_result(char *path, char **argv) {
-    pid_t cpid, w;
+int check_execv_return_code(char *path, char **argv) {
+    pid_t cpid;
     int wstatus;
 
     cpid = fork();
@@ -42,16 +43,11 @@ int check_execv_result(char *path, char **argv) {
     }
 
     if (cpid == 0) {            /* Code executed by child */
-        exit(execv(path, argv));
+        int err = execv(path, argv);
+        exit(err);
     } else {                    /* Code executed by parent */
-        do {
-            w = waitpid(cpid, &wstatus, WUNTRACED | WCONTINUED);
-            if (w == -1) {
-                perror("waitpid");
-                return EXIT_FAILURE;
-            }
-        } while (!WIFEXITED(wstatus) && !WIFSIGNALED(wstatus));
-        return EXIT_SUCCESS;;
+        waitpid(cpid, &wstatus, 0);
+        return WEXITSTATUS(wstatus);;
     }
 }
 
@@ -60,7 +56,8 @@ void test_execv_inner_target() {
 
     char *args[2] = {0x0};
     args[0] = INNER_TARGET;
-    check_execv_result(INNER_TARGET, args);
+    int rc = check_execv_return_code(INNER_TARGET, args);
+    assert_eq(rc, 0);
 
     fprintf(stdout, "Ok\n");
 }
@@ -70,7 +67,9 @@ void test_execv_outer_target() {
 
     char *args[2] = {0x0};
     args[0] = OUTER_TARGET;
-    check_execv_result(OUTER_TARGET, args);
+
+    int rc = check_execv_return_code(OUTER_TARGET, args);
+    assert_eq(rc, 0);
 
     fprintf(stdout, "Ok\n");
 }
