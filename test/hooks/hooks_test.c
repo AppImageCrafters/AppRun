@@ -30,7 +30,7 @@
 #include <limits.h>
 #include <unistd.h>
 
-#include "hooks/exec_args.h"
+#include "hooks/exec_utils.h"
 #include "../common/tests_shared.h"
 
 void test_pwd_not_changed() {

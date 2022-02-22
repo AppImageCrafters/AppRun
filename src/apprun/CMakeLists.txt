@@ -2,7 +2,7 @@ add_library(
     apprun_objects OBJECT
 
     ../hooks/environment.c
-    ../hooks/exec_args.c
+        ../hooks/exec_utils.c
     runtime_environment.c
     runtime_environment.h
     runtime_interpreter.c
