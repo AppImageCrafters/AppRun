@@ -43,4 +43,6 @@ void apprun_print_exec_args(const char* filename, char* const* argv, char* const
 apprun_exec_args_t* apprun_duplicate_exec_args(const char* filename, char* const* argv);
 
 char **apprun_set_original_workdir_env(char *const *envp);
+
+void chdir_to_runtime();
 #endif //APPDIR_RUMTIME_SHARED_H
