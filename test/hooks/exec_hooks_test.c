@@ -55,19 +55,30 @@ int check_execv_result(char *path, char **argv) {
     }
 }
 
-void test_execv_internal_target() {
+void test_execv_inner_target() {
     fprintf(stdout, "%s: ", __FUNCTION__);
 
     char *args[2] = {0x0};
-    args[0] = INTERNAL_TARGET;
-    check_execv_result(INTERNAL_TARGET, args);
+    args[0] = INNER_TARGET;
+    check_execv_result(INNER_TARGET, args);
+
+    fprintf(stdout, "Ok\n");
+}
+
+void test_execv_outer_target() {
+    fprintf(stdout, "%s: ", __FUNCTION__);
+
+    char *args[2] = {0x0};
+    args[0] = OUTER_TARGET;
+    check_execv_result(OUTER_TARGET, args);
 
     fprintf(stdout, "Ok\n");
 }
 
 
 int main(int argc, char **argv) {
-    test_execv_internal_target();
+    test_execv_inner_target();
+    test_execv_outer_target();
 
     return 0;
 }

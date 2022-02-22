@@ -50,7 +50,7 @@ void test_bundle_appdir_env_not_received() {
     fprintf(stdout, "%s: ", __FUNCTION__);
 
     char *appdir_env = getenv("APPDIR");
-    assert_str_eq(appdir_env, EXPECTED_WORKDIR);
+    assert_true(appdir_env == NULL);
 
     fprintf(stdout, "Ok\n");
 }
@@ -59,7 +59,7 @@ void test_bundle_ld_preload_env_not_received() {
     fprintf(stdout, "%s: ", __FUNCTION__);
 
     char *env = getenv("LD_PRELOAD");
-    assert_true(env != NULL);
+    assert_true(env == NULL);
 
     fprintf(stdout, "Ok\n");
 }
@@ -68,7 +68,7 @@ void test_bundle_apprun_cwd_env_not_received() {
     fprintf(stdout, "%s: ", __FUNCTION__);
 
     char *env = getenv("APPRUN_CWD");
-    assert_str_eq(env, EXPECTED_WORKDIR);
+    assert_true(env == NULL);
 
     fprintf(stdout, "Ok\n");
 }
@@ -77,39 +77,7 @@ void test_bundle_apprun_path_mappings_env_not_received() {
     fprintf(stdout, "%s: ", __FUNCTION__);
 
     char *env = getenv("APPRUN_PATH_MAPPINGS");
-    assert_true(env != NULL);
-
-    fprintf(stdout, "Ok\n");
-}
-
-void test_realpath_hook() {
-    fprintf(stdout, "%s: ", __FUNCTION__);
-
-    char result[PATH_MAX];
-    char *result_ptr = realpath(MAPPED_APPDIR_PATH, result);
-    assert_str_eq(result, EXPECTED_WORKDIR);
-    fprintf(stdout, "Ok\n");
-}
-
-void test_stat_hook() {
-    fprintf(stdout, "%s: ", __FUNCTION__);
-
-    char result[PATH_MAX];
-    struct stat stat_result;
-    int ret = stat(MAPPED_APPDIR_PATH, &stat_result);
-    assert_true(ret == 0);
-
-    fprintf(stdout, "Ok\n");
-}
-
-void test_fstat_hook() {
-    fprintf(stdout, "%s: ", __FUNCTION__);
-
-    char result[PATH_MAX];
-    int dir_fd = open(MAPPED_APPDIR_PATH, O_DIRECTORY | O_RDONLY);
-    struct stat stat_result;
-    int ret = fstat(dir_fd, &stat_result);
-    assert_true(ret == 0);
+    assert_true(env == NULL);
 
     fprintf(stdout, "Ok\n");
 }
@@ -121,10 +89,6 @@ int main(int argc, char **argv) {
     test_bundle_ld_preload_env_not_received();
     test_bundle_apprun_cwd_env_not_received();
     test_bundle_apprun_path_mappings_env_not_received();
-
-    test_realpath_hook();
-    test_stat_hook();
-    test_fstat_hook();
 
     return 0;
 }
