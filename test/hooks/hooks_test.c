@@ -69,6 +69,7 @@ void setup_wrapper() {
 
     setenv("APPRUN_ORIGINAL_LD_PRELOAD", "", 0);
     setenv("APPRUN_STARTUP_LD_PRELOAD", wrapper_path, 0);
+    setenv(APPRUN_ENV_RUNTIME, "/", 1);
 }
 
 void test_path_mappings() {
