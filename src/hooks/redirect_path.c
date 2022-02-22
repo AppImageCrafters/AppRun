@@ -37,7 +37,7 @@
 #include <common/hooks_debug.h>
 
 #include "redirect_path.h"
-#include "exec_args.h"
+#include "exec_utils.h"
 
 #define APPRUN_PATH_MAPPINGS "APPRUN_PATH_MAPPINGS"
 
