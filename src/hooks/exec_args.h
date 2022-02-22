@@ -40,4 +40,6 @@ void apprun_exec_args_free(apprun_exec_args_t* args);
 
 void apprun_print_exec_args(const char* filename, char* const* argv, char* const* envp);
 
+apprun_exec_args_t* apprun_duplicate_exec_args(const char* filename, char* const* argv);
+
 #endif //APPDIR_RUMTIME_SHARED_H

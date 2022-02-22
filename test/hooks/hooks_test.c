@@ -30,12 +30,11 @@
 #include <limits.h>
 #include <unistd.h>
 
-#include "hooks/interpreter.h"
-#include "hooks/main_hook.h"
+#include "hooks/exec_args.h"
 #include "../common/tests_shared.h"
 
 void test_restore_original_env_for_external_binaries() {
-    fprintf(stdout, "Test restore original environment when calling external binaries: ");
+    fprintf(stdout, "%s: ", __FUNCTION__);
 
     set_private_env(APPRUN_ENV_APPDIR, "/tmp");
 
@@ -47,7 +46,7 @@ void test_restore_original_env_for_external_binaries() {
 }
 
 void test_keep_appdir_env_for_internal_binaries() {
-    fprintf(stdout, "Test keep APPDIR environment when calling internal binaries: ");
+    fprintf(stdout, "%s: ", __FUNCTION__);
 
     set_private_env(APPRUN_ENV_APPDIR, "/usr/bin");
 
@@ -73,7 +72,7 @@ void setup_wrapper() {
 }
 
 void test_path_mappings() {
-    fprintf(stdout, "Test path mappings: ");
+    fprintf(stdout, "%s: ", __FUNCTION__);
 
     set_private_env("APPRUN_PATH_MAPPINGS", "/missing_path:/bin/;/missing_path:/usr/;");
 
@@ -85,7 +84,7 @@ void test_path_mappings() {
     unsetenv("APPRUN_PATH_MAPPINGS");
     assert_command_fails(system("/usr/bin/stat /missing_path/bash >> /dev/null"));
 
-    fprintf(stdout, "Ok\n");
+    fprintf(stdout, " Ok\n");
 }
 
 void test_realpath_bug_workaround() {
@@ -106,7 +105,10 @@ void test_realpath_bug_workaround() {
 }
 
 void test_cwd_to_runtime() {
-    fprintf(stdout, __FUNCTION__);
+    fprintf(stdout, "%s: ", __FUNCTION__);
+
+    char pwd[PATH_MAX] = {0x0};
+    getcwd(pwd, PATH_MAX);
 
     // start from a different workdir
     chdir("/bin");
@@ -114,23 +116,24 @@ void test_cwd_to_runtime() {
 
     assert_command_succeed(system("/usr/bin/pwd | grep -q /bin"));
 
-    setenv(APPRUN_ENV_ORIG_WORKDIR, "/tmp", 1);
+    setenv(APPRUN_ENV_ORIGINAL_WORKDIR, "/tmp", 1);
     assert_command_succeed(system("/usr/bin/pwd | grep -q /tmp"));
 
     unsetenv("APPDIR");
-    unsetenv(APPRUN_ENV_ORIG_WORKDIR);
+    unsetenv(APPRUN_ENV_ORIGINAL_WORKDIR);
 
+    chdir(pwd);
     fprintf(stdout, "Ok\n");
 }
 
 
 int main(int argc, char **argv) {
     setup_wrapper();
-    
+
+    test_keep_appdir_env_for_internal_binaries();
     test_cwd_to_runtime();
     test_realpath_bug_workaround();
     test_restore_original_env_for_external_binaries();
-    test_keep_appdir_env_for_internal_binaries();
     test_path_mappings();
 
     return 0;

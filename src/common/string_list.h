@@ -41,7 +41,9 @@ char** apprun_string_list_alloc(unsigned int size);
 
 int apprun_array_len(char* const* arr);
 
-char** apprun_string_list_dup(char* const* envp);
+void apprun_string_list_copy(char *const *source, char **target);
+
+char** apprun_string_list_dup(char* const* list);
 
 char* apprun_string_list_join(char* const* string_list, char* split);
 

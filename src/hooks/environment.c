@@ -29,9 +29,9 @@
 #include "common/string_list.h"
 #include "environment.h"
 
-apprun_env_item_t* apprun_env_item_unchanged_export(apprun_env_item_t const* item) {
+apprun_env_item_t *apprun_env_item_unchanged_export(apprun_env_item_t const *item) {
     if (item->original_value != NULL) {
-        apprun_env_item_t* copy = calloc(1, sizeof(apprun_env_item_t));
+        apprun_env_item_t *copy = calloc(1, sizeof(apprun_env_item_t));
         copy->name = strdup(item->name);
         copy->current_value = strdup(item->original_value);
 
@@ -41,7 +41,7 @@ apprun_env_item_t* apprun_env_item_unchanged_export(apprun_env_item_t const* ite
     if (item->original_value == NULL && item->startup_value == NULL) {
         // this is item should not be tracked nor modified
 
-        apprun_env_item_t* copy = calloc(1, sizeof(apprun_env_item_t));
+        apprun_env_item_t *copy = calloc(1, sizeof(apprun_env_item_t));
         copy->name = strdup(item->name);
         copy->current_value = strdup(item->current_value);
 
@@ -51,7 +51,7 @@ apprun_env_item_t* apprun_env_item_unchanged_export(apprun_env_item_t const* ite
     return NULL;
 }
 
-void apprun_env_item_free(apprun_env_item_t* item) {
+void apprun_env_item_free(apprun_env_item_t *item) {
     if (item == NULL)
         return;
 
@@ -70,7 +70,7 @@ void apprun_env_item_free(apprun_env_item_t* item) {
     free(item);
 }
 
-bool apprun_env_item_is_changed(apprun_env_item_t const* item) {
+bool apprun_env_item_is_changed(apprun_env_item_t const *item) {
     if (item->startup_value == item->current_value)
         return false;
 
@@ -79,12 +79,12 @@ bool apprun_env_item_is_changed(apprun_env_item_t const* item) {
              strcmp(item->startup_value, item->current_value) == 0);
 }
 
-char* apprun_env_replace_startup_by_original_section(const apprun_env_item_t* item,
-                                                     const char* startup_value_section) {
+char *apprun_env_replace_startup_by_original_section(const apprun_env_item_t *item,
+                                                     const char *startup_value_section) {
     // replace startup_value by original_value
     unsigned new_value_len = strlen(item->original_value) +
                              strlen(item->current_value) - strlen(item->startup_value) + 1;
-    char* new_value = calloc(new_value_len, sizeof(char));
+    char *new_value = calloc(new_value_len, sizeof(char));
 
     // copy prefixed values
     strncpy(new_value, item->current_value, startup_value_section - item->current_value);
@@ -97,11 +97,11 @@ char* apprun_env_replace_startup_by_original_section(const apprun_env_item_t* it
     return new_value;
 }
 
-apprun_env_item_t* apprun_env_item_changed_export(apprun_env_item_t* item) {
+apprun_env_item_t *apprun_env_item_changed_export(apprun_env_item_t *item) {
     if (item->original_value == NULL && item->startup_value == NULL) {
         // this is item should not be tracked nor modified
 
-        apprun_env_item_t* copy = calloc(1, sizeof(apprun_env_item_t));
+        apprun_env_item_t *copy = calloc(1, sizeof(apprun_env_item_t));
         copy->name = strdup(item->name);
         copy->current_value = strdup(item->current_value);
 
@@ -112,22 +112,22 @@ apprun_env_item_t* apprun_env_item_changed_export(apprun_env_item_t* item) {
         return NULL;
 
     // check if the startup_value was extended (pre or post fixed)
-    char* startup_value_section = NULL;
+    char *startup_value_section = NULL;
 
     if (item->current_value != NULL && item->startup_value != NULL)
         startup_value_section = strstr(item->current_value, item->startup_value);
 
     if (startup_value_section != NULL) {
-        char* new_value = apprun_env_replace_startup_by_original_section(item, startup_value_section);
+        char *new_value = apprun_env_replace_startup_by_original_section(item, startup_value_section);
 
-        apprun_env_item_t* copy = calloc(1, sizeof(apprun_env_item_t));
+        apprun_env_item_t *copy = calloc(1, sizeof(apprun_env_item_t));
         copy->name = strdup(item->name);
         copy->current_value = new_value;
 
         return copy;
     } else {
         // keep the current value and remove the APPRUN related vars
-        apprun_env_item_t* copy = calloc(1, sizeof(apprun_env_item_t));
+        apprun_env_item_t *copy = calloc(1, sizeof(apprun_env_item_t));
         copy->name = strdup(item->name);
         copy->current_value = strdup(item->current_value);
 
@@ -135,16 +135,16 @@ apprun_env_item_t* apprun_env_item_changed_export(apprun_env_item_t* item) {
     }
 }
 
-bool apprun_env_item_is_tracked(const apprun_env_item_t* item) {
+bool apprun_env_item_is_tracked(const apprun_env_item_t *item) {
     return item->original_value != NULL || item->startup_value != NULL;
 }
 
-apprun_env_item_t* apprun_env_item_export(apprun_env_item_t* item) {
+apprun_env_item_t *apprun_env_item_export(apprun_env_item_t *item) {
     if (!apprun_env_item_is_tracked(item)) {
         if (item->current_value == NULL)
             return NULL;
 
-        apprun_env_item_t* copy = calloc(1, sizeof(apprun_env_item_t));
+        apprun_env_item_t *copy = calloc(1, sizeof(apprun_env_item_t));
         copy->name = strdup(item->name);
         copy->current_value = strdup(item->current_value);
 
@@ -157,19 +157,19 @@ apprun_env_item_t* apprun_env_item_export(apprun_env_item_t* item) {
         return apprun_env_item_unchanged_export(item);
 }
 
-char* apprun_env_str_entry_extract_name(char* string) {
+char *apprun_env_str_entry_extract_name(char *string) {
     if (string) {
-        char* sep = strchr(string,  '=');
+        char *sep = strchr(string, '=');
         return strndup(string, sep - string);
     }
 
     return NULL;
 }
 
-char* apprun_env_str_entry_extract_value(char* string) {
+char *apprun_env_str_entry_extract_value(char *string) {
     if (string && strlen(string) > 0) {
         unsigned string_len = strlen(string);
-        char* sep = strchr(string, '=');
+        char *sep = strchr(string, '=');
         unsigned value_len = string_len - (sep - string);
 
         // assume empty string value as NULL
@@ -180,9 +180,9 @@ char* apprun_env_str_entry_extract_value(char* string) {
     return NULL;
 }
 
-apprun_env_item_t* apprun_env_item_list_find(apprun_env_item_list_t* list, char* name) {
-    for (apprun_env_item_list_t* itr = list; *itr != NULL; itr++) {
-        apprun_env_item_t* item = *itr;
+apprun_env_item_t *apprun_env_item_list_find(apprun_env_item_list_t *list, char *name) {
+    for (apprun_env_item_list_t *itr = list; *itr != NULL; itr++) {
+        apprun_env_item_t *item = *itr;
         if (strcmp(name, item->name) == 0)
             return item;
     }
@@ -191,20 +191,20 @@ apprun_env_item_t* apprun_env_item_list_find(apprun_env_item_list_t* list, char*
     return NULL;
 }
 
-apprun_env_item_list_t* apprun_env_item_list_from_envp(char* const* envp) {
+apprun_env_item_list_t *apprun_env_item_list_from_envp(char *const *envp) {
     unsigned env_origin_prefix_len = strlen(APPRUN_ENV_ORIG_PREFIX);
     unsigned env_startup_prefix_len = strlen(APPRUN_ENV_STARTUP_PREFIX);
 
     unsigned items_count = 0;
 
     unsigned envp_size = apprun_array_len(envp);
-    apprun_env_item_list_t* list = calloc(envp_size, sizeof(apprun_env_item_t*));
+    apprun_env_item_list_t *list = calloc(envp_size, sizeof(apprun_env_item_t *));
 
-    for (char* const* itr = envp; *itr != NULL; itr++) {
-        char* prefixed_str = *itr;
+    for (char *const *itr = envp; *itr != NULL; itr++) {
+        char *prefixed_str = *itr;
         unsigned prefixed_str_len = strlen(prefixed_str);
 
-        char* str = NULL;
+        char *str = NULL;
         bool is_original_value = false;
         bool is_startup_value = false;
 
@@ -221,11 +221,11 @@ apprun_env_item_list_t* apprun_env_item_list_from_envp(char* const* envp) {
         if (str == NULL)
             str = strdup(prefixed_str);
 
-        char* name = apprun_env_str_entry_extract_name(str);
-        char* value = apprun_env_str_entry_extract_value(str);
+        char *name = apprun_env_str_entry_extract_name(str);
+        char *value = apprun_env_str_entry_extract_value(str);
         free(str);
 
-        apprun_env_item_t* item = apprun_env_item_list_find(list, name);
+        apprun_env_item_t *item = apprun_env_item_list_find(list, name);
         if (item == NULL) {
             item = calloc(1, sizeof(apprun_env_item_t));
             item->name = name;
@@ -250,20 +250,20 @@ apprun_env_item_list_t* apprun_env_item_list_from_envp(char* const* envp) {
     return list;
 }
 
-void apprun_env_item_list_free(apprun_env_item_list_t* list) {
-    for (apprun_env_item_list_t* itr = list; *itr != NULL; itr++)
+void apprun_env_item_list_free(apprun_env_item_list_t *list) {
+    for (apprun_env_item_list_t *itr = list; *itr != NULL; itr++)
         apprun_env_item_free(*itr);
 
     free(list);
 }
 
-apprun_env_item_list_t* apprun_env_item_list_export(apprun_env_item_list_t const* list) {
+apprun_env_item_list_t *apprun_env_item_list_export(apprun_env_item_list_t const *list) {
     unsigned new_list_size = apprun_env_item_list_size(list) + 1;
     unsigned new_list_item_count = 0;
-    apprun_env_item_list_t* new_list = calloc(new_list_size, sizeof(apprun_env_item_list_t*));
+    apprun_env_item_list_t *new_list = calloc(new_list_size, sizeof(apprun_env_item_list_t *));
 
-    for (apprun_env_item_list_t const* itr = list; *itr != NULL; itr++) {
-        apprun_env_item_t* item = apprun_env_item_export(*itr);
+    for (apprun_env_item_list_t const *itr = list; *itr != NULL; itr++) {
+        apprun_env_item_t *item = apprun_env_item_export(*itr);
         if (item != NULL) {
             new_list[new_list_item_count] = item;
             new_list_item_count++;
@@ -273,7 +273,7 @@ apprun_env_item_list_t* apprun_env_item_list_export(apprun_env_item_list_t const
     return new_list;
 }
 
-unsigned apprun_env_item_list_size(apprun_env_item_list_t const* list) {
+unsigned apprun_env_item_list_size(apprun_env_item_list_t const *list) {
     unsigned size = 0;
     while (list[size] != NULL)
         size++;
@@ -281,10 +281,10 @@ unsigned apprun_env_item_list_size(apprun_env_item_list_t const* list) {
     return size;
 }
 
-unsigned int apprun_env_item_list_to_envp_len(apprun_env_item_list_t* list) {
+unsigned int apprun_env_item_list_to_envp_len(apprun_env_item_list_t *list) {
     unsigned len = 0;
-    for (apprun_env_item_list_t* itr = list; *itr != NULL; itr++) {
-        apprun_env_item_t* item = *itr;
+    for (apprun_env_item_list_t *itr = list; *itr != NULL; itr++) {
+        apprun_env_item_t *item = *itr;
         if (item->current_value != NULL)
             len++;
 
@@ -298,7 +298,7 @@ unsigned int apprun_env_item_list_to_envp_len(apprun_env_item_list_t* list) {
     return len;
 }
 
-char* apprun_env_envp_entry_create(char const* name_prefix, char const* name, char const* value) {
+char *apprun_env_envp_entry_create(char const *name_prefix, char const *name, char const *value) {
     unsigned size = 0;
     if (name_prefix != NULL)
         size += strlen(name_prefix);
@@ -308,7 +308,7 @@ char* apprun_env_envp_entry_create(char const* name_prefix, char const* name, ch
         size += strlen(value);
 
     // allocate enough space for '=' and the NULL termination
-    char* entry = calloc(size + 2, sizeof(char));
+    char *entry = calloc(size + 2, sizeof(char));
     if (name_prefix)
         strcat(entry, name_prefix);
 
@@ -323,30 +323,30 @@ char* apprun_env_envp_entry_create(char const* name_prefix, char const* name, ch
     return entry;
 }
 
-char** apprun_env_item_list_to_envp(apprun_env_item_list_t* list) {
+char **apprun_env_item_list_to_envp(apprun_env_item_list_t *list) {
     unsigned int envp_len = apprun_env_item_list_to_envp_len(list);
 
     // Allocate an extra space for NULL termination
-    char** envp = calloc(envp_len + 1, sizeof(char*));
+    char **envp = calloc(envp_len + 1, sizeof(char *));
     unsigned count = 0;
 
-    for (apprun_env_item_list_t* itr = list; *itr != NULL; itr++) {
-        apprun_env_item_t* item = *itr;
+    for (apprun_env_item_list_t *itr = list; *itr != NULL; itr++) {
+        apprun_env_item_t *item = *itr;
         if (item->current_value != NULL) {
-            char* env_entry = apprun_env_envp_entry_create(NULL, item->name, item->current_value);
+            char *env_entry = apprun_env_envp_entry_create(NULL, item->name, item->current_value);
             envp[count] = env_entry;
             count++;
         }
 
         if (item->original_value != NULL) {
-            char* env_entry = apprun_env_envp_entry_create(APPRUN_ENV_ORIG_PREFIX, item->name,
+            char *env_entry = apprun_env_envp_entry_create(APPRUN_ENV_ORIG_PREFIX, item->name,
                                                            item->original_value);
             envp[count] = env_entry;
             count++;
         }
 
         if (item->startup_value != NULL) {
-            char* env_entry = apprun_env_envp_entry_create(APPRUN_ENV_STARTUP_PREFIX, item->name,
+            char *env_entry = apprun_env_envp_entry_create(APPRUN_ENV_STARTUP_PREFIX, item->name,
                                                            item->startup_value);
             envp[count] = env_entry;
             count++;
@@ -356,16 +356,64 @@ char** apprun_env_item_list_to_envp(apprun_env_item_list_t* list) {
     return envp;
 }
 
-char** apprun_export_envp(char* const* envp) {
+char **apprun_export_envp(char *const *envp) {
     if (envp == NULL)
         return NULL;
 
-    apprun_env_item_list_t* orginial = apprun_env_item_list_from_envp(envp);
-    apprun_env_item_list_t* exported = apprun_env_item_list_export(orginial);
-    char** adjusted_envp = apprun_env_item_list_to_envp(exported);
+    apprun_env_item_list_t *orginial = apprun_env_item_list_from_envp(envp);
+    apprun_env_item_list_t *exported = apprun_env_item_list_export(orginial);
+    char **adjusted_envp = apprun_env_item_list_to_envp(exported);
 
     apprun_env_item_list_free(orginial);
     apprun_env_item_list_free(exported);
 
     return adjusted_envp;
+}
+
+char *apprun_format_envp_entry(const char *key, const char *value) {
+    int equality_sign_len = 1; // =
+    int zero_termination_len = 1; // \0
+
+    unsigned long var_prefix_len = strlen(key);
+    unsigned long value_len = strlen(value);
+    unsigned long original_cwd_env_len = var_prefix_len + equality_sign_len + value_len + zero_termination_len;
+    char *original_cwd_env = malloc(original_cwd_env_len);
+    memset(original_cwd_env, 0, original_cwd_env_len);
+    strcat(original_cwd_env, key);
+    strcat(original_cwd_env, "=");
+    strcat(original_cwd_env, value);
+    return original_cwd_env;
+}
+
+char **apprun_envp_set(const char *key, const char *value, char *const *envp) {
+    unsigned long key_len = strlen(key);
+
+    unsigned long envp_len = 0;
+    bool contains_key = false;
+
+    for (char *const *itr = envp; itr != NULL && *itr != NULL; itr++) {
+        envp_len++;
+        char *str = *itr;
+        if (strncmp(key, str, key_len) == 0 && str[key_len] == '=')
+            contains_key = true;
+    }
+
+    char *new_entry = apprun_format_envp_entry(key, value);
+    char **new_envp = NULL;
+    if (contains_key) {
+        new_envp = apprun_string_list_dup(envp);
+        for (char **itr = new_envp; itr != NULL && *itr != NULL; itr++) {
+            if (strncmp(key, *itr, key_len) == 0 && (*itr)[key_len] == '=') {
+//                free(*itr);
+                *itr = new_entry;
+            }
+        }
+    } else {
+        new_envp = apprun_string_list_alloc(envp_len + 1);
+        apprun_string_list_copy(envp, new_envp);
+        new_envp[envp_len] = new_entry;
+    }
+
+
+    return new_envp;
 }

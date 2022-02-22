@@ -30,6 +30,8 @@
 
 #include "string_list.h"
 
+void apprun_string_list_copy(char *const *source, char **target);
+
 char** apprun_adjust_string_array_size(char** array) {
     unsigned new_capacity = 1;
     for (char** itr = array; itr != NULL && *itr != NULL; itr++)
@@ -67,8 +69,9 @@ void apprun_string_list_free(char** string_list) {
     }
 }
 
-char** apprun_string_list_alloc(unsigned int size) {
-    char** ret = calloc(size, sizeof(char*));
+char **apprun_string_list_alloc(unsigned int size) {
+    char **ret = calloc(size, sizeof(char *));
+    memset(ret, 0, size);
     return ret;
 }
 
@@ -79,19 +82,23 @@ int apprun_array_len(char* const* arr) {
         return 0;
 }
 
-char** apprun_string_list_dup(char* const* envp) {
-    if (envp != NULL) {
-        unsigned size = apprun_array_len(envp);
+char** apprun_string_list_dup(char* const* list) {
+    if (list != NULL) {
+        unsigned size = apprun_array_len(list);
         char** copy = apprun_string_list_alloc(size);
 
-        char* const* itr1 = envp;
-        char** itr2 = copy;
-        for (; *itr1 != NULL; itr1++, itr2++)
-            *itr2 = strdup(*itr1);
+        apprun_string_list_copy(list, copy);
 
         return copy;
     } else
         return NULL;
+}
+
+void apprun_string_list_copy(char *const *source, char **target) {
+    char* const* itr1 = source;
+    char** itr2 = target;
+    for (; *itr1 != NULL; itr1++, itr2++)
+        *itr2 = strdup(*itr1);
 }
 
 char* apprun_string_list_join(char* const* string_list, char* split) {

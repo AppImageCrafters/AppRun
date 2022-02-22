@@ -64,7 +64,7 @@ void test_env_item_unchanged_export_shared_item() {
             "/tmp/app/lib:/lib"
     };
 
-    apprun_env_item_t* res = apprun_env_item_unchanged_export(&shared_item);
+    apprun_env_item_t *res = apprun_env_item_unchanged_export(&shared_item);
 
     apprun_env_item_t expected = {
             "LD_LIBRARY_PATH",
@@ -89,7 +89,7 @@ void test_env_item_unchanged_export_external_item() {
             NULL
     };
 
-    apprun_env_item_t* res = apprun_env_item_unchanged_export(&external_item);
+    apprun_env_item_t *res = apprun_env_item_unchanged_export(&external_item);
     assert_env_item_eq(res, &external_item);
     apprun_env_item_free(res);
     fprintf(stdout, "Ok\n");
@@ -104,7 +104,7 @@ void test_env_item_unchanged_export_apprun_only_item() {
             NULL,
             "libapprun_hooks.so"
     };
-    apprun_env_item_t* res = apprun_env_item_unchanged_export(&apprun_only_item);
+    apprun_env_item_t *res = apprun_env_item_unchanged_export(&apprun_only_item);
     assert_eq(res, NULL);
 
     fprintf(stdout, "Ok\n");
@@ -120,7 +120,7 @@ void test_env_item_unchanged_export_hidden_item() {
             NULL
     };
 
-    apprun_env_item_t* res = apprun_env_item_unchanged_export(&shared_item);
+    apprun_env_item_t *res = apprun_env_item_unchanged_export(&shared_item);
 
     apprun_env_item_t expected = {
             "LC_ALL",
@@ -145,7 +145,7 @@ void test_env_item_changed_export_shared_item() {
             "/tmp/app/bin:/bin"
     };
 
-    apprun_env_item_t* res = apprun_env_item_changed_export(&shared_item);
+    apprun_env_item_t *res = apprun_env_item_changed_export(&shared_item);
 
     apprun_env_item_t expected = {
             "PATH",
@@ -170,7 +170,7 @@ void test_env_item_changed_export_external_item() {
             NULL
     };
 
-    apprun_env_item_t* res = apprun_env_item_changed_export(&external_item);
+    apprun_env_item_t *res = apprun_env_item_changed_export(&external_item);
     assert_env_item_eq(res, &external_item);
     apprun_env_item_free(res);
     fprintf(stdout, "Ok\n");
@@ -185,7 +185,7 @@ void test_env_item_changed_export_apprun_only_item() {
             NULL,
             "libapprun_hooks.so"
     };
-    apprun_env_item_t* res = apprun_env_item_changed_export(&apprun_only_item);
+    apprun_env_item_t *res = apprun_env_item_changed_export(&apprun_only_item);
     assert_eq(res, NULL);
 
     fprintf(stdout, "Ok\n");
@@ -201,7 +201,7 @@ void test_env_item_changed_export_hidden_item() {
             NULL
     };
 
-    apprun_env_item_t* res = apprun_env_item_changed_export(&shared_item);
+    apprun_env_item_t *res = apprun_env_item_changed_export(&shared_item);
 
     apprun_env_item_t expected = {
             "LC_ALL",
@@ -226,7 +226,7 @@ void test_env_item_export_apprun_only_item() {
             "libapprun_hooks.so"
     };
 
-    apprun_env_item_t* res = apprun_env_item_export(&apprun_only_item);
+    apprun_env_item_t *res = apprun_env_item_export(&apprun_only_item);
     assert_eq(res, NULL);
 
     fprintf(stdout, "Ok\n");
@@ -237,7 +237,7 @@ void test_env_item_export_empty_item() {
 
     apprun_env_item_t apprun_only_item = {"EMPTY", NULL, NULL, NULL};
 
-    apprun_env_item_t* res = apprun_env_item_export(&apprun_only_item);
+    apprun_env_item_t *res = apprun_env_item_export(&apprun_only_item);
     assert_eq(res, NULL);
 
     fprintf(stdout, "Ok\n");
@@ -246,7 +246,7 @@ void test_env_item_export_empty_item() {
 void test_env_item_list_from_envp() {
     fprintf(stdout, "%s: ", __PRETTY_FUNCTION__);
 
-    char* envp[] = {
+    char *envp[] = {
             "K1=V1",
             "APPRUN_ORIGINAL_K1=V0",
             "APPRUN_STARTUP_K1=V1",
@@ -258,7 +258,7 @@ void test_env_item_list_from_envp() {
             NULL,
     };
 
-    apprun_env_item_list_t* res = apprun_env_item_list_from_envp(envp);
+    apprun_env_item_list_t *res = apprun_env_item_list_from_envp(envp);
 
     apprun_env_item_t k1 = {"K1", "V1", "V0", "V1"};
     apprun_env_item_t k2 = {"K2", NULL, NULL, NULL};
@@ -289,7 +289,7 @@ void test_export_env_item_list() {
     list[2] = &k3;
     list[3] = &k4;
 
-    apprun_env_item_list_t* res = apprun_env_item_list_export((apprun_env_item_list_t const*) &list);
+    apprun_env_item_list_t *res = apprun_env_item_list_export((apprun_env_item_list_t const *) &list);
 
     apprun_env_item_t r0 = {"K1", "V0", NULL, NULL};
     apprun_env_item_t r1 = {"K3", "0:1:2", NULL, NULL};
@@ -319,9 +319,9 @@ void test_env_item_list_to_envp() {
     apprun_env_item_t k4 = {"K4", NULL, "V0", NULL};
     list[3] = &k4;
 
-    char** res = apprun_env_item_list_to_envp(list);
+    char **res = apprun_env_item_list_to_envp(list);
 
-    char* expected[] = {
+    char *expected[] = {
             "K1=V1",
             "APPRUN_ORIGINAL_K1=V0",
             "APPRUN_STARTUP_K1=V1",
@@ -337,7 +337,46 @@ void test_env_item_list_to_envp() {
     fprintf(stdout, "Ok\n");
 }
 
-int main(int argc, char** argv, char* envp[]) {
+void test_apprun_envp_set_new() {
+    fprintf(stdout, "%s: ", __PRETTY_FUNCTION__);
+
+
+    char *envp[2];
+    envp[0] = "K1=1";
+    envp[1] = 0;
+
+    char **result = apprun_envp_set("K2", "2", envp);
+
+    char *envp_expected[3];
+    envp_expected[0] = "K1=1";
+    envp_expected[1] = "K2=2";
+    envp_expected[2] = 0;
+    assert_str_list_eq(result, envp_expected);
+
+    fprintf(stdout, "Ok\n");
+}
+
+void test_apprun_envp_set_update() {
+    fprintf(stdout, "%s: ", __PRETTY_FUNCTION__);
+
+
+    char *envp[3];
+    envp[0] = "K1=1";
+    envp[1] = "K2=2";
+    envp[2] = 0;
+
+    char **result = apprun_envp_set("K2", "UPDATED", envp);
+
+    char *envp_expected[3];
+    envp_expected[0] = "K1=1";
+    envp_expected[1] = "K2=UPDATED";
+    envp_expected[2] = 0;
+    assert_str_list_eq(result, envp_expected);
+
+    fprintf(stdout, "Ok\n");
+}
+
+int main(int argc, char **argv, char *envp[]) {
     test_env_item_is_changed();
 
     test_env_item_unchanged_export_shared_item();
@@ -357,6 +396,8 @@ int main(int argc, char** argv, char* envp[]) {
     test_export_env_item_list();
     test_env_item_list_to_envp();
 
+    test_apprun_envp_set_new();
+    test_apprun_envp_set_update();
     return 0;
 }
 

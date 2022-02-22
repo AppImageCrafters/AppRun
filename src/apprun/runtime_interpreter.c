@@ -40,7 +40,6 @@
 
 #include "runtime_interpreter.h"
 #include "runtime_environment.h"
-#include "hooks/main_hook.h"
 
 
 char *parse_ld_trace_line_path(const char *line) {
@@ -73,11 +72,11 @@ bool is_linker_version_string_valid(char *buff) {
 
 char *try_read_ld_version_string(FILE *fp) {
     char glibc_version_prefix[] = "ld-";
-    int c = NULL;
+    int c = 0;
     for (int i = 1; i < strlen(glibc_version_prefix); i++) {
         c = fgetc(fp);
         if (c != glibc_version_prefix[i])
-            return NULL;
+            return 0;
     }
 
     char buff[256] = {0x0};
@@ -91,7 +90,7 @@ char *try_read_ld_version_string(FILE *fp) {
 
     char *suffix_idx = strstr(buff, ".so");
     if (suffix_idx)
-        *suffix_idx = NULL;
+        *suffix_idx = 0;
 
     if (is_linker_version_string_valid(buff))
         return strdup(buff);
@@ -201,7 +200,7 @@ void setup_runtime() {
 
         char cwd[PATH_MAX];
         getcwd(cwd, PATH_MAX);
-        apprun_env_set(APPRUN_ENV_ORIG_WORKDIR, cwd, "", cwd);
+        setenv(APPRUN_ENV_ORIGINAL_WORKDIR, cwd, 1);
         chdir(runtime_path);
     }
 }

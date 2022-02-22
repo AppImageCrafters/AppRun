@@ -68,3 +68,21 @@ void apprun_print_exec_args(const char* filename, char* const* argv, char* const
 }
 
 
+apprun_exec_args_t* apprun_duplicate_exec_args(const char* filename, char* const* argv) {
+    apprun_exec_args_t* result;
+    result = calloc(1, sizeof(apprun_exec_args_t));
+
+    // use original filename
+    result->file = strdup(filename);
+
+    int array_size = apprun_array_len(argv);
+    result->args = calloc(array_size, sizeof(char*));
+    char* const* src_itr = argv;
+    char** target_itr = result->args;
+
+    // copy arguments
+    for (; *src_itr != NULL; src_itr++, target_itr++)
+        *target_itr = strdup(*src_itr);
+
+    return result;
+}
