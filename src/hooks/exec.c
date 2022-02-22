@@ -65,8 +65,6 @@ typedef int (*execvpe_func_t)(const char *file, char *const argv[], char *const 
 
 static execvpe_func_t real_execvpe = NULL;
 
-char *apprun_format_original_cwd_env();
-
 char **apprun_set_original_workdir_env(char *const *envp) {
     char cwd_path[PATH_MAX] = {0x0};
     getcwd(cwd_path, PATH_MAX);
@@ -78,12 +76,6 @@ char **apprun_set_original_workdir_env(char *const *envp) {
 #endif
 
     return new_envp;
-}
-
-char *apprun_format_original_cwd_env() {
-
-
-    return 0;
 }
 
 
@@ -109,7 +101,6 @@ apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const 
         fprintf(stderr, "APPRUN_HOOK_DEBUG: USING BUNDLE RUNTIME\n");
 #endif
         res->envp = apprun_set_original_workdir_env(envp);
-
         // chdir to runtime directory
         char const *runtime_path = getenv(APPRUN_ENV_RUNTIME);
         chdir(runtime_path);
@@ -119,7 +110,6 @@ apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const 
 #endif
         res->envp = apprun_export_envp(envp);
     }
-    fflush(stderr);
 
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_HOOK_DEBUG: APPDIR: %s\n", appdir);
