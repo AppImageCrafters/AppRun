@@ -26,3 +26,35 @@ APPRUN_CWD=${APPDIR_MOCK_PATH};\
 APPRUN_PATH_MAPPINGS=${MAPPED_APPDIR_PATH}:${APPDIR_MOCK_PATH}\;\
 "
 )
+
+# copy resulting binary into the AppDir
+add_custom_command(
+        TARGET hooks_inner_target_test POST_BUILD
+        COMMAND cp $<TARGET_FILE:hooks_inner_target_test> ${APPDIR_MOCK_PATH}
+        VERBATIM
+)
+
+add_executable(exec_hooks_test exec_hooks_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
+target_compile_definitions(
+        exec_hooks_test PRIVATE
+        -DAPPDIR_MOCK="${APPDIR_MOCK_PATH}"
+        -DMAPPED_APPDIR_PATH="${MAPPED_APPDIR_PATH}"
+        -DINTERNAL_TARGET="${APPDIR_MOCK_PATH}/$<TARGET_FILE_BASE_NAME:hooks_inner_target_test>"
+)
+add_test(NAME TEST_EXEC_HOOKS COMMAND exec_hooks_test)
+set_tests_properties(
+        TEST_EXEC_HOOKS PROPERTIES ENVIRONMENT "\
+APPDIR=${APPDIR_MOCK_PATH};\
+LD_PRELOAD=$<TARGET_FILE:apprun_hooks>;\
+APPRUN_CWD=${APPDIR_MOCK_PATH};\
+APPRUN_PATH_MAPPINGS=${MAPPED_APPDIR_PATH}:${APPDIR_MOCK_PATH}\;\
+APPRUN_STARTUP_APPDIR=${APPDIR_MOCK_PATH};\
+APPRUN_STARTUP_LD_PRELOAD=$<TARGET_FILE:apprun_hooks>;\
+APPRUN_STARTUP_APPRUN_CWD=${APPDIR_MOCK_PATH};\
+APPRUN_STARTUP_APPRUN_PATH_MAPPINGS=${MAPPED_APPDIR_PATH}:${APPDIR_MOCK_PATH}\;\
+APPRUN_ORIGINAL_APPDIR=;\
+APPRUN_ORIGINAL_LD_PRELOAD=;\
+APPRUN_ORIGINAL_APPRUN_CWD=;\
+APPRUN_ORIGINAL_APPRUN_PATH_MAPPINGS=;\
+"
+)
