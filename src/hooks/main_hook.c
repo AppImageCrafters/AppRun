@@ -2,42 +2,59 @@
 
 #include <stdio.h>
 #include <dlfcn.h>
-#include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 
-#include "main_hook.h"
+#include "environment.h"
+
+/**
+ * @brief handle dynamic linker setup at runtime
+ *
+ * Shared linked binaries may require a linker, a copy libc, and other related libs to properly run. To allow running a
+ * binary linked to a newer libc version (i.e. glibc 2.31) in a system with an older libc (i.e.: glibc 2.27) we need to
+ * use the newest libc. Therefore an AppDir may include a copy of the libc it requires.
+ *
+ * Two environments are be defined at build time and the required one is selected at runtime:
+ *  - default ($APPDIR/runtime/default): uses the system dynamic linker, libc, related libraries
+ *  - compat ($APPDIR/runtime/compat): uses the bundle dynamic linker, libc, related libraries
+ *
+ * Binaries PT_INTERP and R_PATH sections must be patched at build time to use relative paths. At runtime the AppRun
+ * or the exec hooks will change the current dir to runtime dir (pointed by the APPRUN_RUNTIME environment variable)
+ * so the relative paths become valid. The real work dir will be restored from the main function hook using the value
+ * stored at APPRUN_OWD;
+ * */
+
 
 /* Trampoline for the real main() */
 static int (*main_orig)(int, char **, char **);
 
-void restore_workdir(char **envp) {
-    for (char **envp_itr = envp; envp_itr != NULL && *envp_itr != NULL; ++envp_itr) {
-        if (strncmp(APPRUN_ENV_ORIG_WORKDIR, *envp_itr, APPRUN_ENV_ORIG_WORKDIR_LEN) == 0) {
-            // skip variable name and '='
-            char const *orig_workdir = *envp_itr + APPRUN_ENV_ORIG_WORKDIR_LEN + 1;
-
-            chdir(orig_workdir);
+void restore_workdir() {
+    char const *original_pwd = getenv(APPRUN_ENV_ORIGINAL_WORKDIR);
+    if (original_pwd != NULL) {
 #ifdef DEBUG
-            fprintf(stderr, "APPRUN_HOOK_DEBUG: restoring workdir %s\n", orig_workdir);
+        fprintf(stderr, "APPRUN_HOOK_DEBUG: restoring original workdir %s\n", original_pwd);
 #endif
-            break;
-        }
+
+        chdir(original_pwd);
+        unsetenv(APPRUN_ENV_ORIGINAL_WORKDIR);
     }
 }
 
 
-/* Our fake main() that gets called by __libc_start_main() */
+/* Wrapper for main() that gets called by __libc_start_main() */
 int main_hook(int argc, char **argv, char **envp) {
-    restore_workdir(envp);
+    restore_workdir();
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_HOOK_DEBUG: --- Before main ---\n");
 #endif
 
     int ret = main_orig(argc, argv, envp);
+
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_HOOK_DEBUG: --- After main ----\n");
     fprintf(stderr, "APPRUN_HOOK_DEBUG: main() returned %d\n", ret);
 #endif
+
     return ret;
 }
 

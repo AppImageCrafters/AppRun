@@ -69,11 +69,20 @@ RUNTIME_DEFAULT_DIR="$APPDIR/runtime/default"
 # deploy bash
 BASH_BIN=$(which bash)
 mkdir -p "$(dirname "$APPDIR/$BASH_BIN")"
-
 cp "$BASH_BIN" "$APPDIR/$BASH_BIN"
+
 # make bash linker path relative
 LINKER=$(patchelf --print-interpreter "$BASH_BIN")
 patchelf --set-interpreter "${LINKER:1}" "$APPDIR/$BASH_BIN"
+
+# deploy pwd
+PWD_BIN=$(which pwd)
+mkdir -p "$(dirname "$APPDIR/$PWD_BIN")"
+cp "$PWD_BIN" "$APPDIR/$PWD_BIN"
+
+# make pwd linker path relative
+LINKER=$(patchelf --print-interpreter "$PWD_BIN")
+patchelf --set-interpreter "${LINKER:1}" "$APPDIR/$PWD_BIN"
 
 LD_PATHS=$(create_compat_runtime)
 create_default_runtime
