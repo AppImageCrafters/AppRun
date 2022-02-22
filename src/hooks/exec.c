@@ -65,6 +65,8 @@ typedef int (*execvpe_func_t)(const char *file, char *const argv[], char *const 
 
 static execvpe_func_t real_execvpe = NULL;
 
+void chdir_to_runtime();
+
 char **apprun_set_original_workdir_env(char *const *envp) {
     char cwd_path[PATH_MAX] = {0x0};
     getcwd(cwd_path, PATH_MAX);
@@ -101,9 +103,7 @@ apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const 
         fprintf(stderr, "APPRUN_HOOK_DEBUG: USING BUNDLE RUNTIME\n");
 #endif
         res->envp = apprun_set_original_workdir_env(envp);
-        // chdir to runtime directory
-        char const *runtime_path = getenv(APPRUN_ENV_RUNTIME);
-        chdir(runtime_path);
+        chdir_to_runtime();
     } else {
 #ifdef DEBUG
         fprintf(stderr, "APPRUN_HOOK_DEBUG: USING SYSTEM RUNTIME\n");
@@ -119,6 +119,17 @@ apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const 
 
     free(new_filename);
     return res;
+}
+
+void chdir_to_runtime() {
+    char const *runtime_path = getenv(APPRUN_ENV_RUNTIME);
+    if (runtime_path != NULL) {
+        chdir(runtime_path);
+    } else {
+        fprintf(stderr,
+                "APPRUN_HOOK_WARNING: %s environment variable not set, execution of bundled binaries may fail!\n",
+                APPRUN_ENV_RUNTIME);
+    }
 }
 
 int execve(const char *filename, char *const argv[], char *const envp[]) {
