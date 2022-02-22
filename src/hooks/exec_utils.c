@@ -27,10 +27,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <linux/limits.h>
+#include <unistd.h>
 
 #include "common/string_list.h"
-
 #include "exec_utils.h"
+#include "environment.h"
 
 
 void apprun_exec_args_free(apprun_exec_args_t* args) {
@@ -85,4 +87,17 @@ apprun_exec_args_t* apprun_duplicate_exec_args(const char* filename, char* const
         *target_itr = strdup(*src_itr);
 
     return result;
+}
+
+char **apprun_set_original_workdir_env(char *const *envp) {
+    char cwd_path[PATH_MAX] = {0x0};
+    getcwd(cwd_path, PATH_MAX);
+
+
+    char **new_envp = apprun_envp_set(APPRUN_ENV_ORIGINAL_WORKDIR, cwd_path, envp);
+#ifdef DEBUG
+    fprintf(stderr, "APPRUN_HOOK_DEBUG: storing original workdir %s\n", cwd_path);
+#endif
+
+    return new_envp;
 }
