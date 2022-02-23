@@ -47,15 +47,21 @@ add_custom_command(
         VERBATIM
 )
 
-add_executable(execv_hook_on_inner_target_test inner_target_exec_hooks_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
-target_compile_definitions(
-        execv_hook_on_inner_target_test PRIVATE
-        -DAPPDIR_MOCK="${APPDIR_MOCK_PATH}"
-        -DMAPPED_APPDIR_PATH="${MAPPED_APPDIR_PATH}"
-        -DHOOKS_LIB_PATH="$<TARGET_FILE:apprun_hooks>"
-        -DINNER_TARGET="${APPDIR_MOCK_PATH}/$<TARGET_FILE_BASE_NAME:hooks_inner_target_test>"
-        -DOUTER_TARGET="$<TARGET_FILE:hooks_outer_target_test>"
-)
-target_link_libraries(execv_hook_on_inner_target_test PRIVATE apprun_hooks)
+function(configure_exec_hook_test_case Target)
+    target_compile_definitions(
+            ${Target} PRIVATE
+            -DAPPDIR_MOCK="${APPDIR_MOCK_PATH}"
+            -DMAPPED_APPDIR_PATH="${MAPPED_APPDIR_PATH}"
+            -DHOOKS_LIB_PATH="$<TARGET_FILE:apprun_hooks>"
+            -DINNER_TARGET="${APPDIR_MOCK_PATH}/$<TARGET_FILE_BASE_NAME:hooks_inner_target_test>"
+            -DOUTER_TARGET="$<TARGET_FILE:hooks_outer_target_test>"
+    )
+    target_link_libraries(${Target} PRIVATE apprun_hooks)
 
-add_test(NAME TEST_EXECV_HOOK_ON_INNER_TARGET COMMAND execv_hook_on_inner_target_test WORKDIR ${APPDIR_MOCK_PATH})
+    string(TOUPPER ${Target} TEST_CASE_NAME)
+    string(REPLACE "_TEST" "" TEST_CASE_NAME ${TEST_CASE_NAME})
+    add_test(NAME TEST_${TEST_CASE_NAME} COMMAND ${Target} WORKDIR ${APPDIR_MOCK_PATH})
+endfunction()
+
+add_executable(execv_hook_on_inner_target_test inner_target_exec_hooks_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
+configure_exec_hook_test_case(execv_hook_on_inner_target_test)
