@@ -83,6 +83,7 @@ void test_bundle_apprun_path_mappings_env_not_received() {
 }
 
 int main(int argc, char **argv) {
+    system("pwd");
     test_pwd_not_changed();
 
     test_bundle_appdir_env_not_received();

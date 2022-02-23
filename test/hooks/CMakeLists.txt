@@ -15,11 +15,11 @@ set(MAPPED_APPDIR_PATH "/AppDir-${MAPPED_APPDIR_PATH_HASH}")
 add_executable(hooks_outer_target_test outer_target_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
 target_compile_definitions(
         hooks_outer_target_test PRIVATE
-        -DEXPECTED_WORKDIR="${CMAKE_CURRENT_BINARY_DIR}"
+        -DEXPECTED_WORKDIR="${APPDIR_MOCK_PATH}"
         -DMAPPED_APPDIR_PATH="${MAPPED_APPDIR_PATH}"
 )
 add_dependencies(hooks_outer_target_test mock.AppDir)
-add_test(NAME TEST_HOOKS_OUTER_TARGET COMMAND hooks_outer_target_test WORKDIR ${CMAKE_CURRENT_BINARY_DIR})
+add_test(NAME TEST_HOOKS_OUTER_TARGET WORKING_DIRECTORY ${APPDIR_MOCK_PATH} COMMAND hooks_outer_target_test )
 
 # inner target
 add_executable(hooks_inner_target_test inner_target_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
@@ -29,7 +29,7 @@ target_compile_definitions(
         -DMAPPED_APPDIR_PATH="${MAPPED_APPDIR_PATH}"
 )
 add_dependencies(hooks_inner_target_test mock.AppDir)
-add_test(NAME TEST_HOOKS_INNER_TARGET COMMAND hooks_inner_target_test WORKDIR ${CMAKE_CURRENT_BINARY_DIR})
+add_test(NAME TEST_HOOKS_INNER_TARGET COMMAND hooks_inner_target_test WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 set_tests_properties(
         TEST_HOOKS_INNER_TARGET PROPERTIES ENVIRONMENT "\
 APPDIR=${APPDIR_MOCK_PATH};\
@@ -60,8 +60,11 @@ function(configure_exec_hook_test_case Target)
 
     string(TOUPPER ${Target} TEST_CASE_NAME)
     string(REPLACE "_TEST" "" TEST_CASE_NAME ${TEST_CASE_NAME})
-    add_test(NAME TEST_${TEST_CASE_NAME} COMMAND ${Target} WORKDIR ${APPDIR_MOCK_PATH})
+    add_test(NAME TEST_${TEST_CASE_NAME} WORKING_DIRECTORY ${APPDIR_MOCK_PATH} COMMAND ${Target} )
 endfunction()
 
 add_executable(execv_hook_on_inner_target_test inner_target_exec_hooks_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
 configure_exec_hook_test_case(execv_hook_on_inner_target_test)
+
+add_executable(execv_hook_on_outer_target_test outer_target_exec_hooks_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
+configure_exec_hook_test_case(execv_hook_on_outer_target_test)
