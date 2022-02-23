@@ -32,15 +32,15 @@
 
 void apprun_string_list_copy(char *const *source, char **target);
 
-char** apprun_adjust_string_array_size(char** array) {
+char **apprun_adjust_string_array_size(char **array) {
     unsigned new_capacity = 1;
-    for (char** itr = array; itr != NULL && *itr != NULL; itr++)
+    for (char **itr = array; itr != NULL && *itr != NULL; itr++)
         new_capacity++;
 
-    char** new = calloc(new_capacity, sizeof(char*));
+    char **new = calloc(new_capacity, sizeof(char *));
 
-    char** orginal_itr = array;
-    char** new_itr = new;
+    char **orginal_itr = array;
+    char **new_itr = new;
 
     for (; orginal_itr != NULL && *orginal_itr != NULL; orginal_itr++, new_itr++)
         *new_itr = *orginal_itr;
@@ -49,7 +49,7 @@ char** apprun_adjust_string_array_size(char** array) {
     return new;
 }
 
-int apprun_string_list_len(char* const* x) {
+int apprun_string_list_len(char *const *x) {
     if (x == NULL)
         return 0;
 
@@ -60,9 +60,9 @@ int apprun_string_list_len(char* const* x) {
     return len;
 }
 
-void apprun_string_list_free(char** string_list) {
+void apprun_string_list_free(char **string_list) {
     if (string_list != NULL) {
-        for (char** itr = string_list; *itr != NULL; itr++)
+        for (char **itr = string_list; *itr != NULL; itr++)
             free(*itr);
 
         free(string_list);
@@ -75,17 +75,17 @@ char **apprun_string_list_alloc(unsigned int size) {
     return ret;
 }
 
-int apprun_array_len(char* const* arr) {
+int apprun_array_len(char *const *arr) {
     if (arr)
         return apprun_string_list_len(arr) + 1; // allocate extra space for the 0 termination
     else
         return 0;
 }
 
-char** apprun_string_list_dup(char* const* list) {
+char **apprun_string_list_dup(char *const *list) {
     if (list != NULL) {
         unsigned size = apprun_array_len(list);
-        char** copy = apprun_string_list_alloc(size);
+        char **copy = apprun_string_list_alloc(size);
 
         apprun_string_list_copy(list, copy);
 
@@ -95,13 +95,13 @@ char** apprun_string_list_dup(char* const* list) {
 }
 
 void apprun_string_list_copy(char *const *source, char **target) {
-    char* const* itr1 = source;
-    char** itr2 = target;
+    char *const *itr1 = source;
+    char **itr2 = target;
     for (; *itr1 != NULL; itr1++, itr2++)
         *itr2 = strdup(*itr1);
 }
 
-char* apprun_string_list_join(char* const* string_list, char* split) {
+char *apprun_string_list_join(char *const *string_list, char *split) {
     unsigned string_list_len = apprun_string_list_len(string_list);
     unsigned split_len = strlen(split);
     unsigned str_size = 0;
@@ -109,7 +109,7 @@ char* apprun_string_list_join(char* const* string_list, char* split) {
     for (int i = 0; i < string_list_len; i++)
         str_size += strlen(string_list[i]) + split_len;
 
-    char* str = calloc(str_size, sizeof(char));
+    char *str = calloc(str_size, sizeof(char));
     for (int i = 0; i < string_list_len; i++) {
         strcat(str, string_list[i]);
         if (i + 1 < string_list_len)
@@ -119,9 +119,9 @@ char* apprun_string_list_join(char* const* string_list, char* split) {
     return str;
 }
 
-char* apprun_prefix_str(const char* prefix, const char* str) {
+char *apprun_prefix_str(const char *prefix, const char *str) {
     unsigned prefixed_str_size = strlen(prefix) + strlen(str) + 1;
-    char* prefixed_str = calloc(prefixed_str_size, sizeof(char));
+    char *prefixed_str = calloc(prefixed_str_size, sizeof(char));
     strcat(prefixed_str, prefix);
     strcat(prefixed_str, str);
 

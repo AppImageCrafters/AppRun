@@ -30,6 +30,6 @@
 /**
  * Find the first libapprun_hooks function called from the stacktrace
  * */
-char* find_hooked_symbol();
+char *find_hooked_symbol();
 
 #endif //APPIMAGEEXECWRAPPER_HOOKS_DEBUG_H

@@ -31,16 +31,16 @@
 #define APPRUN_ENV_INTERPRETER "INTERPRETER"
 
 typedef struct {
-    char* file;
-    char** args;
-    char** envp;
+    char *file;
+    char **args;
+    char **envp;
 } apprun_exec_args_t;
 
-void apprun_exec_args_free(apprun_exec_args_t* args);
+void apprun_exec_args_free(apprun_exec_args_t *args);
 
-void apprun_print_exec_args(const char* filename, char* const* argv, char* const* envp);
+void apprun_print_exec_args(const char *filename, char *const *argv, char *const *envp);
 
-apprun_exec_args_t* apprun_duplicate_exec_args(const char* filename, char* const* argv);
+apprun_exec_args_t *apprun_duplicate_exec_args(const char *filename, char *const *argv);
 
 char **apprun_set_original_workdir_env(char *const *envp);
 

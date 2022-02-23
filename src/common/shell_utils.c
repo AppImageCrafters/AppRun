@@ -37,14 +37,14 @@ bool apprun_shell_is_var_char(char c) {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '@' || c == '_';
 }
 
-const char* apprun_shell_find_var_start(const char* itr) {
+const char *apprun_shell_find_var_start(const char *itr) {
     while (*itr != '\0' && *itr != '$')
         itr++;
 
     return itr;
 }
 
-const char* apprun_shell_find_var_end(const char* itr) {
+const char *apprun_shell_find_var_end(const char *itr) {
     if (*itr == '$')
         itr++;
 
@@ -61,7 +61,7 @@ const char* apprun_shell_find_var_end(const char* itr) {
     return itr;
 }
 
-char* apprun_shell_extract_var_name(const char* itr) {
+char *apprun_shell_extract_var_name(const char *itr) {
     if (*itr == '$')
         itr++;
 
@@ -69,7 +69,7 @@ char* apprun_shell_extract_var_name(const char* itr) {
     if (has_brakets)
         itr++;
 
-    char const* being = itr;
+    char const *being = itr;
 
     while (apprun_shell_is_var_char(*itr))
         itr++;
@@ -79,7 +79,7 @@ char* apprun_shell_extract_var_name(const char* itr) {
 }
 
 
-char* apprun_argv_to_env(char* const* string_list) {
+char *apprun_argv_to_env(char *const *string_list) {
     unsigned string_list_len = apprun_string_list_len(string_list);
     unsigned str_size = 0;
 
@@ -89,7 +89,7 @@ char* apprun_argv_to_env(char* const* string_list) {
     for (int i = 0; i < string_list_len; i++)
         str_size += strlen(string_list[i]) + extra_chars_len;
 
-    char* str = calloc(str_size + 1, sizeof(char));
+    char *str = calloc(str_size + 1, sizeof(char));
     memset(str, 0, str_size + 1);
 
     for (int i = 0; i < string_list_len; i++) {
@@ -103,12 +103,12 @@ char* apprun_argv_to_env(char* const* string_list) {
     return str;
 }
 
-char* apprun_shell_resolve_var_value(char* const* argv, const char* var_name) {
+char *apprun_shell_resolve_var_value(char *const *argv, const char *var_name) {
     unsigned argc = 0;
     if (argv)
         argc = apprun_string_list_len(argv);
 
-    char* var_value = NULL;
+    char *var_value = NULL;
     if (isdigit(*var_name)) {
         long idx = atol(var_name);
         if (idx <= argc)
@@ -128,19 +128,19 @@ char* apprun_shell_resolve_var_value(char* const* argv, const char* var_name) {
     return var_value;
 }
 
-char* apprun_shell_expand_variables(char const* str, char** argv) {
+char *apprun_shell_expand_variables(char const *str, char **argv) {
     if (str == NULL)
         return NULL;
 
     unsigned buffer_capacity = 1;
     unsigned buffer_len = 0;
-    char* buffer = calloc(buffer_capacity, sizeof(char*));
+    char *buffer = calloc(buffer_capacity, sizeof(char *));
 
-    char const* itr = str;
+    char const *itr = str;
 
     while (*itr != '\0') {
-        char const* var_start = apprun_shell_find_var_start(itr);
-        char const* var_end = apprun_shell_find_var_end(var_start);
+        char const *var_start = apprun_shell_find_var_start(itr);
+        char const *var_end = apprun_shell_find_var_end(var_start);
 
 
         if (var_start > itr) {
@@ -156,8 +156,8 @@ char* apprun_shell_expand_variables(char const* str, char** argv) {
 
 
         if (var_start != var_end) {
-            char* var_name = apprun_shell_extract_var_name(var_start);
-            char* var_value = apprun_shell_resolve_var_value(argv, var_name);
+            char *var_name = apprun_shell_extract_var_name(var_start);
+            char *var_value = apprun_shell_resolve_var_value(argv, var_name);
 
             free(var_name);
 
@@ -181,14 +181,14 @@ char* apprun_shell_expand_variables(char const* str, char** argv) {
     return buffer;
 }
 
-const char* apprun_string_consume_spaces(const char* itr) {
+const char *apprun_string_consume_spaces(const char *itr) {
     while (itr != NULL && *itr != '\0' && isspace(*itr))
         itr++;
 
     return itr;
 }
 
-char** apprun_shell_split_arguments(char const* str) {
+char **apprun_shell_split_arguments(char const *str) {
     if (str == NULL)
         return NULL;
 
@@ -196,11 +196,11 @@ char** apprun_shell_split_arguments(char const* str) {
     static const char double_quote_delimiter[] = "\"";
     static const char regular_quote_delimiter[] = "\"\'\\ \t";
 
-    char** splits = calloc(strlen(str) + 1, sizeof(char*));
+    char **splits = calloc(strlen(str) + 1, sizeof(char *));
     unsigned split_count = 0;
 
-    const char* begin = str;
-    const char* end = str;
+    const char *begin = str;
+    const char *end = str;
     char buffer[1024] = {0x0};
 
     while (*begin != '\0') {

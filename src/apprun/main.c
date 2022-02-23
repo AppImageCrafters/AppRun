@@ -46,32 +46,32 @@
         exit(1);                                    \
     } while(0);
 
-char* resolve_apprun_path();
+char *resolve_apprun_path();
 
-char* find_legacy_env_file(char* apprun_path);
+char *find_legacy_env_file(char *apprun_path);
 
-char* build_env_file_path(char* apprun_path, unsigned long i);
+char *build_env_file_path(char *apprun_path, unsigned long i);
 
-char* resole_appdir_path(const char* root_env_file_path);
+char *resole_appdir_path(const char *root_env_file_path);
 
-char* find_module_env_file(char* apprun_path);
+char *find_module_env_file(char *apprun_path);
 
 void launch();
 
-char* resolve_origin(const char* apprun_path);
+char *resolve_origin(const char *apprun_path);
 
-int main(int argc, char* argv[]) {
-    char* apprun_path = resolve_apprun_path();
-    char* origin_path = resolve_origin(apprun_path);
+int main(int argc, char *argv[]) {
+    char *apprun_path = resolve_apprun_path();
+    char *origin_path = resolve_origin(apprun_path);
     apprun_env_set("ORIGIN", origin_path, NULL, origin_path);
 
-    char* module_env_file_path = find_module_env_file(apprun_path);
+    char *module_env_file_path = find_module_env_file(apprun_path);
     if (module_env_file_path != NULL)
         apprun_load_env_file(module_env_file_path, argv);
 
     if (module_env_file_path == NULL) {
-        char* legacy_env_file_path = find_legacy_env_file(apprun_path);
-        char* appdir_path = resole_appdir_path(legacy_env_file_path);
+        char *legacy_env_file_path = find_legacy_env_file(apprun_path);
+        char *appdir_path = resole_appdir_path(legacy_env_file_path);
 
         apprun_env_set("APPDIR", appdir_path, NULL, appdir_path);
         apprun_load_env_file(legacy_env_file_path, argv);
@@ -83,18 +83,18 @@ int main(int argc, char* argv[]) {
     return 1;
 }
 
-char* resolve_origin(const char* apprun_path) {
-    char* origin_path_end = strrchr(apprun_path, '/');
-    char* origin_path = strndup(apprun_path, origin_path_end - apprun_path);
+char *resolve_origin(const char *apprun_path) {
+    char *origin_path_end = strrchr(apprun_path, '/');
+    char *origin_path = strndup(apprun_path, origin_path_end - apprun_path);
 
     return origin_path;
 }
 
-char* resole_appdir_path(const char* root_env_file_path) {
-    char* appdir = getenv("APPDIR");
+char *resole_appdir_path(const char *root_env_file_path) {
+    char *appdir = getenv("APPDIR");
     if (appdir == NULL) {
         if (root_env_file_path != NULL) {
-            char* idx = strrchr(root_env_file_path, '/');
+            char *idx = strrchr(root_env_file_path, '/');
             appdir = strndup(root_env_file_path, idx - root_env_file_path);
         } else {
             die("Could not resolve APPDIR\n");
@@ -103,12 +103,12 @@ char* resole_appdir_path(const char* root_env_file_path) {
     return appdir;
 }
 
-char* find_module_env_file(char* apprun_path) {
+char *find_module_env_file(char *apprun_path) {
     const char apprun_env_extension[] = ".env";
     const unsigned long apprun_env_extension_len = strlen(apprun_env_extension);
 
     const unsigned long possible_path_len = strlen(apprun_path) + apprun_env_extension_len;
-    char* possible_path = malloc(possible_path_len);
+    char *possible_path = malloc(possible_path_len);
     memset(possible_path, 0, possible_path_len);
 
     strcat(possible_path, apprun_path);
@@ -126,8 +126,8 @@ char* find_module_env_file(char* apprun_path) {
     return NULL;
 }
 
-char* resolve_apprun_path() {
-    char* apprun_path = realpath("/proc/self/exe", NULL);
+char *resolve_apprun_path() {
+    char *apprun_path = realpath("/proc/self/exe", NULL);
 
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_DEBUG: APPRUN_PATH=%s\n", apprun_path);
@@ -135,11 +135,11 @@ char* resolve_apprun_path() {
     return apprun_path;
 }
 
-char* find_legacy_env_file(char* apprun_path) {
-    char* slash_idx = strrchr(apprun_path, '/');
+char *find_legacy_env_file(char *apprun_path) {
+    char *slash_idx = strrchr(apprun_path, '/');
 
     if (slash_idx != NULL) {
-        char* possible_path = build_env_file_path(apprun_path, slash_idx - apprun_path);
+        char *possible_path = build_env_file_path(apprun_path, slash_idx - apprun_path);
 #ifdef DEBUG
         fprintf(stderr, "APPRUN_DEBUG: Looking for .env file at: %s\n", possible_path);
 #endif
@@ -154,12 +154,12 @@ char* find_legacy_env_file(char* apprun_path) {
 }
 
 
-char* build_env_file_path(char* apprun_path, unsigned long i) {
+char *build_env_file_path(char *apprun_path, unsigned long i) {
     char env_file_name[] = ".env";
     unsigned long env_file_name_len = 4;
 
     unsigned possible_path_len = i + env_file_name_len + 2 /*ZERO TERMINATION*/;
-    char* possible_path = calloc(possible_path_len, sizeof(char));
+    char *possible_path = calloc(possible_path_len, sizeof(char));
     memset(possible_path, 0, possible_path_len);
     strncat(possible_path, apprun_path, i + 1);
     strncat(possible_path, env_file_name, env_file_name_len);
@@ -169,19 +169,19 @@ char* build_env_file_path(char* apprun_path, unsigned long i) {
 
 
 void launch() {
-    char* exec_path = getenv("EXEC_PATH");
-    char* exec_args = getenv("EXEC_ARGS");
+    char *exec_path = getenv("EXEC_PATH");
+    char *exec_args = getenv("EXEC_ARGS");
 
-    char** user_args = apprun_shell_split_arguments(exec_args);
+    char **user_args = apprun_shell_split_arguments(exec_args);
     unsigned user_args_len = apprun_string_list_len(user_args);
-    char** argv = calloc(user_args_len + 2, sizeof(char*));
+    char **argv = calloc(user_args_len + 2, sizeof(char *));
     argv[0] = exec_path;
     for (int i = 0; i < user_args_len; i++)
         argv[i + 1] = user_args[i];
 
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_DEBUG: executing ");
-    for (char** itr = argv; itr != NULL && *itr != NULL; itr++)
+    for (char **itr = argv; itr != NULL && *itr != NULL; itr++)
         fprintf(stderr, "\"%s\" ", *itr);
     fprintf(stderr, "\n");
 #endif

@@ -31,7 +31,7 @@
 
 #include "string_utils.h"
 
-char* apprun_string_remove_trailing_new_line(const char* str) {
+char *apprun_string_remove_trailing_new_line(const char *str) {
     if (str == NULL)
         return NULL;
 
@@ -39,28 +39,28 @@ char* apprun_string_remove_trailing_new_line(const char* str) {
     if (line_len > 0 && str[line_len - 1] == '\n')
         line_len--;
 
-    char* new = calloc(line_len + 1, sizeof(char));
+    char *new = calloc(line_len + 1, sizeof(char));
     memcpy(new, str, line_len);
     return new;
 }
 
-char* apprun_string_extend(char* string, unsigned int new_size) {
-    char* new = calloc(new_size, sizeof(char*));
+char *apprun_string_extend(char *string, unsigned int new_size) {
+    char *new = calloc(new_size, sizeof(char *));
     strcpy(new, string);
     free(string);
 
     return new;
 }
 
-const char* apprun_string_consume_until(const char* itr, const char* delimiters) {
+const char *apprun_string_consume_until(const char *itr, const char *delimiters) {
     while (itr != NULL && *itr != '\0' && strchr(delimiters, *itr) == NULL)
         itr++;
 
     return itr;
 }
 
-bool apprun_string_is_all_blanks(const char* str) {
-    for (const char* itr = str; *itr != '\0'; itr++) {
+bool apprun_string_is_all_blanks(const char *str) {
+    for (const char *itr = str; *itr != '\0'; itr++) {
         if (!isspace(*itr))
             return false;
     }
@@ -69,20 +69,20 @@ bool apprun_string_is_all_blanks(const char* str) {
 }
 
 
-char* apprun_string_trim(char* str) {
-    char* useful_section_start = str;
+char *apprun_string_trim(char *str) {
+    char *useful_section_start = str;
 
     while (isspace(*useful_section_start))
         useful_section_start++;
 
-    char* useful_section_end = useful_section_start;
+    char *useful_section_end = useful_section_start;
     while (*useful_section_end != '\0')
         useful_section_end++;
 
     while (((useful_section_end - 1) > useful_section_start) && isspace(*(useful_section_end - 1)))
         useful_section_end--;
 
-    char* result = strndup(useful_section_start, useful_section_end - useful_section_start);
+    char *result = strndup(useful_section_start, useful_section_end - useful_section_start);
     return result;
 }
 

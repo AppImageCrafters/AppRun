@@ -29,9 +29,9 @@
 
 #include "tests_shared.h"
 
-void assert_str_list_eq(char* const* str_list_1, char* const* str_list_2) {
-    char* const* itr1 = str_list_1;
-    char* const* itr2 = str_list_2;
+void assert_str_list_eq(char *const *str_list_1, char *const *str_list_2) {
+    char *const *itr1 = str_list_1;
+    char *const *itr2 = str_list_2;
     for (; *itr1 != NULL && *itr2 != NULL; itr1++, itr2++)
         assert_str_eq(*itr1, *itr2);
 
@@ -39,7 +39,7 @@ void assert_str_list_eq(char* const* str_list_1, char* const* str_list_2) {
         bailout();
 }
 
-void assert_str_eq(const char* str1, const char* str2) {
+void assert_str_eq(const char *str1, const char *str2) {
     if (str1 == NULL && str2 == NULL)
         return;
 
@@ -70,11 +70,11 @@ void assert_command_fails(int ret) {
         bailout();
 }
 
-void set_private_env(char const* name, char const* value) {
+void set_private_env(char const *name, char const *value) {
     setenv(name, value, 1);
 
     unsigned int original_var_name_size = strlen(name) + strlen(APPRUN_ENV_ORIG_PREFIX) + 1;
-    char* original_var_name = calloc(original_var_name_size, sizeof(char));
+    char *original_var_name = calloc(original_var_name_size, sizeof(char));
 
     strcat(original_var_name, APPRUN_ENV_ORIG_PREFIX);
     strcat(original_var_name, name);
@@ -83,7 +83,7 @@ void set_private_env(char const* name, char const* value) {
     free(original_var_name);
 
     unsigned startup_var_name_size = strlen(name) + strlen(APPRUN_ENV_STARTUP_PREFIX) + 1;
-    char* startup_var_name = calloc(startup_var_name_size, sizeof(char));
+    char *startup_var_name = calloc(startup_var_name_size, sizeof(char));
 
     strcat(startup_var_name, APPRUN_ENV_STARTUP_PREFIX);
     strcat(startup_var_name, name);
@@ -93,15 +93,15 @@ void set_private_env(char const* name, char const* value) {
 }
 
 
-void print_string_list(char** string_list) {
-    char** itr = string_list;
+void print_string_list(char **string_list) {
+    char **itr = string_list;
     while (*itr != NULL) {
         printf("%s\n", *itr);
         itr++;
     }
 }
 
-void assert_env_item_eq(apprun_env_item_t* a, apprun_env_item_t* b) {
+void assert_env_item_eq(apprun_env_item_t *a, apprun_env_item_t *b) {
     if (a == NULL && b == NULL)
         return;
 

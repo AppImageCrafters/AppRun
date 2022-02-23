@@ -9,7 +9,7 @@
  * */
 START_TEST (test_string_trim_prefix)
     {
-        char* result = apprun_string_trim("  a");
+        char *result = apprun_string_trim("  a");
         ck_assert_str_eq(result, "a");
         free(result);
     }
@@ -17,7 +17,7 @@ END_TEST
 
 START_TEST (test_string_trim_postfix)
     {
-        char* result = apprun_string_trim("a  ");
+        char *result = apprun_string_trim("a  ");
         ck_assert_str_eq(result, "a");
         free(result);
     }
@@ -25,7 +25,7 @@ END_TEST
 
 START_TEST (test_string_trim_both_sides)
     {
-        char* result = apprun_string_trim("  a  ");
+        char *result = apprun_string_trim("  a  ");
         ck_assert_str_eq(result, "a");
         free(result);
     }
@@ -37,8 +37,8 @@ END_TEST
 
 START_TEST (test_apprun_shell_resolve_var_value_positional_arg)
     {
-        char* argv[] = {"zero", "one", "two", NULL};
-        char* result = apprun_shell_resolve_var_value(argv, "0");
+        char *argv[] = {"zero", "one", "two", NULL};
+        char *result = apprun_shell_resolve_var_value(argv, "0");
         ck_assert_str_eq(result, "zero");
         free(result);
 
@@ -59,8 +59,8 @@ END_TEST
 
 START_TEST (test_apprun_shell_resolve_var_value_at_symbol_two_args)
     {
-        char* argv[] = {"zero", "one", "two", NULL};
-        char* result = apprun_shell_resolve_var_value(argv, "@");
+        char *argv[] = {"zero", "one", "two", NULL};
+        char *result = apprun_shell_resolve_var_value(argv, "@");
         ck_assert_str_eq(result, "\"one\" \"two\"");
         free(result);
     }
@@ -68,8 +68,8 @@ END_TEST
 
 START_TEST (test_apprun_shell_resolve_var_value_at_symbol_zero_args)
     {
-        char* argv[] = {"zero", NULL};
-        char* result = apprun_shell_resolve_var_value(argv, "@");
+        char *argv[] = {"zero", NULL};
+        char *result = apprun_shell_resolve_var_value(argv, "@");
         ck_assert_str_eq(result, "");
         free(result);
     }
@@ -77,9 +77,9 @@ END_TEST
 
 START_TEST (test_apprun_shell_resolve_var_value_from_env)
     {
-        char* argv[] = {"zero", NULL};
+        char *argv[] = {"zero", NULL};
         setenv("TEST_VAR", "VALUE", 1);
-        char* result = apprun_shell_resolve_var_value(argv, "TEST_VAR");
+        char *result = apprun_shell_resolve_var_value(argv, "TEST_VAR");
         ck_assert_str_eq(result, "VALUE");
 
         unsetenv("TEST_VAR");
@@ -89,16 +89,16 @@ END_TEST
 
 START_TEST (test_apprun_shell_resolve_var_value_from_env_missing)
     {
-        char* argv[] = {"zero", NULL};
-        char* result = apprun_shell_resolve_var_value(argv, "TEST_VAR");
+        char *argv[] = {"zero", NULL};
+        char *result = apprun_shell_resolve_var_value(argv, "TEST_VAR");
         ck_assert_ptr_eq(result, NULL);
     }
 END_TEST
 
-Suite* utils_suite(void) {
-    Suite* s;
-    TCase* tc_core;
-    TCase* tc_shell;
+Suite *utils_suite(void) {
+    Suite *s;
+    TCase *tc_core;
+    TCase *tc_shell;
 
     s = suite_create("Common");
 
@@ -127,8 +127,8 @@ Suite* utils_suite(void) {
 
 int main(void) {
     int number_failed;
-    Suite* s;
-    SRunner* sr;
+    Suite *s;
+    SRunner *sr;
 
     s = utils_suite();
     sr = srunner_create(s);
