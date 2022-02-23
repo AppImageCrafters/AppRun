@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * Copyright (c) 2020 Alexis Lopez Zubieta <contact@azubieta.net>
+ * Copyright (c) 2022 Alexis Lopez Zubieta <contact@azubieta.net>
  *
  * All Rights Reserved.
  *
@@ -24,61 +24,22 @@
  *
  **************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
-#include <sys/wait.h>
-#include <linux/limits.h>
 
 #include "../common/tests_shared.h"
 
-int check_execv_return_code(char *path, char **argv) {
-    pid_t cpid;
-    int wstatus;
 
-    cpid = fork();
-    if (cpid == -1) {
-        perror("fork");
-        bailout();
-    }
+int main(int argc, char **argv) {
+    set_private_env("APPDIR", APPDIR_MOCK);
+    set_private_env("LD_PRELOAD", HOOKS_LIB_PATH);
+    set_private_env("APPRUN_RUNTIME", APPDIR_MOCK "/runtime/compat");
+    set_private_env("APPRUN_PATH_MAPPINGS", MAPPED_APPDIR_PATH":"APPDIR_MOCK";");
 
-    if (cpid == 0) {            /* Code executed by child */
-        int err = execv(path, argv);
-        exit(err);
-    } else {                    /* Code executed by parent */
-        waitpid(cpid, &wstatus, 0);
-        return WEXITSTATUS(wstatus);;
-    }
-}
-
-void test_execv_inner_target() {
-    fprintf(stdout, "%s: ", __FUNCTION__);
-
-    char *args[2] = {0x0};
-    args[0] = INNER_TARGET;
-    int rc = check_execv_return_code(INNER_TARGET, args);
-    assert_eq(rc, 0);
-
-    fprintf(stdout, "Ok\n");
-}
-
-void test_execv_outer_target() {
-    fprintf(stdout, "%s: ", __FUNCTION__);
+    chdir(APPDIR_MOCK);
 
     char *args[2] = {0x0};
     args[0] = OUTER_TARGET;
 
-    int rc = check_execv_return_code(OUTER_TARGET, args);
-    assert_eq(rc, 0);
-
-    fprintf(stdout, "Ok\n");
-}
-
-
-int main(int argc, char **argv) {
-    test_execv_inner_target();
-    test_execv_outer_target();
-
-    return 0;
+    return execv(OUTER_TARGET, args);;
 }
 
