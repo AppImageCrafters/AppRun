@@ -55,6 +55,7 @@ target_compile_definitions(
         -DINNER_TARGET="${APPDIR_MOCK_PATH}/$<TARGET_FILE_BASE_NAME:hooks_inner_target_test>"
         -DOUTER_TARGET="$<TARGET_FILE:hooks_outer_target_test>"
 )
+
 add_test(NAME TEST_EXEC_HOOKS COMMAND exec_hooks_test WORKDIR ${CMAKE_CURRENT_BINARY_DIR})
 set_tests_properties(
         TEST_EXEC_HOOKS PROPERTIES ENVIRONMENT "\
@@ -73,5 +74,6 @@ APPRUN_ORIGINAL_APPRUN_RUNTIME=;\
 APPRUN_ORIGINAL_LD_PRELOAD=;\
 APPRUN_ORIGINAL_APPRUN_PATH_MAPPINGS=;\
 "
+        DEPENDS hooks_inner_target_test
 )
 
