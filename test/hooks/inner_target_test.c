@@ -82,12 +82,34 @@ void test_bundle_apprun_path_mappings_env_received() {
     fprintf(stdout, "Ok\n");
 }
 
-void test_realpath_hook() {
+void test_realpath_hook_with_resolved_param() {
     fprintf(stdout, "%s: ", __FUNCTION__);
 
     char result[PATH_MAX];
     char *result_ptr = realpath(MAPPED_APPDIR_PATH, result);
     assert_str_eq(result, EXPECTED_WORKDIR);
+    assert_str_eq(result_ptr, EXPECTED_WORKDIR);
+    fprintf(stdout, "Ok\n");
+}
+
+void test_realpath_hook_without_resolved_param() {
+    fprintf(stdout, "%s: ", __FUNCTION__);
+
+    char *result_ptr = realpath(MAPPED_APPDIR_PATH, NULL);
+    assert_str_eq(result_ptr, EXPECTED_WORKDIR);
+    free(result_ptr);
+
+    fprintf(stdout, "Ok\n");
+}
+
+void test_realpath_hook_on_nonexistent_path() {
+    fprintf(stdout, "%s: ", __FUNCTION__);
+
+    char result[PATH_MAX] = {0x0};
+    char *result_ptr = realpath("/non-existent-file", result);
+    assert_str_eq(result, "");
+    assert_true(result_ptr == NULL);
+
     fprintf(stdout, "Ok\n");
 }
 
@@ -122,7 +144,10 @@ int main(int argc, char **argv) {
     test_bundle_apprun_cwd_env_received();
     test_bundle_apprun_path_mappings_env_received();
 
-    test_realpath_hook();
+    test_realpath_hook_with_resolved_param();
+    test_realpath_hook_without_resolved_param();
+    test_realpath_hook_on_nonexistent_path();
+
     test_stat_hook();
     test_fstat_hook();
 
