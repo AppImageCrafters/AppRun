@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#set -ex
-
 APPDIR="$1"
 if [ -z "$APPDIR" ]; then
   echo "Missing AppDir path"
@@ -20,7 +18,6 @@ if [ -z "$APPRUN_HOOKS" ]; then
   exit 1
 fi
 
-rm "$APPDIR" -rf || true
 mkdir -p "$APPDIR"
 
 function create_compat_runtime() {
@@ -48,19 +45,15 @@ function create_default_runtime() {
 
   # deploy linker
   mkdir -p "$(dirname "${RUNTIME_DEFAULT_DIR}"/"${LINKER}")"
-  ln -s $LINKER "${RUNTIME_DEFAULT_DIR}"/"${LINKER}"
+  ln -sf $LINKER "${RUNTIME_DEFAULT_DIR}"/"${LINKER}"
 
   # deploy dependencies
   DEPENDENCIES=$(ldd "$BASH_BIN" | grep "=> " | cut -d' ' -f 3- | cut -d ' ' -f 1)
-  LIBRARY_PATHS=""
   for DEP in $DEPENDENCIES; do
     LIBRARY_PATH=$(dirname "${RUNTIME_DEFAULT_DIR}"/"${DEP}")
-    LIBRARY_PATHS="${LIBRARY_PATHS}:${LIBRARY_PATH}"
     mkdir -p "$LIBRARY_PATH"
-    ln -s "$DEP" "$RUNTIME_DEFAULT_DIR/$DEP"
+    ln -sf "$DEP" "$RUNTIME_DEFAULT_DIR/$DEP"
   done
-
-  echo "$LIBRARY_PATHS"
 }
 
 RUNTIME_COMPAT_DIR="$APPDIR/runtime/compat"
