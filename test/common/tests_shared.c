@@ -92,6 +92,27 @@ void set_private_env(char const *name, char const *value) {
     free(startup_var_name);
 }
 
+void unset_private_env(const char *name) {
+    unsetenv(name);
+
+    unsigned int original_var_name_size = strlen(name) + strlen(APPRUN_ENV_ORIG_PREFIX) + 1;
+    char *original_var_name = calloc(original_var_name_size, sizeof(char));
+
+    strcat(original_var_name, APPRUN_ENV_ORIG_PREFIX);
+    strcat(original_var_name, name);
+
+    unsetenv(original_var_name);
+    free(original_var_name);
+
+    unsigned startup_var_name_size = strlen(name) + strlen(APPRUN_ENV_STARTUP_PREFIX) + 1;
+    char *startup_var_name = calloc(startup_var_name_size, sizeof(char));
+
+    strcat(startup_var_name, APPRUN_ENV_STARTUP_PREFIX);
+    strcat(startup_var_name, name);
+
+    unsetenv(startup_var_name);
+    free(startup_var_name);
+}
 
 void print_string_list(char **string_list) {
     char **itr = string_list;

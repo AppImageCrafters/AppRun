@@ -53,6 +53,8 @@ void assert_command_fails(int ret);
 
 void set_private_env(char const *name, char const *value);
 
+void unset_private_env(char const *name);
+
 void print_string_list(char **string_list);
 
 void assert_env_item_eq(apprun_env_item_t *a, apprun_env_item_t *b);
