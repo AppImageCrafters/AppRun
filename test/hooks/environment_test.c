@@ -340,7 +340,6 @@ void test_env_item_list_to_envp() {
 void test_apprun_envp_set_new() {
     fprintf(stdout, "%s: ", __PRETTY_FUNCTION__);
 
-
     char *envp[2];
     envp[0] = "K1=1";
     envp[1] = 0;

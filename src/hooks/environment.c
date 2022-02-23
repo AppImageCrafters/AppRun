@@ -397,6 +397,8 @@ char **apprun_envp_set(const char *key, const char *value, char *const *envp) {
         if (strncmp(key, str, key_len) == 0 && str[key_len] == '=')
             contains_key = true;
     }
+    // extra space is needed for NULL termination
+    envp_len++;
 
     char *new_entry = apprun_format_envp_entry(key, value);
     char **new_envp = NULL;
@@ -409,9 +411,10 @@ char **apprun_envp_set(const char *key, const char *value, char *const *envp) {
             }
         }
     } else {
-        new_envp = apprun_string_list_alloc(envp_len + 1);
+        unsigned long new_envp_len = envp_len + 1;
+        new_envp = apprun_string_list_alloc(new_envp_len);
         apprun_string_list_copy(envp, new_envp);
-        new_envp[envp_len] = new_entry;
+        new_envp[new_envp_len - 2] = new_entry;
     }
 
 
