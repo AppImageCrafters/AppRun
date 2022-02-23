@@ -4,6 +4,7 @@
 #include <dlfcn.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <linux/limits.h>
 
 #include "environment.h"
 
@@ -33,6 +34,7 @@ void restore_workdir() {
     if (original_pwd != NULL) {
 #ifdef DEBUG
         fprintf(stderr, "APPRUN_HOOK_DEBUG: restoring original workdir %s\n", original_pwd);
+        fflush(stderr);
 #endif
 
         chdir(original_pwd);
@@ -44,7 +46,10 @@ void restore_workdir() {
 int main_hook(int argc, char **argv, char **envp) {
     restore_workdir();
 #ifdef DEBUG
-    fprintf(stderr, "APPRUN_HOOK_DEBUG: --- Before main ---\n");
+    char exec_path[PATH_MAX] = {0x0};
+    realpath("/proc/self/exe", exec_path);
+
+    fprintf(stderr, "APPRUN_HOOK_DEBUG: --- Before main %s ---\n", exec_path);
 #endif
 
     int ret = main_orig(argc, argv, envp);
@@ -52,6 +57,7 @@ int main_hook(int argc, char **argv, char **envp) {
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_HOOK_DEBUG: --- After main ----\n");
     fprintf(stderr, "APPRUN_HOOK_DEBUG: main() returned %d\n", ret);
+    fflush(stderr);
 #endif
 
     return ret;

@@ -39,9 +39,8 @@
 #include "exec_utils.h"
 #include "common/path.h"
 #include "common/hooks_debug.h"
+#include "environment.h"
 
-
-#define APPRUN_PATH_MAPPINGS "APPRUN_PATH_MAPPINGS"
 
 typedef struct {
     char *path;
