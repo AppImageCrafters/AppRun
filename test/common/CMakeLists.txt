@@ -20,6 +20,8 @@ add_executable(
         tests_shared.c
         $<TARGET_OBJECTS:common_objects>
 )
+target_link_libraries(path_test PRIVATE apprun_hooks)
+target_compile_definitions(path_test PRIVATE "APPDIR_MOCK_PATH=\"${APPDIR_MOCK_PATH}\"")
 add_test(NAME TEST_PATH COMMAND path_test)
 
 add_executable(

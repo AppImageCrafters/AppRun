@@ -26,41 +26,70 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "common/path.h"
 #include "tests_shared.h"
 
-void test_apprun_resolve_file_name() {
+void test_apprun_resolve_absolute_path() {
     char *result = NULL;
-    fprintf(stderr, "Test resolve full path: ");
+    fprintf(stderr, "%s: ", __FUNCTION__);
 
-    result = apprun_resolve_bin_path("/bin/bash");
-    assert_str_eq("/bin/bash", result);
+    result = apprun_resolve_bin_path(APPDIR_MOCK_PATH"/bin/bash");
+    assert_str_eq(APPDIR_MOCK_PATH"/bin/bash", result);
     fprintf(stderr, "Ok\n");
     free(result);
 
-    fprintf(stderr, "Test resolve relative path: ");
-    result = apprun_resolve_bin_path("bash");
-    assert_str_eq("/bin/bash", result);
-
     fprintf(stderr, "Ok\n");
-    free(result);
-
 }
 
-void test_apprun_is_path_child_of() {
-    fprintf(stdout, "Test path child of: ");
-    assert_false(apprun_is_path_child_of("/bin/echo", "/usr"));
-    assert_true(apprun_is_path_child_of("/bin/echo", "/bin"));
+void test_apprun_resolve_relative_path() {
+    char *result = NULL;
+    fprintf(stderr, "%s: ", __FUNCTION__);
 
+    char *orig_path = strdup(getenv("PATH"));
+    setenv("PATH", APPDIR_MOCK_PATH"/usr/bin", 1);
+    result = apprun_resolve_bin_path("bash");
+    assert_str_eq(APPDIR_MOCK_PATH"/usr/bin/bash", result);
+
+    setenv("PATH", orig_path, 1);
+    fprintf(stderr, "Ok\n");
+    free(result);
+    free(orig_path);
+}
+
+void test_apprun_is_path_child_of_on_existent_paths() {
+    fprintf(stdout, "%s: ", __FUNCTION__);
+    assert_false(apprun_is_path_child_of(APPDIR_MOCK_PATH"/usr/", APPDIR_MOCK_PATH"/usr/bin/"));
+    assert_true(apprun_is_path_child_of(APPDIR_MOCK_PATH"/usr/bin/bash", APPDIR_MOCK_PATH));
+    fprintf(stdout, "OK\n");
+}
+
+void test_apprun_is_path_child_of_on_non_existent_paths() {
+    fprintf(stdout, "%s: ", __FUNCTION__);
     assert_false(apprun_is_path_child_of("/no_existent/echo", "/usr"));
     assert_true(apprun_is_path_child_of("/no_existent/echo", "/no_existent"));
     fprintf(stdout, "OK\n");
 }
 
+void test_apprun_is_path_child_of_on_mapped_paths() {
+    fprintf(stdout, "%s: ", __FUNCTION__);
+    set_private_env(APPRUN_PATH_MAPPINGS, "/mapped.AppDir:"APPDIR_MOCK_PATH";");
+
+    assert_false(apprun_is_path_child_of("/mapped.AppDir/usr/", APPDIR_MOCK_PATH"/usr/bin/"));
+    assert_true(apprun_is_path_child_of("/mapped.AppDir/usr/bin/bash", APPDIR_MOCK_PATH));
+
+    unset_private_env(APPRUN_PATH_MAPPINGS);
+    fprintf(stdout, "OK\n");
+}
+
 int main(int argc, char **argv) {
-    test_apprun_is_path_child_of();
-    test_apprun_resolve_file_name();
+    test_apprun_resolve_absolute_path();
+    test_apprun_resolve_relative_path();
+
+    test_apprun_is_path_child_of_on_existent_paths();
+    test_apprun_is_path_child_of_on_non_existent_paths();
+    test_apprun_is_path_child_of_on_mapped_paths();
     return 0;
 }
 
