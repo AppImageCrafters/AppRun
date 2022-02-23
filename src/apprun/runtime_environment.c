@@ -34,21 +34,21 @@
 #include "hooks/environment.h"
 
 
-void apprun_update_env(const char* name, const char* value) {
+void apprun_update_env(const char *name, const char *value) {
     if (value)
         setenv(name, value, 1);
     else
         unsetenv(name);
 }
 
-void apprun_env_set(const char* name, const char* value, const char* orig_value, const char* start_value) {
+void apprun_env_set(const char *name, const char *value, const char *orig_value, const char *start_value) {
     apprun_update_env(name, value);
 
-    char* orig_name = apprun_prefix_str(APPRUN_ENV_ORIG_PREFIX, name);
+    char *orig_name = apprun_prefix_str(APPRUN_ENV_ORIG_PREFIX, name);
     apprun_update_env(orig_name, orig_value);
 
 
-    char* startup_name = apprun_prefix_str(APPRUN_ENV_STARTUP_PREFIX, name);
+    char *startup_name = apprun_prefix_str(APPRUN_ENV_STARTUP_PREFIX, name);
     apprun_update_env(startup_name, start_value);
 
 #ifdef DEBUG
@@ -59,9 +59,9 @@ void apprun_env_set(const char* name, const char* value, const char* orig_value,
     free(startup_name);
 }
 
-void apprun_load_env_file(const char* path, char** argv) {
-    FILE* fp;
-    char* line = NULL;
+void apprun_load_env_file(const char *path, char **argv) {
+    FILE *fp;
+    char *line = NULL;
     size_t len = 0;
     ssize_t read;
 
@@ -79,9 +79,9 @@ void apprun_load_env_file(const char* path, char** argv) {
                 read--;
             }
 
-            char* name = apprun_env_str_entry_extract_name(line);
-            char* value = apprun_env_str_entry_extract_value(line);
-            char* expanded_value = apprun_shell_expand_variables(value, argv);
+            char *name = apprun_env_str_entry_extract_name(line);
+            char *value = apprun_env_str_entry_extract_value(line);
+            char *expanded_value = apprun_shell_expand_variables(value, argv);
 
             apprun_env_set(name, expanded_value, getenv(name), expanded_value);
 

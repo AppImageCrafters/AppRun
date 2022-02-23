@@ -44,15 +44,15 @@
 #define APPRUN_PATH_MAPPINGS "APPRUN_PATH_MAPPINGS"
 
 typedef struct {
-    char* path;
-    char* mapping;
+    char *path;
+    char *mapping;
 } apprun_path_mapping;
 
-static apprun_path_mapping** apprun_path_mappings = NULL;
+static apprun_path_mapping **apprun_path_mappings = NULL;
 static int apprun_path_mappings_size = 0;
 
 void apprun_load_path_mappings() {
-    char* path_mappings_env = getenv(APPRUN_PATH_MAPPINGS);
+    char *path_mappings_env = getenv(APPRUN_PATH_MAPPINGS);
     if (path_mappings_env == NULL || apprun_path_mappings != NULL) {
         return;
     }
@@ -62,17 +62,17 @@ void apprun_load_path_mappings() {
             apprun_path_mappings_size++;
     }
 
-    apprun_path_mappings = malloc(sizeof(apprun_path_mapping*) * apprun_path_mappings_size);
+    apprun_path_mappings = malloc(sizeof(apprun_path_mapping *) * apprun_path_mappings_size);
 
-    char* str_itr = path_mappings_env;
+    char *str_itr = path_mappings_env;
     for (int i = 0; i < apprun_path_mappings_size; i++) {
 
-        char* colon_pos, * semicolon_pos;
+        char *colon_pos, *semicolon_pos;
 
         colon_pos = strchr(str_itr, ':');
         semicolon_pos = strchr(str_itr, ';');
         if (colon_pos && semicolon_pos) {
-            apprun_path_mapping* mapping;
+            apprun_path_mapping *mapping;
             mapping = malloc(sizeof(apprun_path_mapping));
             mapping->path = strndup(str_itr, colon_pos - str_itr);
             mapping->mapping = strndup(colon_pos + 1, semicolon_pos - colon_pos - 1);
@@ -84,13 +84,13 @@ void apprun_load_path_mappings() {
     }
 }
 
-char* redirect_path_full(const char* pathname, int check_parent, int only_if_absolute) {
-    int (* _access)(const char* pathname, int mode);
-    char* redirected_pathname;
+char *redirect_path_full(const char *pathname, int check_parent, int only_if_absolute) {
+    int (*_access)(const char *pathname, int mode);
+    char *redirected_pathname;
     int ret;
 
 #ifdef DEBUG
-    char* hooked_symbol = find_hooked_symbol();
+    char *hooked_symbol = find_hooked_symbol();
     fprintf(stderr, "APPRUN_HOOK_DEBUG: %s \"%s\"", hooked_symbol, pathname);
     free(hooked_symbol);
 #endif
@@ -109,7 +109,7 @@ char* redirect_path_full(const char* pathname, int check_parent, int only_if_abs
         return strdup(pathname);
     }
 
-    char* appdir_env = getenv(APPRUN_ENV_APPDIR);
+    char *appdir_env = getenv(APPRUN_ENV_APPDIR);
     if (appdir_env == NULL) {
 #ifdef DEBUG
         fprintf(stderr, "\n");
@@ -127,15 +127,15 @@ char* redirect_path_full(const char* pathname, int check_parent, int only_if_abs
     }
 
 
-    _access = (int (*)(const char* pathname, int mode)) dlsym(RTLD_NEXT, "access");
+    _access = (int (*)(const char *pathname, int mode)) dlsym(RTLD_NEXT, "access");
 
     redirected_pathname = malloc(PATH_MAX);
     for (int i = 0; i < apprun_path_mappings_size; i++) {
         if (strncmp(pathname, apprun_path_mappings[i]->path, strlen(apprun_path_mappings[i]->path)) == 0) {
             memset(redirected_pathname, 0, PATH_MAX);
 
-            const char* mapping = apprun_path_mappings[i]->mapping;
-            const char* path_postfix = pathname + strlen(apprun_path_mappings[i]->path);
+            const char *mapping = apprun_path_mappings[i]->mapping;
+            const char *path_postfix = pathname + strlen(apprun_path_mappings[i]->path);
 
             strcat(redirected_pathname, mapping);
             if (mapping[strlen(mapping) - 1] != '/' && path_postfix[0] != '/')
@@ -160,15 +160,15 @@ char* redirect_path_full(const char* pathname, int check_parent, int only_if_abs
     return strdup(pathname);
 }
 
-char* apprun_redirect_path_if_absolute(const char* pathname) {
+char *apprun_redirect_path_if_absolute(const char *pathname) {
     return redirect_path_full(pathname, 0, 1);
 }
 
-char* apprun_redirect_path_target(const char* pathname) {
+char *apprun_redirect_path_target(const char *pathname) {
     return redirect_path_full(pathname, 1, 0);
 }
 
-char* apprun_redirect_path(const char* pathname) {
+char *apprun_redirect_path(const char *pathname) {
     return redirect_path_full(pathname, 0, 0);
 }
 

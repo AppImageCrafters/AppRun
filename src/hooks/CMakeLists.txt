@@ -5,6 +5,6 @@ target_compile_definitions(apprun_hooks PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
 
 
 install(
-    TARGETS apprun_hooks
-    LIBRARY DESTINATION lib
+        TARGETS apprun_hooks
+        LIBRARY DESTINATION lib
 )

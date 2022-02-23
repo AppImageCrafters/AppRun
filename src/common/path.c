@@ -31,20 +31,20 @@
 
 #include "path.h"
 
-char* apprun_lookup_next(char* itr, char lookup_char) {
+char *apprun_lookup_next(char *itr, char lookup_char) {
     while (itr != NULL && *itr != '\0' && *itr != lookup_char)
         itr++;
 
     return itr;
 }
 
-char* apprun_resolve_bin_path_from_env(const char* bin, char* path_env) {
-    char* resolved = NULL;
+char *apprun_resolve_bin_path_from_env(const char *bin, char *path_env) {
+    char *resolved = NULL;
     unsigned file_name_len = strlen(bin);
 
-    char* itr_begin = path_env;
+    char *itr_begin = path_env;
     while (itr_begin != NULL && *itr_begin != '\0' && resolved == NULL) {
-        char* itr_end = itr_begin;
+        char *itr_end = itr_begin;
         itr_end = apprun_lookup_next(itr_end, ':');
 
         if (itr_end != itr_begin) {
@@ -70,8 +70,8 @@ char* apprun_resolve_bin_path_from_env(const char* bin, char* path_env) {
 }
 
 
-char* apprun_resolve_bin_path(char const* bin) {
-    char* resolved = NULL;
+char *apprun_resolve_bin_path(char const *bin) {
+    char *resolved = NULL;
 
     if (bin == NULL)
         return NULL;
@@ -80,7 +80,7 @@ char* apprun_resolve_bin_path(char const* bin) {
     if (resolved != NULL)
         return resolved;
 
-    char* path_env = getenv("PATH");
+    char *path_env = getenv("PATH");
     if (path_env != NULL && bin[0] != '/')
         resolved = apprun_resolve_bin_path_from_env(bin, path_env);
 
@@ -90,9 +90,9 @@ char* apprun_resolve_bin_path(char const* bin) {
     return resolved;
 }
 
-bool apprun_is_path_child_of(const char* path, const char* base) {
-    char* real_base = realpath(base, NULL);
-    char* real_path = realpath(path, NULL);
+bool apprun_is_path_child_of(const char *path, const char *base) {
+    char *real_base = realpath(base, NULL);
+    char *real_path = realpath(path, NULL);
 
     bool result;
 

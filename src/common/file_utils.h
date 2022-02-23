@@ -29,10 +29,10 @@
 
 #include <stdio.h>
 
-char** apprun_read_lines(FILE* fp);
+char **apprun_read_lines(FILE *fp);
 
-char** apprun_file_read_lines(const char* filename);
+char **apprun_file_read_lines(const char *filename);
 
-void apprun_file_copy(const char * source_path, const char * target_path);
+void apprun_file_copy(const char *source_path, const char *target_path);
 
 #endif //APPRUN_FILE_UTILS_H

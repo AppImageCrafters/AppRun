@@ -30,14 +30,14 @@
 
 #include <stdbool.h>
 
-char* apprun_string_remove_trailing_new_line(const char* str);
+char *apprun_string_remove_trailing_new_line(const char *str);
 
-char* apprun_string_extend(char* string, unsigned int new_size);
+char *apprun_string_extend(char *string, unsigned int new_size);
 
-const char* apprun_string_consume_until(const char* itr, const char delimiters[]);
+const char *apprun_string_consume_until(const char *itr, const char delimiters[]);
 
-bool apprun_string_is_all_blanks(const char* str);
+bool apprun_string_is_all_blanks(const char *str);
 
-char* apprun_string_trim(char* str);
+char *apprun_string_trim(char *str);
 
 #endif //APPIMAGEEXECWRAPPER_STRING_UTILS_H

@@ -29,22 +29,22 @@
 
 #include <stdbool.h>
 
-char* apprun_prefix_str(const char* prefix, const char* str);
+char *apprun_prefix_str(const char *prefix, const char *str);
 
-char** apprun_adjust_string_array_size(char** array);
+char **apprun_adjust_string_array_size(char **array);
 
-int apprun_string_list_len(char* const* x);
+int apprun_string_list_len(char *const *x);
 
-void apprun_string_list_free(char** string_list);
+void apprun_string_list_free(char **string_list);
 
-char** apprun_string_list_alloc(unsigned int size);
+char **apprun_string_list_alloc(unsigned int size);
 
-int apprun_array_len(char* const* arr);
+int apprun_array_len(char *const *arr);
 
 void apprun_string_list_copy(char *const *source, char **target);
 
-char** apprun_string_list_dup(char* const* list);
+char **apprun_string_list_dup(char *const *list);
 
-char* apprun_string_list_join(char* const* string_list, char* split);
+char *apprun_string_list_join(char *const *string_list, char *split);
 
 #endif //APPRUN_STRING_LIST_H

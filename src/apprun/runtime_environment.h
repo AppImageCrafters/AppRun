@@ -27,10 +27,10 @@
 #ifndef APPRUN_RUNTIME_ENVIRONMENT_H
 #define APPRUN_RUNTIME_ENVIRONMENT_H
 
-void apprun_env_set(const char* name, const char* value, const char* orig_value, const char* start_value);
+void apprun_env_set(const char *name, const char *value, const char *orig_value, const char *start_value);
 
-void apprun_load_env_file(const char* path, char** argv);
+void apprun_load_env_file(const char *path, char **argv);
 
-void apprun_update_env(const char* name, const char* value);
+void apprun_update_env(const char *name, const char *value);
 
 #endif //APPRUN_RUNTIME_ENVIRONMENT_H

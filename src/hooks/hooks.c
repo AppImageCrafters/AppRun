@@ -304,15 +304,15 @@ REDIRECT_OPEN_AT(openat64)
 REDIRECT_2_3(int, inotify_add_watch, int, uint32_t)
 
 int
-scandir(const char* dirp, struct dirent*** namelist, int (* filter)(const struct dirent*),
-        int (* compar)(const struct dirent**, const struct dirent**)) {
-    int (* _scandir)(const char* dirp, struct dirent*** namelist, int (* filter)(const struct dirent*),
-                     int (* compar)(const struct dirent**, const struct dirent**));
-    char* new_path = NULL;
+scandir(const char *dirp, struct dirent ***namelist, int (*filter)(const struct dirent *),
+        int (*compar)(const struct dirent **, const struct dirent **)) {
+    int (*_scandir)(const char *dirp, struct dirent ***namelist, int (*filter)(const struct dirent *),
+                    int (*compar)(const struct dirent **, const struct dirent **));
+    char *new_path = NULL;
     int ret;
 
-    _scandir = (int (*)(const char* dirp, struct dirent*** namelist, int (* filter)(const struct dirent*),
-                        int (* compar)(const struct dirent**, const struct dirent**))) dlsym(RTLD_NEXT, "scandir");
+    _scandir = (int (*)(const char *dirp, struct dirent ***namelist, int (*filter)(const struct dirent *),
+                        int (*compar)(const struct dirent **, const struct dirent **))) dlsym(RTLD_NEXT, "scandir");
 
     new_path = apprun_redirect_path(dirp);
     ret = _scandir(new_path, namelist, filter, compar);
@@ -322,18 +322,18 @@ scandir(const char* dirp, struct dirent*** namelist, int (* filter)(const struct
 }
 
 int
-scandir64(const char* dirp, struct dirent64*** namelist,
-          int (* filter)(const struct dirent64*),
-          int (* compar)(const struct dirent64**, const struct dirent64**)) {
-    int (* _scandir64)(const char* dirp, struct dirent64*** namelist,
-                       int (* filter)(const struct dirent64*),
-                       int (* compar)(const struct dirent64**, const struct dirent64**));
-    char* new_path = NULL;
+scandir64(const char *dirp, struct dirent64 ***namelist,
+          int (*filter)(const struct dirent64 *),
+          int (*compar)(const struct dirent64 **, const struct dirent64 **)) {
+    int (*_scandir64)(const char *dirp, struct dirent64 ***namelist,
+                      int (*filter)(const struct dirent64 *),
+                      int (*compar)(const struct dirent64 **, const struct dirent64 **));
+    char *new_path = NULL;
     int ret;
 
-    _scandir64 = (int (*)(const char* dirp, struct dirent64*** namelist,
-                          int (* filter)(const struct dirent64*),
-                          int (* compar)(const struct dirent64**, const struct dirent64**)))
+    _scandir64 = (int (*)(const char *dirp, struct dirent64 ***namelist,
+                          int (*filter)(const struct dirent64 *),
+                          int (*compar)(const struct dirent64 **, const struct dirent64 **)))
             dlsym(RTLD_NEXT, "scandir64");
 
     new_path = apprun_redirect_path(dirp);
@@ -345,15 +345,15 @@ scandir64(const char* dirp, struct dirent64*** namelist,
 
 
 int
-scandirat(int dirfd, const char* dirp, struct dirent*** namelist, int (* filter)(const struct dirent*),
-          int (* compar)(const struct dirent**, const struct dirent**)) {
-    int (* _scandirat)(int dirfd, const char* dirp, struct dirent*** namelist, int (* filter)(const struct dirent*),
-                       int (* compar)(const struct dirent**, const struct dirent**));
-    char* new_path = NULL;
+scandirat(int dirfd, const char *dirp, struct dirent ***namelist, int (*filter)(const struct dirent *),
+          int (*compar)(const struct dirent **, const struct dirent **)) {
+    int (*_scandirat)(int dirfd, const char *dirp, struct dirent ***namelist, int (*filter)(const struct dirent *),
+                      int (*compar)(const struct dirent **, const struct dirent **));
+    char *new_path = NULL;
     int ret;
 
-    _scandirat = (int (*)(int dirfd, const char* dirp, struct dirent*** namelist, int (* filter)(const struct dirent*),
-                          int (* compar)(const struct dirent**, const struct dirent**))) dlsym(RTLD_NEXT, "scandirat");
+    _scandirat = (int (*)(int dirfd, const char *dirp, struct dirent ***namelist, int (*filter)(const struct dirent *),
+                          int (*compar)(const struct dirent **, const struct dirent **))) dlsym(RTLD_NEXT, "scandirat");
 
     new_path = apprun_redirect_path_if_absolute(dirp);
     ret = _scandirat(dirfd, new_path, namelist, filter, compar);
@@ -363,18 +363,18 @@ scandirat(int dirfd, const char* dirp, struct dirent*** namelist, int (* filter)
 }
 
 int
-scandirat64(int dirfd, const char* dirp, struct dirent64*** namelist,
-            int (* filter)(const struct dirent64*),
-            int (* compar)(const struct dirent64**, const struct dirent64**)) {
-    int (* _scandirat64)(int dirfd, const char* dirp, struct dirent64*** namelist,
-                         int (* filter)(const struct dirent64*),
-                         int (* compar)(const struct dirent64**, const struct dirent64**));
-    char* new_path = NULL;
+scandirat64(int dirfd, const char *dirp, struct dirent64 ***namelist,
+            int (*filter)(const struct dirent64 *),
+            int (*compar)(const struct dirent64 **, const struct dirent64 **)) {
+    int (*_scandirat64)(int dirfd, const char *dirp, struct dirent64 ***namelist,
+                        int (*filter)(const struct dirent64 *),
+                        int (*compar)(const struct dirent64 **, const struct dirent64 **));
+    char *new_path = NULL;
     int ret;
 
-    _scandirat64 = (int (*)(int dirfd, const char* dirp, struct dirent64*** namelist,
-                            int (* filter)(const struct dirent64*),
-                            int (* compar)(const struct dirent64**, const struct dirent64**)))
+    _scandirat64 = (int (*)(int dirfd, const char *dirp, struct dirent64 ***namelist,
+                            int (*filter)(const struct dirent64 *),
+                            int (*compar)(const struct dirent64 **, const struct dirent64 **)))
             dlsym(RTLD_NEXT, "scandirat64");
 
     new_path = apprun_redirect_path_if_absolute(dirp);
@@ -385,24 +385,24 @@ scandirat64(int dirfd, const char* dirp, struct dirent64*** namelist,
 }
 
 int
-bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen) {
-    int (* _bind)(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
+bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
+    int (*_bind)(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
     int result;
 
-    _bind = (int (*)(int sockfd, const struct sockaddr* addr, socklen_t addrlen)) dlsym(RTLD_NEXT, "bind");
+    _bind = (int (*)(int sockfd, const struct sockaddr *addr, socklen_t addrlen)) dlsym(RTLD_NEXT, "bind");
 
     if (addr->sa_family == AF_UNIX &&
-        ((const struct sockaddr_un*) addr)->sun_path[0] != 0) { // could be abstract socket
-        char* new_path = NULL;
+        ((const struct sockaddr_un *) addr)->sun_path[0] != 0) { // could be abstract socket
+        char *new_path = NULL;
         struct sockaddr_un new_addr;
 
-        new_path = apprun_redirect_path(((const struct sockaddr_un*) addr)->sun_path);
+        new_path = apprun_redirect_path(((const struct sockaddr_un *) addr)->sun_path);
 
         new_addr.sun_family = AF_UNIX;
         strcpy(new_addr.sun_path, new_path);
         free(new_path);
 
-        result = _bind(sockfd, (const struct sockaddr*) &new_addr, sizeof(new_addr));
+        result = _bind(sockfd, (const struct sockaddr *) &new_addr, sizeof(new_addr));
     } else {
         result = _bind(sockfd, addr, addrlen);
     }
@@ -411,20 +411,20 @@ bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen) {
 }
 
 int
-connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen) {
-    int (* _connect)(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
+connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen) {
+    int (*_connect)(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 
-    _connect = (int (*)(int sockfd, const struct sockaddr* addr, socklen_t addrlen)) dlsym(RTLD_NEXT, "connect");
+    _connect = (int (*)(int sockfd, const struct sockaddr *addr, socklen_t addrlen)) dlsym(RTLD_NEXT, "connect");
 
     /* addrlen == sizeof(sa_family_t) is the case of unnamed sockets,
      * and first byte of sun_path is 0 for abstract sockets.
      */
     if (addr->sa_family == AF_UNIX
         && addrlen > sizeof(sa_family_t)
-        && ((const struct sockaddr_un*) addr)->sun_path[0] != '\0') {
+        && ((const struct sockaddr_un *) addr)->sun_path[0] != '\0') {
 
-        const struct sockaddr_un* un_addr = (const struct sockaddr_un*) addr;
-        char* new_path = NULL;
+        const struct sockaddr_un *un_addr = (const struct sockaddr_un *) addr;
+        char *new_path = NULL;
         struct sockaddr_un new_addr;
 
         new_path = apprun_redirect_path(un_addr->sun_path);
@@ -433,19 +433,19 @@ connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen) {
         strcpy(new_addr.sun_path, new_path);
         free(new_path);
 
-        return _connect(sockfd, (const struct sockaddr*) &new_addr, sizeof(new_addr));
+        return _connect(sockfd, (const struct sockaddr *) &new_addr, sizeof(new_addr));
     }
 
     return _connect(sockfd, addr, addrlen);
 }
 
-void*
-dlopen(const char* path, int mode) {
-    void* (* _dlopen)(const char* path, int mode);
-    char* new_path = NULL;
-    void* result;
+void *
+dlopen(const char *path, int mode) {
+    void *(*_dlopen)(const char *path, int mode);
+    char *new_path = NULL;
+    void *result;
 
-    _dlopen = (void* (*)(const char* path, int mode)) dlsym(RTLD_NEXT, "dlopen");
+    _dlopen = (void *(*)(const char *path, int mode)) dlsym(RTLD_NEXT, "dlopen");
 
     if (path && path[0] == '/') {
         new_path = apprun_redirect_path(path);
@@ -460,17 +460,17 @@ dlopen(const char* path, int mode) {
     return result;
 }
 
-char*
-realpath(const char* path, char* resolved_path) {
-    char* (* _realpath)(const char*, char*);
-    char* new_path = NULL;
-    char* result;
-    _realpath = (char* (*)(const char*, char*)) dlsym(RTLD_NEXT, "realpath");
+char *
+realpath(const char *path, char *resolved_path) {
+    char *(*_realpath)(const char *, char *);
+    char *new_path = NULL;
+    char *result;
+    _realpath = (char *(*)(const char *, char *)) dlsym(RTLD_NEXT, "realpath");
     new_path = apprun_redirect_path(path);
 
     // The  resolved_path == NULL feature, not standardized in POSIX.1-2001, but standardized in POSIX.1-2008.
     // Try to follow the POSIX.1-2008 standard
-    char* _resolved_path = resolved_path;
+    char *_resolved_path = resolved_path;
     if (_resolved_path == NULL)
         _resolved_path = malloc(PATH_MAX);
 

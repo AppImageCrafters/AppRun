@@ -37,7 +37,7 @@ void test_apprun_shell_expand_variables() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
     setenv("PATH", "/sbin", 1);
-    char* res = apprun_shell_expand_variables("$PATH:/bin:${PATH}", NULL);
+    char *res = apprun_shell_expand_variables("$PATH:/bin:${PATH}", NULL);
     assert_str_eq(res, "/sbin:/bin:/sbin");
     free(res);
 
@@ -46,9 +46,9 @@ void test_apprun_shell_expand_variables() {
 
 void test_apprun_shell_expand_command_line_arguments() {
     printf("%s: ", __PRETTY_FUNCTION__);
-    char* argv[] = {"HELLO", "EXTENDED WORLD", "AGAIN",NULL};
+    char *argv[] = {"HELLO", "EXTENDED WORLD", "AGAIN", NULL};
     setenv("PATH", "/sbin", 1);
-    char* res = apprun_shell_expand_variables("$0:$@", argv);
+    char *res = apprun_shell_expand_variables("$0:$@", argv);
     assert_str_eq(res, "HELLO:\"EXTENDED WORLD\" \"AGAIN\"");
     free(res);
 
@@ -57,8 +57,8 @@ void test_apprun_shell_expand_command_line_arguments() {
 
 void test_apprun_shell_expand_command_line_arguments_empty() {
     printf("%s: ", __PRETTY_FUNCTION__);
-    char* argv[] = {"HELLO", NULL};
-    char* res = apprun_shell_expand_variables("/bin $@", argv);
+    char *argv[] = {"HELLO", NULL};
+    char *res = apprun_shell_expand_variables("/bin $@", argv);
     assert_str_eq(res, "/bin ");
     free(res);
 
@@ -68,8 +68,8 @@ void test_apprun_shell_expand_command_line_arguments_empty() {
 void test_apprun_shell_split_arguments_with_simple_string() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
-    char** res = apprun_shell_split_arguments("hello world");
-    char* expected[] = {
+    char **res = apprun_shell_split_arguments("hello world");
+    char *expected[] = {
             "hello",
             "world",
             NULL
@@ -84,8 +84,8 @@ void test_apprun_shell_split_arguments_with_single_quoted_string() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
     setenv("PATH", "/sbin", 1);
-    char** res = apprun_shell_split_arguments("\'hello world\' 1");
-    char* expected[] = {"hello world", "1", NULL};
+    char **res = apprun_shell_split_arguments("\'hello world\' 1");
+    char *expected[] = {"hello world", "1", NULL};
     assert_str_list_eq(res, expected);
     apprun_string_list_free(res);
 
@@ -96,8 +96,8 @@ void test_apprun_shell_split_arguments_with_double_quoted_string() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
     setenv("PATH", "/sbin", 1);
-    char** res = apprun_shell_split_arguments("\"hello world\" 2");
-    char* expected[] = {"hello world", "2", NULL};
+    char **res = apprun_shell_split_arguments("\"hello world\" 2");
+    char *expected[] = {"hello world", "2", NULL};
     assert_str_list_eq(res, expected);
     apprun_string_list_free(res);
 
@@ -108,8 +108,8 @@ void test_apprun_shell_split_arguments_with_escaped_quotes_string() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
     setenv("PATH", "/sbin", 1);
-    char** res = apprun_shell_split_arguments("\\\"hello world\\\'");
-    char* expected[] = {"\"hello", "world\'", NULL};
+    char **res = apprun_shell_split_arguments("\\\"hello world\\\'");
+    char *expected[] = {"\"hello", "world\'", NULL};
     assert_str_list_eq(res, expected);
     apprun_string_list_free(res);
 
@@ -120,8 +120,8 @@ void test_apprun_shell_split_arguments_with_complex_string() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
     setenv("PATH", "/sbin", 1);
-    char** res = apprun_shell_split_arguments("\"\\\'world\'\" \\\\ \\\"hello world\\\' \'\"hello\"\'");
-    char* expected[] = {"\\\'world\'", "\\", "\"hello", "world\'", "\"hello\"", NULL};
+    char **res = apprun_shell_split_arguments("\"\\\'world\'\" \\\\ \\\"hello world\\\' \'\"hello\"\'");
+    char *expected[] = {"\\\'world\'", "\\", "\"hello", "world\'", "\"hello\"", NULL};
     assert_str_list_eq(res, expected);
     apprun_string_list_free(res);
 
@@ -131,15 +131,15 @@ void test_apprun_shell_split_arguments_with_complex_string() {
 void test_apprun_shell_split_arguments_with_trailing_spaces() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
-    char** res = apprun_shell_split_arguments("'hello' ");
-    char* expected[] = {"hello", NULL};
+    char **res = apprun_shell_split_arguments("'hello' ");
+    char *expected[] = {"hello", NULL};
     assert_str_list_eq(res, expected);
     apprun_string_list_free(res);
 
     printf("OK\n");
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
     test_apprun_shell_expand_variables();
     test_apprun_shell_expand_command_line_arguments();
     test_apprun_shell_expand_command_line_arguments_empty();

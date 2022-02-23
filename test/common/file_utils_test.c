@@ -35,7 +35,7 @@
 void test_apprun_file_read_lines() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
-    char** res = apprun_file_read_lines(TESTS_DIR"/apprun/.env");
+    char **res = apprun_file_read_lines(TESTS_DIR"/apprun/.env");
     assert_true(res != NULL);
 
     assert_str_eq(res[0], "LD_LOADER=libapprun_hooks-amd64.so");
@@ -47,7 +47,7 @@ void test_apprun_file_read_lines() {
 }
 
 void test_resolve_path() {
-    char* result = NULL;
+    char *result = NULL;
     printf("Test resolve full path: ");
 
     result = apprun_resolve_bin_path("/bin/bash");
@@ -63,7 +63,7 @@ void test_resolve_path() {
     free(result);
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
     test_apprun_file_read_lines();
 
     test_resolve_path();

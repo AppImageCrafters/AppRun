@@ -31,10 +31,10 @@
 #include "file_utils.h"
 #include "string_list.h"
 
-char** apprun_read_lines(FILE* fp) {
+char **apprun_read_lines(FILE *fp) {
     int array_len = 1024;
     int count = 0;
-    char** result = apprun_string_list_alloc(array_len);
+    char **result = apprun_string_list_alloc(array_len);
 
     if (fp) {
         size_t len = 0;
@@ -46,7 +46,7 @@ char** apprun_read_lines(FILE* fp) {
             count++;
             if (count == array_len) {
                 array_len = array_len * 2;
-                char** old_array = result;
+                char **old_array = result;
 
                 result = apprun_string_list_alloc(array_len);
                 for (int i = 0; i < count; i++)
@@ -62,10 +62,10 @@ char** apprun_read_lines(FILE* fp) {
     return result;
 }
 
-char** apprun_file_read_lines(const char* filename) {
-    char** result = NULL;
+char **apprun_file_read_lines(const char *filename) {
+    char **result = NULL;
 
-    FILE* fp = fopen(filename, "r");
+    FILE *fp = fopen(filename, "r");
     if (fp) {
         result = apprun_read_lines(fp);
         result = apprun_adjust_string_array_size(result);
@@ -75,8 +75,8 @@ char** apprun_file_read_lines(const char* filename) {
     return result;
 }
 
-void apprun_file_copy(const char* source_path, const char* target_path) {
-    FILE* source, * target;
+void apprun_file_copy(const char *source_path, const char *target_path) {
+    FILE *source, *target;
 
     source = fopen(source_path, "r");
     target = fopen(target_path, "w");

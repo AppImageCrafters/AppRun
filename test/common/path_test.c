@@ -31,7 +31,7 @@
 #include "tests_shared.h"
 
 void test_apprun_resolve_file_name() {
-    char* result = NULL;
+    char *result = NULL;
     fprintf(stderr, "Test resolve full path: ");
 
     result = apprun_resolve_bin_path("/bin/bash");
@@ -58,7 +58,7 @@ void test_apprun_is_path_child_of() {
     fprintf(stdout, "OK\n");
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
     test_apprun_is_path_child_of();
     test_apprun_resolve_file_name();
     return 0;

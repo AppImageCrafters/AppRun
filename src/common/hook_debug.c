@@ -31,10 +31,10 @@
 
 #define BT_BUF_SIZE 100
 
-char* find_hooked_symbol() {
+char *find_hooked_symbol() {
     int nptrs;
-    void* buffer[BT_BUF_SIZE];
-    char** strings;
+    void *buffer[BT_BUF_SIZE];
+    char **strings;
 
     nptrs = backtrace(buffer, BT_BUF_SIZE);
 
@@ -46,21 +46,21 @@ char* find_hooked_symbol() {
         perror("backtrace_symbols");
         exit(EXIT_FAILURE);
     }
-    char* apprun_hooks_entry;
+    char *apprun_hooks_entry;
     for (int j = 0; j < nptrs; j++) {
         if (strstr(strings[j], "libapprun_hooks.so") != NULL) {
             apprun_hooks_entry = strings[j];
         }
     }
 
-    char* symbol_name_being = strstr(apprun_hooks_entry, "(");
+    char *symbol_name_being = strstr(apprun_hooks_entry, "(");
 
     // symbol name lookup is not perfect, in case of failure just return UNKNOWN
     if (symbol_name_being == NULL)
         return strdup("UNKNOWN");
 
-    char* symbol_name_end = strstr(symbol_name_being, "+");
-    char* symbol_name = strndup(symbol_name_being + 1, symbol_name_end - symbol_name_being - 1);
+    char *symbol_name_end = strstr(symbol_name_being, "+");
+    char *symbol_name = strndup(symbol_name_being + 1, symbol_name_end - symbol_name_being - 1);
 
     free(strings);
     return symbol_name;
