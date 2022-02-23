@@ -1,11 +1,3 @@
-add_executable(hooks_test hooks_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
-target_compile_definitions(
-        hooks_test PRIVATE
-        -DHOOKS_LIB_PATH="$<TARGET_FILE:apprun_hooks>"
-)
-target_link_libraries(hooks_test PRIVATE apprun_hooks)
-add_test(NAME TEST_HOOKS COMMAND hooks_test WORKING_DIRECTORY ..)
-
 add_executable(environment_test environment_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
 target_link_libraries(environment_test apprun_hooks)
 add_test(NAME TEST_ENVIRONMENT COMMAND environment_test)
