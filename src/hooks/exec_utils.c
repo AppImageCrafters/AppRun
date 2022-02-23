@@ -31,6 +31,7 @@
 #include <unistd.h>
 
 #include "common/string_list.h"
+#include "common/path.h"
 #include "exec_utils.h"
 #include "environment.h"
 
@@ -111,4 +112,39 @@ void chdir_to_runtime() {
                 "APPRUN_HOOK_WARNING: %s environment variable not set, execution of bundled binaries may fail!\n",
                 APPRUN_ENV_RUNTIME);
     }
+}
+
+apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const *argv, char *const *envp) {
+    char *appdir = getenv("APPDIR");
+
+#ifdef DEBUG
+    fprintf(stderr, "APPRUN_HOOK_DEBUG: APPDIR: %s\n", appdir);
+    fprintf(stderr, "APPRUN_HOOK_DEBUG: ORIGINAL EXEC_ARGS\n");
+    apprun_print_exec_args(filename, argv, envp);
+#endif
+
+    apprun_exec_args_t *res = NULL;
+    res = apprun_duplicate_exec_args(filename, argv);
+
+    int is_nested_path = apprun_is_path_child_of(filename, appdir);
+    if (appdir != NULL && is_nested_path) {
+#ifdef DEBUG
+        fprintf(stderr, "APPRUN_HOOK_DEBUG: USING BUNDLE RUNTIME\n");
+#endif
+        res->envp = apprun_set_original_workdir_env(envp);
+        chdir_to_runtime();
+    } else {
+#ifdef DEBUG
+        fprintf(stderr, "APPRUN_HOOK_DEBUG: USING SYSTEM RUNTIME\n");
+#endif
+        res->envp = apprun_export_envp(envp);
+    }
+
+#ifdef DEBUG
+    fprintf(stderr, "APPRUN_HOOK_DEBUG: APPDIR: %s\n", appdir);
+    fprintf(stderr, "APPRUN_HOOK_DEBUG: REAL EXEC_ARGS\n");
+    apprun_print_exec_args(res->file, res->args, res->envp);
+#endif
+
+    return res;
 }

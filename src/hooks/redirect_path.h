@@ -37,4 +37,5 @@ apprun_redirect_path_target(const char* pathname);
 char*
 apprun_redirect_path_if_absolute(const char* pathname);
 
+char *apprun_exec_adjust_path(const char *filename);
 #endif //APPIMAGEEXECWRAPPER_REDIRECT_PATH_H
