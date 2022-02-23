@@ -1,7 +1,10 @@
 add_executable(hooks_test hooks_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
+target_compile_definitions(
+        hooks_test PRIVATE
+        -DHOOKS_LIB_PATH="$<TARGET_FILE:apprun_hooks>"
+)
+target_link_libraries(hooks_test PRIVATE apprun_hooks)
 add_test(NAME TEST_HOOKS COMMAND hooks_test WORKING_DIRECTORY ..)
-set_tests_properties(TEST_HOOKS PROPERTIES ENVIRONMENT LD_PRELOAD=$<TARGET_FILE:apprun_hooks>)
-add_dependencies(hooks_test apprun_hooks)
 
 add_executable(environment_test environment_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
 target_link_libraries(environment_test apprun_hooks)
@@ -19,7 +22,7 @@ target_compile_definitions(
         -DMAPPED_APPDIR_PATH="${MAPPED_APPDIR_PATH}"
 )
 add_dependencies(hooks_outer_target_test mock.AppDir)
-add_test(NAME TEST_HOOKS_OUTER_TARGET WORKING_DIRECTORY ${APPDIR_MOCK_PATH} COMMAND hooks_outer_target_test )
+add_test(NAME TEST_HOOKS_OUTER_TARGET WORKING_DIRECTORY ${APPDIR_MOCK_PATH} COMMAND hooks_outer_target_test)
 
 # inner target
 add_executable(hooks_inner_target_test inner_target_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
@@ -60,7 +63,7 @@ function(configure_exec_hook_test_case Target)
 
     string(TOUPPER ${Target} TEST_CASE_NAME)
     string(REPLACE "_TEST" "" TEST_CASE_NAME ${TEST_CASE_NAME})
-    add_test(NAME TEST_${TEST_CASE_NAME} WORKING_DIRECTORY ${APPDIR_MOCK_PATH} COMMAND ${Target} )
+    add_test(NAME TEST_${TEST_CASE_NAME} WORKING_DIRECTORY ${APPDIR_MOCK_PATH} COMMAND ${Target})
 endfunction()
 
 add_executable(execv_hook_on_inner_target_test inner_target_exec_hooks_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)

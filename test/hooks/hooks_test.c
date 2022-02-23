@@ -57,24 +57,10 @@ void test_keep_appdir_env_for_internal_binaries() {
     fprintf(stdout, "Ok\n");
 }
 
-void setup_wrapper() {
-    char *wrapper_path = getenv("LD_PRELOAD");
-
-    if (wrapper_path == NULL) {
-        fprintf(stdout, "Error: Missing LD_PRELOAD\n"
-                        "\nUsage:\n"
-                        "\tLD_PRELOAD=<libappdir-apprun-wrapper.so> ./wrapper_test\n");
-        exit(1);
-    }
-
-    setenv("APPRUN_ORIGINAL_LD_PRELOAD", "", 0);
-    setenv("APPRUN_STARTUP_LD_PRELOAD", wrapper_path, 0);
-    setenv(APPRUN_ENV_RUNTIME, "/", 1);
-}
-
 void test_path_mappings() {
     fprintf(stdout, "%s: ", __FUNCTION__);
 
+    set_private_env("APPDIR", "/usr");
     set_private_env("APPRUN_PATH_MAPPINGS", "/missing_path:/bin/;/missing_path:/usr/;");
 
     assert_command_succeed(system("/usr/bin/stat /missing_path/bash >> /dev/null"));
@@ -129,7 +115,8 @@ void test_cwd_to_runtime() {
 
 
 int main(int argc, char **argv) {
-    setup_wrapper();
+    set_private_env("LD_PRELOAD", HOOKS_LIB_PATH);
+    set_private_env(APPRUN_ENV_RUNTIME, "/");
 
     test_keep_appdir_env_for_internal_binaries();
     test_cwd_to_runtime();
