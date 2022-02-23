@@ -48,7 +48,9 @@ char *find_hooked_symbol() {
     }
     char *apprun_hooks_entry;
     for (int j = 0; j < nptrs; j++) {
-        if (strstr(strings[j], "libapprun_hooks.so") != NULL) {
+        if ((strstr(strings[j], "libapprun_hooks.so") != NULL)
+            && (strstr(strings[j], "__libc_start_main") == NULL)
+            && (strstr(strings[j], "main_hook") == NULL)) {
             apprun_hooks_entry = strings[j];
         }
     }
