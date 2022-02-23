@@ -480,5 +480,9 @@ realpath(const char *path, char *resolved_path) {
     if (resolved_path == NULL && result == NULL)
         free(_resolved_path);
 
+    // set an empty string on resolved_path in case of NULL result
+    if (resolved_path != NULL && result == NULL)
+        resolved_path[0] = 0;
+
     return result;
 }
