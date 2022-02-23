@@ -108,14 +108,6 @@ char *redirect_path_full(const char *pathname, int check_parent, int only_if_abs
         return strdup(pathname);
     }
 
-    char *appdir_env = getenv(APPRUN_ENV_APPDIR);
-    if (appdir_env == NULL) {
-#ifdef DEBUG
-        fprintf(stderr, "\n");
-#endif
-        return strdup(pathname);
-    }
-
     // ensure that path mappings are loaded
     apprun_load_path_mappings();
     if (apprun_path_mappings_size == 0) {
