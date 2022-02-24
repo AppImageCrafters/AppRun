@@ -25,48 +25,28 @@
  **************************************************************************/
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <common/string_list.h>
 
 #include "tests_shared.h"
 #include "common/file_utils.h"
-#include "common/path.h"
 
 void test_apprun_file_read_lines() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
-    char **res = apprun_file_read_lines(TESTS_DIR"/apprun/.env");
+    char **res = apprun_file_read_lines(APPDIR_MOCK_PATH"/AppRun.env");
     assert_true(res != NULL);
 
-    assert_str_eq(res[0], "LD_LOADER=libapprun_hooks-amd64.so");
-    assert_str_eq(res[1], "PATH=$APPDIR/bin:$PATH");
+    assert_str_eq(res[0], "APPDIR="APPDIR_MOCK_PATH);
+    assert_str_eq(res[1], "LD_PRELOAD=libapprun_hooks.so");
 
     apprun_string_list_free(res);
 
     printf("Ok\n");
 }
 
-void test_resolve_path() {
-    char *result = NULL;
-    printf("Test resolve full path: ");
-
-    result = apprun_resolve_bin_path("/bin/bash");
-    assert_str_eq("/bin/bash", result);
-    printf("Ok\n");
-    free(result);
-
-    printf("Test resolve relative path: ");
-    result = apprun_resolve_bin_path("bash");
-    assert_str_eq("/bin/bash", result);
-
-    printf("Ok\n");
-    free(result);
-}
-
 int main(int argc, char **argv) {
     test_apprun_file_read_lines();
 
-    test_resolve_path();
     return 0;
 }
 

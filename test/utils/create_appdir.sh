@@ -85,11 +85,10 @@ LD_PATHS="$APPDIR:$LD_PATHS"
 
 # deploy AppRun
 cp "$APPRUN" "$APPDIR"
-echo "APPDIR=$APPDIR/
-APPIMAGE_UUID=khOEqNr
+echo "APPDIR=$APPDIR
+LD_PRELOAD=libapprun_hooks.so
 EXEC_PATH=\$APPDIR/$BASH_BIN
 EXEC_ARGS=\$@
 APPRUN_LD_PATHS=lib64/ld-linux-x86-64.so.2;
 LIBC_LIBRARY_PATH=$LD_PATHS
-LD_PRELOAD=libapprun_hooks.so
 " >"$APPDIR/AppRun.env"
