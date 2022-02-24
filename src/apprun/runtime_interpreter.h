@@ -37,7 +37,7 @@
 
 char *resolve_runtime_path(char const *prefix);
 
-char *resolve_linker_path(char *relpath, char const *prefix);
+char *resolve_linker_path(char const *prefix, char *relpath);
 
 long compare_version_strings(char *a, char *b);
 

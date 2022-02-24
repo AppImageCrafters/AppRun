@@ -128,11 +128,8 @@ char *redirect_path_full(const char *pathname, int check_parent, int only_if_abs
             const char *mapping = apprun_path_mappings[i]->mapping;
             const char *path_postfix = pathname + strlen(apprun_path_mappings[i]->path);
 
-            strcat(redirected_pathname, mapping);
-            if (mapping[strlen(mapping) - 1] != '/' && path_postfix[0] != '/')
-                strcat(redirected_pathname, "/");
-
-            strcat(redirected_pathname, path_postfix);
+            apprun_concat_path(redirected_pathname, mapping);
+            apprun_concat_path(redirected_pathname, path_postfix);
 
             ret = _access(redirected_pathname, F_OK);
             if (ret == 0 || errno == ENOTDIR) { // ENOTDIR is OK because it exists at least

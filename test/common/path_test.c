@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <linux/limits.h>
 
 #include "common/path.h"
 #include "tests_shared.h"
@@ -88,6 +89,25 @@ void test_apprun_is_path_child_of_on_mapped_paths() {
     fprintf(stdout, "OK\n");
 }
 
+void test_apprun_concat_path() {
+    fprintf(stdout, "%s: ", __FUNCTION__);
+
+    char res[PATH_MAX] = {0x0};
+    apprun_concat_path(res, "/");
+    assert_str_eq(res, "/");
+
+    apprun_concat_path(res, "/AppDir");
+    assert_str_eq(res, "/AppDir");
+
+    apprun_concat_path(res, "usr/");
+    assert_str_eq(res, "/AppDir/usr/");
+
+    apprun_concat_path(res, "/bin/");
+    assert_str_eq(res, "/AppDir/usr/bin/");
+
+    fprintf(stdout, "OK\n");
+}
+
 int main(int argc, char **argv) {
     test_apprun_resolve_absolute_bin_path();
     test_apprun_resolve_bin_filename();
@@ -95,6 +115,8 @@ int main(int argc, char **argv) {
     test_apprun_is_path_child_of_on_existent_paths();
     test_apprun_is_path_child_of_on_non_existent_paths();
     test_apprun_is_path_child_of_on_mapped_paths();
+
+    test_apprun_concat_path();
     return 0;
 }
 
