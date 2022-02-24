@@ -31,19 +31,24 @@
 #include "common/path.h"
 #include "tests_shared.h"
 
-void test_apprun_resolve_absolute_path() {
+void test_apprun_resolve_absolute_bin_path() {
     char *result = NULL;
     fprintf(stderr, "%s: ", __FUNCTION__);
 
+    char *orig_path = strdup(getenv("PATH"));
+    setenv("PATH", APPDIR_MOCK_PATH"/usr/bin", 1);
+
     result = apprun_resolve_bin_path(APPDIR_MOCK_PATH"/bin/bash");
-    assert_str_eq(APPDIR_MOCK_PATH"/bin/bash", result);
-    fprintf(stderr, "Ok\n");
-    free(result);
+    assert_str_eq(APPDIR_MOCK_PATH"/usr/bin/bash", result);
 
     fprintf(stderr, "Ok\n");
+
+    setenv("PATH", orig_path, 1);
+    free(result);
+    free(orig_path);
 }
 
-void test_apprun_resolve_relative_path() {
+void test_apprun_resolve_bin_filename() {
     char *result = NULL;
     fprintf(stderr, "%s: ", __FUNCTION__);
 
@@ -84,8 +89,8 @@ void test_apprun_is_path_child_of_on_mapped_paths() {
 }
 
 int main(int argc, char **argv) {
-    test_apprun_resolve_absolute_path();
-    test_apprun_resolve_relative_path();
+    test_apprun_resolve_absolute_bin_path();
+    test_apprun_resolve_bin_filename();
 
     test_apprun_is_path_child_of_on_existent_paths();
     test_apprun_is_path_child_of_on_non_existent_paths();
