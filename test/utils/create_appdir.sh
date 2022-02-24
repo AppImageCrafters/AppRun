@@ -64,6 +64,10 @@ BASH_BIN=$(which bash)
 mkdir -p "$(dirname "$APPDIR/$BASH_BIN")"
 cp "$BASH_BIN" "$APPDIR/$BASH_BIN"
 
+BASH_BIN_BASENAME=$(basename "$BASH_BIN")
+mkdir -p "$APPDIR/bin"
+ln -sf "$APPDIR/$BASH_BIN" "$APPDIR/bin/$BASH_BIN_BASENAME"
+
 # make bash linker path relative
 LINKER=$(patchelf --print-interpreter "$BASH_BIN")
 patchelf --set-interpreter "${LINKER:1}" "$APPDIR/$BASH_BIN"
