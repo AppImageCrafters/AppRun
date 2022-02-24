@@ -9,8 +9,11 @@ add_executable(
         tests_shared.c
         $<TARGET_OBJECTS:common_objects>
 )
-
-target_compile_definitions(file_utils_test PRIVATE "TESTS_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/..\"")
+target_compile_definitions(
+        file_utils_test PRIVATE
+        "TESTS_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/..\""
+        "APPDIR_MOCK_PATH=\"${APPDIR_MOCK_PATH}\""
+)
 
 add_test(NAME TEST_FILE_UTILS COMMAND file_utils_test)
 
