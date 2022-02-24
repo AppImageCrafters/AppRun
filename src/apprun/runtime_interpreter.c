@@ -40,6 +40,7 @@
 
 #include "runtime_interpreter.h"
 #include "runtime_environment.h"
+#include "common/path.h"
 
 
 char *parse_ld_trace_line_path(const char *line) {
@@ -176,8 +177,8 @@ void setup_runtime() {
     char *linkers = strdup(getenv(LD_PATHS_ENV));
     char *ld_relpath = strtok(linkers, LD_PATHS_ENV_SEPARATOR);
     if (ld_relpath != NULL) {
-        char *compat_ld_path = resolve_linker_path(ld_relpath, COMPAT_RUNTIME_PREFIX);
-        char *default_ld_path = resolve_linker_path(ld_relpath, DEFAULT_RUNTIME_PREFIX);
+        char *compat_ld_path = resolve_linker_path(COMPAT_RUNTIME_PREFIX, ld_relpath);
+        char *default_ld_path = resolve_linker_path(DEFAULT_RUNTIME_PREFIX, ld_relpath);
 
         char *system_ld_version = read_ld_version(default_ld_path);
         char *appdir_ld_version = read_ld_version(compat_ld_path);
@@ -209,28 +210,31 @@ char *resolve_runtime_path(const char *prefix) {
     char *appdir = require_environment("APPDIR");
     int appdir_len = strlen(appdir);
     int runtime_prefix_len = strlen(prefix);
+    int extra_slash_len = 1;
 
-    int path_len = appdir_len + runtime_prefix_len + 1;
+    int path_len = appdir_len + extra_slash_len + runtime_prefix_len + 1;
     char *path = calloc(path_len, sizeof(char));
     memset(path, 0, path_len);
-    strcat(path, appdir);
-    strcat(path, prefix);
+
+    apprun_concat_path(path, appdir);
+    apprun_concat_path(path, prefix);
 
     return path;
 }
 
-char *resolve_linker_path(char *relpath, char const *prefix) {
+char *resolve_linker_path(char const *prefix, char *relpath) {
     char *appdir = require_environment("APPDIR");
     int appdir_len = strlen(appdir);
     int runtime_prefix_len = strlen(prefix);
     int relpath_len = strlen(relpath);
+    int extra_slash_len = 1;
 
-    int path_len = appdir_len + runtime_prefix_len + relpath_len + 1;
+    int path_len = appdir_len + extra_slash_len + runtime_prefix_len + extra_slash_len + relpath_len + 1;
     char *path = calloc(path_len, sizeof(char));
     memset(path, 0, path_len);
-    strcat(path, appdir);
-    strcat(path, prefix);
-    strcat(path, relpath);
+    apprun_concat_path(path, appdir);
+    apprun_concat_path(path, prefix);
+    apprun_concat_path(path, relpath);
 
     return path;
 }

@@ -114,3 +114,23 @@ bool apprun_is_path_child_of(const char *path, const char *base) {
 #endif
     return result;
 }
+
+void apprun_concat_path(char *dest, const char *path) {
+    unsigned long path_len = strlen(path);
+    unsigned long dest_len = strlen(dest);
+    unsigned long j = dest_len;
+
+    if (j > 0 && dest[j - 1] == '/')
+        j--;
+
+    if (dest[j] == '\0')
+        dest[j] = '/';
+
+    // copy str avoiding repeated slashes
+    for (int i = 0; i <= path_len; i++) {
+        if (!(dest[j] == '/' && path[i] == '/'))
+            j++;
+
+        dest[j] = path[i];
+    }
+}

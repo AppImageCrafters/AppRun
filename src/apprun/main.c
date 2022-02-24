@@ -39,6 +39,7 @@
 
 #include "runtime_environment.h"
 #include "runtime_interpreter.h"
+#include "common/path.h"
 
 #define die(...)                                    \
     do {                                            \
@@ -111,7 +112,7 @@ char *find_module_env_file(char *apprun_path) {
     char *possible_path = malloc(possible_path_len);
     memset(possible_path, 0, possible_path_len);
 
-    strcat(possible_path, apprun_path);
+    apprun_concat_path(possible_path, apprun_path);
     strncat(possible_path, apprun_env_extension, apprun_env_extension_len);
 
 #ifdef DEBUG

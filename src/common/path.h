@@ -34,5 +34,6 @@ char *apprun_resolve_bin_path(char const *bin);
 
 bool apprun_is_path_child_of(const char *path, const char *base);
 
+void apprun_concat_path(char *dest, const char *path);
 
 #endif //APPRUN_PATH_H
