@@ -1,1 +1,0 @@
-../../../tooling/docker/Dockerfile.x86_64

@@ -22,9 +22,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build
-        uses: ./.github/actions/build-x86_64-in-docker
-        with:
-          build_type: ${{ env.BUILD_TYPE }}
+        run: tooling/build-in-docker.sh ${{ env.BUILD_TYPE }}
 
       - name: Check result
         run: ls -la
