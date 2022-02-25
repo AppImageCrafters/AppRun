@@ -26,17 +26,11 @@ else
   fi
 fi
 
-if [ "$TARGET_ARCH" == "x86_64" ]; then
-  export BUILD_TESTING=True
-else
-  export BUILD_TESTING=False
-fi
-
 BUILD_DIR=$PROJECT_SRCS/cmake-build-"$BUILD_TYPE"-"$TARGET_ARCH"
 rm -rf "$BUILD_DIR" || true
 mkdir -p "$BUILD_DIR" && cd "$BUILD_DIR" || exit 1
 
 cmake "$PROJECT_SRCS" -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
-  -DBUILD_TESTING=$BUILD_TESTING -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN_PATH"
+  -DBUILD_TESTING=True -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN_PATH"
 
 cmake --build .
