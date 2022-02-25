@@ -5,14 +5,20 @@ if [ -z "$APPDIR" ]; then
   echo "Missing AppDir path"
   exit 1
 fi
+BUILD_DIR="$2"
+if [ -z "$BUILD_DIR" ]; then
+  echo "Missing BUILD_DIR path"
+  exit 1
+fi
 
-APPRUN="$2"
+APPRUN=$(find "$BUILD_DIR/src" -name AppRun | head -n 1)
+APPRUN_HOOKS=$(find "$BUILD_DIR/src" -name libapprun_hooks.so | head -n 1)
+
 if [ -z "$APPRUN" ]; then
   echo "Missing AppRun path"
   exit 1
 fi
 
-APPRUN_HOOKS="$3"
 if [ -z "$APPRUN_HOOKS" ]; then
   echo "Missing libapprun_hooks.so path"
   exit 1
