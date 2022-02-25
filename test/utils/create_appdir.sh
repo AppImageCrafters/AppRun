@@ -13,6 +13,7 @@ fi
 
 APPRUN=$(find "$BUILD_DIR/src" -name AppRun | head -n 1)
 APPRUN_HOOKS=$(find "$BUILD_DIR/src" -name libapprun_hooks.so | head -n 1)
+TARGET_BIN=$(find "$BUILD_DIR/test" -name hooks_inner_target_test | head -n 1)
 
 if [ -z "$APPRUN" ]; then
   echo "Missing AppRun path"
@@ -21,6 +22,11 @@ fi
 
 if [ -z "$APPRUN_HOOKS" ]; then
   echo "Missing libapprun_hooks.so path"
+  exit 1
+fi
+
+if [ -z "$TARGET_BIN" ]; then
+  echo "Missing TARGET_BIN path"
   exit 1
 fi
 
@@ -65,39 +71,31 @@ function create_default_runtime() {
 RUNTIME_COMPAT_DIR="$APPDIR/runtime/compat"
 RUNTIME_DEFAULT_DIR="$APPDIR/runtime/default"
 
-# deploy bash
+# deploy binaries
+mkdir -p "$APPDIR/bin/" "$APPDIR/usr/bin/" "$APPDIR/lib/"
+
+DEPLOYED_BIN_PATH="$APPDIR/usr/bin/app"
+DEPLOYED_BIN_SYMLINK_PATH="$APPDIR/bin/app"
+
 BASH_BIN=$(which bash)
-mkdir -p "$(dirname "$APPDIR/$BASH_BIN")"
-cp "$BASH_BIN" "$APPDIR/$BASH_BIN"
+cp "$TARGET_BIN" "$DEPLOYED_BIN_PATH"
+ln -sf "$DEPLOYED_BIN_PATH" "$DEPLOYED_BIN_SYMLINK_PATH"
 
-BASH_BIN_BASENAME=$(basename "$BASH_BIN")
-mkdir -p "$APPDIR/bin"
-ln -sf "$APPDIR/$BASH_BIN" "$APPDIR/bin/$BASH_BIN_BASENAME"
-
-# make bash linker path relative
-LINKER=$(patchelf --print-interpreter "$BASH_BIN")
-patchelf --set-interpreter "${LINKER:1}" "$APPDIR/$BASH_BIN"
-
-# deploy pwd
-PWD_BIN=$(which pwd)
-mkdir -p "$(dirname "$APPDIR/$PWD_BIN")"
-cp "$PWD_BIN" "$APPDIR/$PWD_BIN"
-
-# make pwd linker path relative
-LINKER=$(patchelf --print-interpreter "$PWD_BIN")
-patchelf --set-interpreter "${LINKER:1}" "$APPDIR/$PWD_BIN"
+# read linker path from bin
+LINKER=$(patchelf --print-interpreter "$DEPLOYED_BIN_PATH")
+patchelf --set-interpreter "${LINKER:1}" "$DEPLOYED_BIN_PATH"
 
 LD_PATHS=$(create_compat_runtime)
 create_default_runtime
 
-cp "$APPRUN_HOOKS" "$APPDIR"
-LD_PATHS="$APPDIR:$LD_PATHS"
+cp "$APPRUN_HOOKS" "$APPDIR/lib/"
+LD_PATHS="$APPDIR/lib:$LD_PATHS"
 
 # deploy AppRun
 cp "$APPRUN" "$APPDIR"
 echo "APPDIR=$APPDIR
 LD_PRELOAD=libapprun_hooks.so
-EXEC_PATH=\$APPDIR/$BASH_BIN
+EXEC_PATH=\$APPDIR/usr/bin/app
 EXEC_ARGS=\$@
 APPRUN_LD_PATHS=lib64/ld-linux-x86-64.so.2;
 LIBC_LIBRARY_PATH=$LD_PATHS
