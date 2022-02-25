@@ -36,7 +36,7 @@ void test_apprun_file_read_lines() {
     char **res = apprun_file_read_lines(APPDIR_MOCK_PATH"/AppRun.env");
     assert_true(res != NULL);
 
-    assert_str_eq(res[0], "APPDIR="APPDIR_MOCK_PATH);
+    assert_str_eq(res[0], "APPDIR=$ORIGIN");
     assert_str_eq(res[1], "LD_PRELOAD=libapprun_hooks.so");
 
     apprun_string_list_free(res);

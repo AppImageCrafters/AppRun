@@ -90,10 +90,11 @@ create_default_runtime
 
 cp "$APPRUN_HOOKS" "$APPDIR/lib/"
 LD_PATHS="$APPDIR/lib:$LD_PATHS"
+LD_PATHS="${LD_PATHS/$APPDIR/\$APPDIR}"
 
 # deploy AppRun
 cp "$APPRUN" "$APPDIR"
-echo "APPDIR=$APPDIR
+echo "APPDIR=\$ORIGIN
 LD_PRELOAD=libapprun_hooks.so
 EXEC_PATH=\$APPDIR/usr/bin/app
 EXEC_ARGS=\$@
