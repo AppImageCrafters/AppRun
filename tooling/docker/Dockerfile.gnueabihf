@@ -19,6 +19,8 @@ RUN echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports xenia
 RUN echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports xenial-updates main restricted multiverse universe" | tee -a /etc/apt/sources.list;
 RUN echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports xenial-security main restricted multiverse universe" | tee -a /etc/apt/sources.list;
 RUN apt-get update -y || true;
-RUN apt-get install -y crossbuild-essential-$TARGET_DEB_ARCH;
+RUN apt-get install -y crossbuild-essential-$TARGET_DEB_ARCH check:$TARGET_DEB_ARCH
+
+ENV PKG_CONFIG_PATH=/usr/lib/arm-linux-gnueabihf/pkgconfig/
 
 WORKDIR "/src"
