@@ -27,4 +27,4 @@ else
 fi
 
 BUILD_DIR=$PROJECT_SRCS/cmake-build-"$BUILD_TYPE"-"$TARGET_ARCH"
-ctest --test-dir "$BUILD_DIR"
+ctest --test-dir "$BUILD_DIR" --verbose
