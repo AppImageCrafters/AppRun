@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        TARGET_ARCH: [ x86_64 ]
+        TARGET_ARCH: [ i386, x86_64 ]
         BUILD_TYPE: [ Release ]
     env:
       BUILD_TYPE: ${{ matrix.BUILD_TYPE }}
@@ -25,7 +25,7 @@ jobs:
         run: tooling/build-in-docker.sh ${{ env.BUILD_TYPE }}
 
       - name: Test ${{ matrix.BUILD_TYPE }} ${{ matrix.TARGET_ARCH }}
-        if: ${{ env.TARGET_ARCH == 'x86_64' }}
+        if: ${{ env.TARGET_ARCH == 'x86_64' || env.TARGET_ARCH == 'i386' }}
         run: tooling/test-in-docker.sh ${{ env.BUILD_TYPE }}
 
       - name: Prepare artifacts
