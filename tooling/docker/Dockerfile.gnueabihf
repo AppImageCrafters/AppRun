@@ -1,7 +1,7 @@
 FROM ubuntu:16.04
 
 RUN apt-get update
-RUN apt-get install -y check g++ pkg-config apt-transport-https wget patchelf g++-multilib
+RUN apt-get install -y check g++ pkg-config apt-transport-https wget patchelf g++-multilib qemu-user-binfmt
 
 ### install latest cmake from Kitware ppa
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
