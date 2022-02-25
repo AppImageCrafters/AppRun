@@ -79,7 +79,7 @@ DEPLOYED_BIN_SYMLINK_PATH="$APPDIR/bin/app"
 
 BASH_BIN=$(which bash)
 cp "$TARGET_BIN" "$DEPLOYED_BIN_PATH"
-ln -sf "$DEPLOYED_BIN_PATH" "$DEPLOYED_BIN_SYMLINK_PATH"
+ln -sf "../usr/bin/app" "$DEPLOYED_BIN_SYMLINK_PATH"
 
 # read linker path from bin
 LINKER=$(patchelf --print-interpreter "$DEPLOYED_BIN_PATH")
