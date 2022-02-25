@@ -1,0 +1,12 @@
+name: build-x86_64-in-docker
+description: 'Compile AppRun using docker containers'
+inputs:
+  build_type:
+    description: 'Build type ( Debug | Release )'
+    required: true
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  entrypoint: 'tooling/build.sh'
+  args:
+    -  ${{ inputs.build_type }}
