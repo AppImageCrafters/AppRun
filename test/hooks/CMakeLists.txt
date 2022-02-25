@@ -40,7 +40,7 @@ function(configure_exec_hook_test_case Target)
             -DAPPDIR_MOCK="${APPDIR_MOCK_PATH}"
             -DMAPPED_APPDIR_PATH="${MAPPED_APPDIR_PATH}"
             -DHOOKS_LIB_PATH="$<TARGET_FILE:apprun_hooks>"
-            -DINNER_TARGET="${APPDIR_MOCK_PATH}/$<TARGET_FILE_BASE_NAME:hooks_inner_target_test>"
+            -DINNER_TARGET="${APPDIR_MOCK_PATH}/bin/app"
             -DOUTER_TARGET="$<TARGET_FILE:hooks_outer_target_test>"
     )
     target_link_libraries(${Target} PRIVATE apprun_hooks)
