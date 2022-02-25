@@ -12,6 +12,13 @@ RUN rm /usr/share/keyrings/kitware-archive-keyring.gpg && apt-get install kitwar
 RUN apt-get install -y cmake
 
 ENV TARGET_ARCH=i386
+ENV TARGET_DEB_ARCH="i386"
 ENV CFLAGS=-m32
+
+RUN dpkg --add-architecture $TARGET_DEB_ARCH
+RUN apt-get update
+RUN apt-get install -y check:$TARGET_DEB_ARCH
+
+ENV PKG_CONFIG_PATH=/usr/lib/$TARGET_DEB_ARCH-linux-gnu/pkgconfig
 
 WORKDIR "/src"
