@@ -24,5 +24,24 @@ jobs:
       - name: Build
         run: tooling/build-in-docker.sh ${{ env.BUILD_TYPE }}
 
-      - name: Check result
-        run: ls -la
+      - run: find $PWD
+
+      - name: Test ${{ matrix.TARGET_ARCH }}
+        working-directory: cmake-build-${{ env.BUILD_TYPE }}-${{ env.TARGET_ARCH }}
+        if: ${{ env.TARGET_ARCH == 'x86_64' }}
+        shell: bash
+        run: ctest -C $BUILD_TYPE
+
+      - name: Prepare artifacts
+        shell: bash
+        working-directory: cmake-build-${{ env.BUILD_TYPE }}-${{ env.TARGET_ARCH }}
+        run: |
+          mkdir -p ../dist
+          cp src/apprun/AppRun ../dist/AppRun-$BUILD_TYPE-$TARGET_ARCH
+          cp src/hooks/libapprun_hooks.so ../dist/libapprun_hooks-$BUILD_TYPE-$TARGET_ARCH.so
+
+      - name: Upload Artifacts ${{ env.TARGET_ARCH }}
+        uses: actions/upload-artifact@v2.1.4
+        with:
+          name: artifacts
+          path: ${{runner.workspace}}/dist/*
