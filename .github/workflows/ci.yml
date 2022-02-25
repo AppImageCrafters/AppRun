@@ -21,16 +21,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Build
+      - name: Build ${{ matrix.BUILD_TYPE }} ${{ matrix.TARGET_ARCH }}
         run: tooling/build-in-docker.sh ${{ env.BUILD_TYPE }}
 
-      - run: find $PWD
-
-      - name: Test ${{ matrix.TARGET_ARCH }}
-        working-directory: cmake-build-${{ env.BUILD_TYPE }}-${{ env.TARGET_ARCH }}
+      - name: Test ${{ matrix.BUILD_TYPE }} ${{ matrix.TARGET_ARCH }}
         if: ${{ env.TARGET_ARCH == 'x86_64' }}
-        shell: bash
-        run: ctest -C $BUILD_TYPE
+        run: tooling/test-in-docker.sh ${{ env.BUILD_TYPE }}
 
       - name: Prepare artifacts
         shell: bash
@@ -44,4 +40,4 @@ jobs:
         uses: actions/upload-artifact@v2.1.4
         with:
           name: artifacts
-          path: ${{runner.workspace}}/dist/*
+          path: ./dist/*
