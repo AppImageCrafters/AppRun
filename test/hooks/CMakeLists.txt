@@ -23,7 +23,7 @@ target_compile_definitions(
         -DEXPECTED_WORKDIR="${APPDIR_MOCK_PATH}"
         -DMAPPED_APPDIR_PATH="${MAPPED_APPDIR_PATH}"
 )
-add_dependencies(hooks_inner_target_test mock.AppDir)
+
 add_test(NAME TEST_HOOKS_INNER_TARGET COMMAND hooks_inner_target_test WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 set_tests_properties(
         TEST_HOOKS_INNER_TARGET PROPERTIES ENVIRONMENT "\
@@ -32,14 +32,6 @@ LD_PRELOAD=$<TARGET_FILE:apprun_hooks>;\
 APPRUN_CWD=${APPDIR_MOCK_PATH};\
 APPRUN_PATH_MAPPINGS=${MAPPED_APPDIR_PATH}:${APPDIR_MOCK_PATH}\;\
 "
-)
-
-# copy resulting binary into the AppDir and patch linker
-add_custom_command(
-        TARGET hooks_inner_target_test POST_BUILD
-        COMMAND cp $<TARGET_FILE:hooks_inner_target_test> ${APPDIR_MOCK_PATH}
-        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/../utils/make_bin_linker_path_relative.sh ${APPDIR_MOCK_PATH}/$<TARGET_FILE_BASE_NAME:hooks_inner_target_test>
-        VERBATIM
 )
 
 function(configure_exec_hook_test_case Target)
