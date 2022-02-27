@@ -27,9 +27,9 @@
 
 
 /* Trampoline for the real main() */
-static int (*main_orig)(int, char **, char **);
+static int (*apprun_main_orig)(int, char **, char **);
 
-void restore_workdir() {
+void apprun_restore_workdir() {
     char const *original_pwd = getenv(APPRUN_ENV_ORIGINAL_WORKDIR);
     if (original_pwd != NULL) {
 #ifdef DEBUG
@@ -43,8 +43,8 @@ void restore_workdir() {
 
 
 /* Wrapper for main() that gets called by __libc_start_main() */
-int main_hook(int argc, char **argv, char **envp) {
-    restore_workdir();
+int apprun_main_hook(int argc, char **argv, char **envp) {
+    apprun_restore_workdir();
 #ifdef DEBUG
     char exec_path[PATH_MAX] = {0x0};
     realpath("/proc/self/exe", exec_path);
@@ -52,7 +52,7 @@ int main_hook(int argc, char **argv, char **envp) {
     fprintf(stderr, "APPRUN_HOOK_DEBUG: --- Before main %s ---\n", exec_path);
 #endif
 
-    int ret = main_orig(argc, argv, envp);
+    int ret = apprun_main_orig(argc, argv, envp);
 
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_HOOK_DEBUG: --- After main ----\n");
@@ -77,11 +77,11 @@ int __libc_start_main(
         void (*rtld_fini)(void),
         void *stack_end) {
     /* Save the real main function address */
-    main_orig = main;
+    apprun_main_orig = main;
 
     /* Find the real __libc_start_main()... */
     typeof(&__libc_start_main) orig = dlsym(RTLD_NEXT, "__libc_start_main");
 
     /* ... and call it with our custom main function */
-    return orig(main_hook, argc, argv, init, fini, rtld_fini, stack_end);
+    return orig(apprun_main_hook, argc, argv, init, fini, rtld_fini, stack_end);
 }
