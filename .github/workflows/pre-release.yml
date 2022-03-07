@@ -57,5 +57,5 @@ jobs:
           automatic_release_tag: 'continuous'
           prerelease: true
           draft: false
-          files: ${{runner.workspace}}/*
+          files: ./*
           repo_token: ${{ secrets.GITHUB_TOKEN }}
