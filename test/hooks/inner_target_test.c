@@ -107,7 +107,7 @@ void test_realpath_hook_on_nonexistent_path() {
 
     char result[PATH_MAX] = {0x0};
     char *result_ptr = realpath("/non-existent-file", result);
-    assert_str_eq(result, "");
+    assert_str_eq(result, "/non-existent-file");
     assert_true(result_ptr == NULL);
 
     fprintf(stdout, "Ok\n");

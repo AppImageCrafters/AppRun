@@ -33,6 +33,7 @@ APPRUN_CWD=${APPDIR_MOCK_PATH};\
 APPRUN_PATH_MAPPINGS=${MAPPED_APPDIR_PATH}:${APPDIR_MOCK_PATH}\;\
 "
 )
+add_dependencies(hooks_inner_target_test apprun_hooks)
 
 function(configure_exec_hook_test_case Target)
     target_compile_definitions(
