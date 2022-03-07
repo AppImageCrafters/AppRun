@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        TARGET_ARCH: [ i386, x86_64 ]
-        BUILD_TYPE: [ Release ]
+        TARGET_ARCH: [ i386, x86_64, gnueabihf, aarch64 ]
+        BUILD_TYPE: [ Debug, Release ]
     env:
       BUILD_TYPE: ${{ matrix.BUILD_TYPE }}
       TARGET_ARCH: ${{ matrix.TARGET_ARCH }}
