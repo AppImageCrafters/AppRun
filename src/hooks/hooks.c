@@ -460,29 +460,48 @@ dlopen(const char *path, int mode) {
     return result;
 }
 
-char *
-realpath(const char *path, char *resolved_path) {
-    char *(*_realpath)(const char *, char *);
-    char *new_path = NULL;
+char *__realpath_chk(const char *__restrict name,
+                     char *__restrict resolved,
+                     size_t resolvedlen) {
+    char *_name = NULL;
     char *result;
-    _realpath = (char *(*)(const char *, char *)) dlsym(RTLD_NEXT, "realpath");
-    new_path = apprun_redirect_path(path);
+    _name = apprun_redirect_path(name);
 
-    // The  resolved_path == NULL feature, not standardized in POSIX.1-2001, but standardized in POSIX.1-2008.
+    // The  resolved == NULL feature, not standardized in POSIX.1-2001, but standardized in POSIX.1-2008.
     // Try to follow the POSIX.1-2008 standard
-    char *_resolved_path = resolved_path;
-    if (_resolved_path == NULL)
-        _resolved_path = malloc(PATH_MAX);
+    char *_resolved = resolved;
+    if (_resolved == NULL)
+        _resolved = malloc(PATH_MAX);
 
-    result = _realpath(new_path, _resolved_path);
-    free(new_path);
+    char *(*_realpath_chk)(const char *, char *, size_t);
+    _realpath_chk = (char *(*)(const char *, char *, size_t)) dlsym(RTLD_NEXT, "__realpath_chk");
+    result = _realpath_chk(_name, _resolved, resolvedlen);
+    free(_name);
 
-    if (resolved_path == NULL && result == NULL)
-        free(_resolved_path);
+    if (resolved == NULL && result == NULL)
+        free(_resolved);
 
-    // set an empty string on resolved_path in case of NULL result
-    if (resolved_path != NULL && result == NULL)
-        resolved_path[0] = 0;
+    return result;
+}
+
+char *realpath(const char *__restrict name, char *__restrict resolved) {
+    char *_name = NULL;
+    char *result;
+    _name = apprun_redirect_path(name);
+
+    // The resolved == NULL feature, not standardized in POSIX.1-2001, but standardized in POSIX.1-2008.
+    // Try to follow the POSIX.1-2008 standard
+    char *_resolved = resolved;
+    if (_resolved == NULL)
+        _resolved = malloc(PATH_MAX);
+
+    char *(*_realpath)(const char *, char *);
+    _realpath = (char *(*)(const char *, char *)) dlsym(RTLD_NEXT, "realpath");
+    result = _realpath(_name, _resolved);
+    free(_name);
+
+    if (resolved == NULL && result == NULL)
+        free(_resolved);
 
     return result;
 }

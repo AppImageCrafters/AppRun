@@ -75,7 +75,6 @@ void apprun_load_path_mappings() {
             mapping = malloc(sizeof(apprun_path_mapping));
             mapping->path = strndup(str_itr, colon_pos - str_itr);
             mapping->mapping = strndup(colon_pos + 1, semicolon_pos - colon_pos - 1);
-
             apprun_path_mappings[i] = mapping;
         }
 
@@ -122,7 +121,8 @@ char *redirect_path_full(const char *pathname, int check_parent, int only_if_abs
 
     redirected_pathname = malloc(PATH_MAX);
     for (int i = 0; i < apprun_path_mappings_size; i++) {
-        if (strncmp(pathname, apprun_path_mappings[i]->path, strlen(apprun_path_mappings[i]->path)) == 0) {
+        int path_mapping_len = strlen(apprun_path_mappings[i]->path);
+        if (strncmp(pathname, apprun_path_mappings[i]->path, path_mapping_len) == 0) {
             memset(redirected_pathname, 0, PATH_MAX);
 
             const char *mapping = apprun_path_mappings[i]->mapping;
