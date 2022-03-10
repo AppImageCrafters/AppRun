@@ -122,7 +122,7 @@ char *read_ld_version(char *path) {
     return strdup(version);
 }
 
-long compare_version_strings(char *a, char *b) {
+long compare_version_strings(const char *a, const char *b) {
     if (a == NULL || b == NULL)
         return a - b;
 
