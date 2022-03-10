@@ -32,6 +32,7 @@
 #include <unistd.h>
 #include <memory.h>
 #include <limits.h>
+#include <gnu/libc-version.h>
 
 #include "common/file_utils.h"
 #include "common/string_list.h"
@@ -180,8 +181,8 @@ void setup_runtime() {
         char *compat_ld_path = resolve_linker_path(COMPAT_RUNTIME_PREFIX, ld_relpath);
         char *default_ld_path = resolve_linker_path(DEFAULT_RUNTIME_PREFIX, ld_relpath);
 
-        char *system_ld_version = read_ld_version(default_ld_path);
-        char *appdir_ld_version = read_ld_version(compat_ld_path);
+        const char *system_ld_version = gnu_get_libc_version();
+        const char *appdir_ld_version = getenv("APPDIR_LIBC_VERSION");
 
 #ifdef DEBUG
         fprintf(stderr, "APPRUN_DEBUG: interpreter \"%s\" \n", strrchr(ld_relpath, '/') + 1);
