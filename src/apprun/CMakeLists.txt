@@ -18,7 +18,6 @@ add_executable(
         $<TARGET_OBJECTS:common_objects>
 )
 
-target_link_libraries(AppRun -static)
 target_compile_definitions(AppRun PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
 target_include_directories(AppRun PRIVATE $<TARGET_PROPERTY:common_objects,INCLUDE_DIRECTORIES>)
 install(
