@@ -1,3 +1,7 @@
+add_executable(exec_utils_tests ./exec_utils_tests.c)
+target_link_libraries(exec_utils_tests PRIVATE apprun_hooks ${CHECK_LIBRARIES} pthread)
+add_test(NAME TEST_EXEC_UTILS COMMAND exec_utils_tests)
+
 add_executable(environment_test environment_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
 target_link_libraries(environment_test apprun_hooks)
 add_test(NAME TEST_ENVIRONMENT COMMAND environment_test)

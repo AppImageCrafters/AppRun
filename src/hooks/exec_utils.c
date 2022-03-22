@@ -126,8 +126,10 @@ apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const 
     apprun_exec_args_t *res = NULL;
     res = apprun_duplicate_exec_args(filename, argv);
 
-    int is_nested_path = apprun_is_path_child_of(filename, appdir);
-    if (appdir != NULL && is_nested_path) {
+    char *shebang = apprun_read_shebang(filename);
+    if (appdir != NULL &&
+        apprun_is_path_child_of(filename, appdir) &&
+        !apprun_shebang_requires_external_executable(shebang, appdir)) {
 #ifdef DEBUG
         fprintf(stderr, "APPRUN_HOOK_DEBUG: USING BUNDLE RUNTIME\n");
 #endif
@@ -146,5 +148,72 @@ apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const 
     apprun_print_exec_args(res->file, res->args, res->envp);
 #endif
 
+    if (shebang != NULL)
+        free(shebang);
+
     return res;
+}
+
+bool apprun_shebang_requires_external_executable(const char *shebang, const char *appdir) {
+    bool requires_external_interpreter = false;
+    if (shebang != NULL) {
+        char *interp_path = apprun_shebang_extract_interpreter_path(shebang);
+        if (interp_path != NULL) {
+            if (interp_path[0] == '/')
+                requires_external_interpreter = !apprun_is_path_child_of(interp_path, appdir);
+
+            // relative path will be treated as relative to the runtime dir on execution
+        }
+
+        free(interp_path);
+    }
+
+    return requires_external_interpreter;
+}
+
+char *apprun_parse_shebang(char *buf, size_t br) {
+    // check presence of '#!'
+    if (br < 3 || buf[0] != '#' || buf[1] != '!')
+        return NULL;
+
+    // find start of the shebang content excluding empty spaces
+    int start = 2;
+    while (start < br && buf[start] == ' ')
+        start++;
+
+    // find end of the shebang
+    int end = start + 1;
+    while (end < br && buf[end] != '\n')
+        end++;
+
+    if (start < br && end < br)
+        return strndup(&buf[start], end - start);
+
+    return NULL;
+}
+
+char *apprun_read_shebang(const char *filename) {
+    char *shebang = NULL;
+    FILE *fd = fopen(filename, "rb");
+
+    if (fd != NULL) {
+        char buf[PATH_MAX] = {0x0};
+
+        // read PATH_MAX bytes from file beginning
+        rewind(fd);
+        size_t br = fread(buf, sizeof(char), PATH_MAX, fd);
+        shebang = apprun_parse_shebang(buf, br);
+
+        fclose(fd);
+    }
+
+    return shebang;
+}
+
+char *apprun_shebang_extract_interpreter_path(const char *shebang) {
+    char *interpreter_end = strstr(shebang, " ");
+    if (interpreter_end == NULL)
+        return strdup(shebang);
+    else
+        return strndup(shebang, interpreter_end - shebang);
 }
