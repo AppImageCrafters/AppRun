@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * Copyright (c) 2022 Alexis Lopez Zubieta <contact@azubieta.net>
+ * Copyright (c) 2020 Alexis Lopez Zubieta <contact@azubieta.net>
  *
  * All Rights Reserved.
  *
@@ -24,22 +24,18 @@
  *
  **************************************************************************/
 
-#include <unistd.h>
+#ifndef APPIMAGEEXECWRAPPER_APPDIR_ENVIRONMENT_H
+#define APPIMAGEEXECWRAPPER_APPDIR_ENVIRONMENT_H
 
-#include "../common/tests_shared.h"
+#define APPDIR_PATH_MAPPINGS_ENV "APPDIR_PATH_MAPPINGS"
 
+#define APPDIR_EXEC_PATH_ENV "APPDIR_EXEC_PATH"
+#define APPDIR_EXEC_ARGS_ENV "APPDIR_EXEC_ARGS"
+#define APPDIR_LIBRARY_PATH_ENV "APPDIR_LIBRARY_PATH"
+#define APPDIR_LIBC_PREFIX_ENV "APPDIR_LIBC_PREFIX"
+#define APPDIR_LIBC_VERSION_ENV "APPDIR_LIBC_VERSION"
+#define APPDIR_LIBC_LINKER_PATH_ENV "APPDIR_LIBC_LINKER_PATH"
+#define APPDIR_LIBC_LIBRARY_PATH_ENV "APPDIR_LIBC_LIBRARY_PATH"
+#define APPDIR_LIBC_LINKER_PATH_ENV_SEPARATOR ":"
 
-int main(int argc, char **argv) {
-    set_private_env("APPDIR", APPDIR_MOCK);
-    set_private_env("LD_PRELOAD", HOOKS_LIB_PATH);
-    set_private_env("APPRUN_RUNTIME", APPDIR_MOCK "/runtime/compat");
-    set_private_env("APPDIR_PATH_MAPPINGS_ENV", MAPPED_APPDIR_PATH":"APPDIR_MOCK";");
-
-    chdir(APPDIR_MOCK);
-
-    char *args[2] = {0x0};
-    args[0] = OUTER_TARGET;
-
-    return execv(OUTER_TARGET, args);;
-}
-
+#endif //APPIMAGEEXECWRAPPER_APPDIR_ENVIRONMENT_H

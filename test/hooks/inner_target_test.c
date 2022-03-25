@@ -33,6 +33,7 @@
 #include <fcntl.h>
 
 #include "../common/tests_shared.h"
+#include "common/appdir_environment.h"
 
 void test_pwd_changed() {
     fprintf(stdout, "%s: ", __FUNCTION__);
@@ -76,7 +77,7 @@ void test_bundle_apprun_cwd_env_received() {
 void test_bundle_apprun_path_mappings_env_received() {
     fprintf(stdout, "%s: ", __FUNCTION__);
 
-    char *env = getenv("APPRUN_PATH_MAPPINGS");
+    char *env = getenv(APPDIR_PATH_MAPPINGS_ENV);
     assert_true(env != NULL);
 
     fprintf(stdout, "Ok\n");

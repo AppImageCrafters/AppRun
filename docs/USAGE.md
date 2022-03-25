@@ -1,6 +1,6 @@
 # AppRun Framework Usage
 
-Instructions to create a portable bundle using the **AppRun Framework**.
+Instructions to create a portable bundle (AppDir) using the **AppRun Framework**.
 
 ## Project layout
 
@@ -25,28 +25,17 @@ AppDir/runtime
 ```
 **_NOTE:_** Library paths can change according to the system architecture.
 
-## Runtimes configuration
+## Libc deployment
 
-The runtime folder holds the two different libc configurations that will be used to run te bundle:
-- *compat*: used when the host system has a libc **older** than the one used at build time
-- *default*: used when the host system has a libc **newer** than the one used at build time
-
-To create the *compat* runtime you must deploy the libc binaries using the following prefix: `AppDir/runtime/compat/`.
-To create the *default* runtime you must mimic the compat file structure but instead of copies of the files you **must**
-deploy links to the expected paths.
+The libc and ld-linux binaries will be deployed using a different prefix to allow excluding it at runtime if the system
+has a newer version. Usually `$APPDIR/opt/libc/` is used as prefix.
 
 ```shell
 # Compat runtime
-AppDir/runtime/compat/lib64/ld-linux-x86-64.so.2
-AppDir/runtime/compat/lib/x86_64-linux-gnu/libtinfo.so.6
-AppDir/runtime/compat/lib/x86_64-linux-gnu/libc.so.6
-AppDir/runtime/compat/lib/x86_64-linux-gnu/libdl.so.2
-
-# Default runtime
-AppDir/runtime/default/lib64/ld-linux-x86-64.so.2 (links to: /lib64/ld-linux-x86-64.so.2)
-AppDir/runtime/default/lib/x86_64-linux-gnu/libtinfo.so.6 (links to: /lib/x86_64-linux-gnu/libtinfo.so.6)
-AppDir/runtime/default/lib/x86_64-linux-gnu/libc.so.6 (links to: /lib/x86_64-linux-gnu/libc.so.6)
-AppDir/runtime/default/lib/x86_64-linux-gnu/libdl.so.2 (links to: /lib/x86_64-linux-gnu/libdl.so.2)
+AppDir/opt/libc/lib64/ld-linux-x86-64.so.2
+AppDir/opt/libc/lib64/lib/x86_64-linux-gnu/libtinfo.so.6
+AppDir/opt/libc/lib64/lib/x86_64-linux-gnu/libc.so.6
+AppDir/opt/libc/lib64/lib/x86_64-linux-gnu/libdl.so.2
 ``` 
 
 ## Linker path setup on dynamically linked executables
@@ -76,15 +65,15 @@ The following entries are required by AppRun to configure the runtime environmen
 and decide which `ld-linux.so` and `libc.so` will be used. 
 
 - `APPDIR`: Points the bundle root dir.
-- `EXEC_PATH`: Absolute path to the main application. Example: `$APPDIR/usr/bin/app` 
-- `EXEC_ARGS`: Arguments to be passed to the application. Example: `$@`
+- `APPDIR_EXEC_PATH`: Absolute path to the main application executable. Example: `$APPDIR/usr/bin/app` 
+- `APPDIR_EXEC_ARGS`: Arguments to be passed to the application. Example: `$@`
 
 - `APPDIR_LIBRARY_PATH`: application library dir paths separated by `:`. Must contain the dir path where 
 `libapprun_hooks.so` was deployed. Example: `$APPDIR/lib:$APPDIR/usr/lib`
 
-- `APPDIR_LD_LINUX_PATH`: `ld-linux.so` relative paths separated by `:`. Example: `lib/ld-linux.so.2:lib64/ld-linux-x86-64.so.2`
-- `APPDIR_LD_LINUX_PREFIX`: prefix in which the `ld-linux.so` binary was deployed. Example: `$APPDIR/opt/libc`
+- `APPDIR_LIBC_PREFIX`: prefix in which the `ld-linux.so` binary was deployed. Example: `$APPDIR/opt/libc`
 - `APPDIR_LIBC_VERSION`: version of the libc bundled.
+- `APPDIR_LIBC_LINKER_PATH`: `ld-linux.so` relative paths separated by `:`. Example: `lib/ld-linux.so.2:lib64/ld-linux-x86-64.so.2`
 - `APPDIR_LIBC_LIBRARY_PATH`: libc library paths contained in the compat runtime separated by `:`.
 
 - `APPDIR_PATH_MAPPINGS`: list of path mappings separated by semicolon, a path mapping is composed by two paths 

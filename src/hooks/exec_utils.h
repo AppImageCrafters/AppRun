@@ -29,9 +29,6 @@
 
 #include <stdbool.h>
 
-#define APPRUN_ENV_APPDIR "APPDIR"
-#define APPRUN_ENV_INTERPRETER "INTERPRETER"
-
 typedef struct {
     char *file;
     char **args;

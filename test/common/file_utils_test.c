@@ -37,7 +37,6 @@ void test_apprun_file_read_lines() {
     assert_true(res != NULL);
 
     assert_str_eq(res[0], "APPDIR=$ORIGIN");
-    assert_str_eq(res[1], "LD_PRELOAD=libapprun_hooks.so");
 
     apprun_string_list_free(res);
 

@@ -42,6 +42,7 @@
 #include "runtime_interpreter.h"
 #include "runtime_environment.h"
 #include "common/path.h"
+#include "common/appdir_environment.h"
 
 
 char *parse_ld_trace_line_path(const char *line) {
@@ -146,7 +147,8 @@ void configure_embed_libc() {
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_DEBUG: using appdir libc\n");
 #endif
-    char *ld_library_path = apprun_shell_expand_variables("$APPDIR_LIBRARY_PATH:$LIBC_LIBRARY_PATH:"
+    char *ld_library_path = apprun_shell_expand_variables("$"APPDIR_LIBRARY_PATH_ENV":"
+                                                          "$"APPDIR_LIBC_LIBRARY_PATH_ENV":"
                                                           "$"APPRUN_ENV_ORIG_PREFIX"LD_LIBRARY_PATH", NULL);
 
     apprun_env_set("LD_LIBRARY_PATH", ld_library_path, "", ld_library_path);
@@ -157,7 +159,7 @@ void configure_system_libc() {
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_DEBUG: using system libc\n");
 #endif
-    char *ld_library_path = apprun_shell_expand_variables("$APPDIR_LIBRARY_PATH:"
+    char *ld_library_path = apprun_shell_expand_variables("$"APPDIR_LIBRARY_PATH_ENV":"
                                                           "$"APPRUN_ENV_ORIG_PREFIX"LD_LIBRARY_PATH", NULL);
 
     apprun_env_set("LD_LIBRARY_PATH", ld_library_path, "", ld_library_path);
@@ -175,29 +177,27 @@ char *require_environment(char *name) {
 }
 
 void setup_runtime() {
-    char *linkers = strdup(getenv(LD_PATHS_ENV));
-    char *ld_relpath = strtok(linkers, LD_PATHS_ENV_SEPARATOR);
+    const char *libc_prefix = require_environment(APPDIR_LIBC_PREFIX_ENV);
+    char *linkers = strdup(getenv(APPDIR_LIBC_LINKER_PATH_ENV));
+    char *ld_relpath = strtok(linkers, APPDIR_LIBC_LINKER_PATH_ENV_SEPARATOR);
     if (ld_relpath != NULL) {
-        char *compat_ld_path = resolve_linker_path(COMPAT_RUNTIME_PREFIX, ld_relpath);
-        char *default_ld_path = resolve_linker_path(DEFAULT_RUNTIME_PREFIX, ld_relpath);
-
         const char *system_ld_version = gnu_get_libc_version();
-        const char *appdir_ld_version = getenv("APPDIR_LIBC_VERSION");
+        const char *appdir_ld_version = getenv(APPDIR_LIBC_VERSION_ENV);
 
 #ifdef DEBUG
-        fprintf(stderr, "APPRUN_DEBUG: interpreter \"%s\" \n", strrchr(ld_relpath, '/') + 1);
+        fprintf(stderr, "APPRUN_DEBUG: interpreter \"%s\" \n", ld_relpath);
         fprintf(stderr, "APPRUN_DEBUG: system ld(%s), appdir ld(%s) \n", system_ld_version, appdir_ld_version);
 #endif
         char *runtime_path = NULL;
         if (compare_version_strings(system_ld_version, appdir_ld_version) > 0) {
-            runtime_path = resolve_runtime_path(DEFAULT_RUNTIME_PREFIX);
+            runtime_path = strdup("/");
             configure_system_libc();
         } else {
-            runtime_path = resolve_runtime_path(COMPAT_RUNTIME_PREFIX);
+            runtime_path = strdup(libc_prefix);
             configure_embed_libc();
         }
 
-
+        apprun_env_set("LD_PRELOAD", "libapprun_hooks.so", "", "libapprun_hooks.so");
         apprun_env_set(APPRUN_ENV_RUNTIME, runtime_path, "", runtime_path);
 
         char cwd[PATH_MAX];
@@ -207,36 +207,4 @@ void setup_runtime() {
     }
 }
 
-char *resolve_runtime_path(const char *prefix) {
-    char *appdir = require_environment("APPDIR");
-    int appdir_len = strlen(appdir);
-    int runtime_prefix_len = strlen(prefix);
-    int extra_slash_len = 1;
-
-    int path_len = appdir_len + extra_slash_len + runtime_prefix_len + 1;
-    char *path = calloc(path_len, sizeof(char));
-    memset(path, 0, path_len);
-
-    apprun_concat_path(path, appdir);
-    apprun_concat_path(path, prefix);
-
-    return path;
-}
-
-char *resolve_linker_path(char const *prefix, char *relpath) {
-    char *appdir = require_environment("APPDIR");
-    int appdir_len = strlen(appdir);
-    int runtime_prefix_len = strlen(prefix);
-    int relpath_len = strlen(relpath);
-    int extra_slash_len = 1;
-
-    int path_len = appdir_len + extra_slash_len + runtime_prefix_len + extra_slash_len + relpath_len + 1;
-    char *path = calloc(path_len, sizeof(char));
-    memset(path, 0, path_len);
-    apprun_concat_path(path, appdir);
-    apprun_concat_path(path, prefix);
-    apprun_concat_path(path, relpath);
-
-    return path;
-}
 

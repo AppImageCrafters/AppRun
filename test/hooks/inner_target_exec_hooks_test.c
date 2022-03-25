@@ -27,13 +27,14 @@
 #include <unistd.h>
 
 #include "../common/tests_shared.h"
+#include "common/appdir_environment.h"
 
 
 int main(int argc, char **argv) {
     set_private_env("APPDIR", APPDIR_MOCK);
     set_private_env("LD_PRELOAD", HOOKS_LIB_PATH);
-    set_private_env("APPRUN_RUNTIME", APPDIR_MOCK "/runtime/compat");
-    set_private_env("APPRUN_PATH_MAPPINGS", MAPPED_APPDIR_PATH":"APPDIR_MOCK";");
+    set_private_env("APPRUN_RUNTIME", APPDIR_MOCK "/opt/libc");
+    set_private_env(APPDIR_PATH_MAPPINGS_ENV, MAPPED_APPDIR_PATH":"APPDIR_MOCK";");
 
     chdir(APPDIR_MOCK);
 

@@ -36,10 +36,9 @@
 #include <stdio.h>
 
 #include "redirect_path.h"
-#include "exec_utils.h"
 #include "common/path.h"
 #include "common/hooks_debug.h"
-#include "environment.h"
+#include "common/appdir_environment.h"
 
 
 typedef struct {
@@ -51,7 +50,7 @@ static apprun_path_mapping **apprun_path_mappings = NULL;
 static int apprun_path_mappings_size = 0;
 
 void apprun_load_path_mappings() {
-    char *path_mappings_env = getenv(APPRUN_PATH_MAPPINGS);
+    char *path_mappings_env = getenv(APPDIR_PATH_MAPPINGS_ENV);
     if (path_mappings_env == NULL || apprun_path_mappings != NULL) {
         return;
     }

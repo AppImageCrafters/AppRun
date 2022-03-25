@@ -29,15 +29,11 @@
 
 #include <stdbool.h>
 
-#define LD_PATHS_ENV "APPRUN_LD_PATHS"
-#define LD_PATHS_ENV_SEPARATOR ";"
-#define COMPAT_RUNTIME_PREFIX "runtime/compat/"
-#define DEFAULT_RUNTIME_PREFIX "runtime/default/"
+// executable path and arguments
 
+// application library paths
 
-char *resolve_runtime_path(char const *prefix);
-
-char *resolve_linker_path(char const *prefix, char *relpath);
+// libc specific
 
 long compare_version_strings(const char *a, const char *b);
 
@@ -50,5 +46,7 @@ char *parse_ld_trace_line_path(const char *line);
 void setup_runtime();
 
 void configure_system_libc();
+
+char *require_environment(char *name);
 
 #endif //APPIMAGEEXECWRAPPER_RUNTIME_INTERPRETER_H
