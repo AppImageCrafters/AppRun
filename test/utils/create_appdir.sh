@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 APPDIR="$1"
 if [ -z "$APPDIR" ]; then
   echo "Missing AppDir path"
@@ -32,44 +34,36 @@ fi
 
 mkdir -p "$APPDIR"
 
-function create_compat_runtime() {
-  mkdir -p "$RUNTIME_COMPAT_DIR"
+function join_by { local IFS="$1"; shift; echo "$*"; }
+
+function remove_duplicated_paths() {
+  local items=("${@}")
+  IFS=":" read -r -a items <<<"$(tr ':' '\n' <<<"${items[@]}" | sort -u | tr '\n' ':')"
+  join_by ":" "${items[*]}"
+}
+
+function deploy_libc() {
+  mkdir -p "$APPDIR_LIBC_PREFIX"
 
   # deploy linker
-  mkdir -p "$(dirname "${RUNTIME_COMPAT_DIR}"/"${LINKER}")"
-  cp $LINKER "${RUNTIME_COMPAT_DIR}"/"${LINKER}"
+  mkdir -p "$(dirname "${APPDIR_LIBC_PREFIX}"/"${APPDIR_LIBC_LINKER_PATH}")"
+  cp "/$APPDIR_LIBC_LINKER_PATH" "${APPDIR_LIBC_PREFIX}"/"${APPDIR_LIBC_LINKER_PATH}"
 
   # deploy dependencies
   DEPENDENCIES=$(ldd "$BASH_BIN" | grep "=> " | cut -d' ' -f 3- | cut -d ' ' -f 1)
   LIBRARY_PATHS=""
   for DEP in $DEPENDENCIES; do
-    LIBRARY_PATH=$(dirname "${RUNTIME_COMPAT_DIR}"/"${DEP}")
+    LIBRARY_PATH=$(dirname "${APPDIR_LIBC_PREFIX}"/"${DEP}")
     LIBRARY_PATHS="${LIBRARY_PATHS}:${LIBRARY_PATH}"
     mkdir -p "$LIBRARY_PATH"
-    cp "$DEP" "${RUNTIME_COMPAT_DIR}/$DEP"
+    cp "$DEP" "${APPDIR_LIBC_PREFIX}/$DEP"
   done
 
-  echo "$LIBRARY_PATHS"
+  APPDIR_LIBC_LIBRARY_PATH="$(remove_duplicated_paths "${LIBRARY_PATHS:1}")"
+  export APPDIR_LIBC_LIBRARY_PATH
 }
 
-function create_default_runtime() {
-  mkdir -p "$RUNTIME_DEFAULT_DIR"
-
-  # deploy linker
-  mkdir -p "$(dirname "${RUNTIME_DEFAULT_DIR}"/"${LINKER}")"
-  ln -sf $LINKER "${RUNTIME_DEFAULT_DIR}"/"${LINKER}"
-
-  # deploy dependencies
-  DEPENDENCIES=$(ldd "$BASH_BIN" | grep "=> " | cut -d' ' -f 3- | cut -d ' ' -f 1)
-  for DEP in $DEPENDENCIES; do
-    LIBRARY_PATH=$(dirname "${RUNTIME_DEFAULT_DIR}"/"${DEP}")
-    mkdir -p "$LIBRARY_PATH"
-    ln -sf "$DEP" "$RUNTIME_DEFAULT_DIR/$DEP"
-  done
-}
-
-RUNTIME_COMPAT_DIR="$APPDIR/runtime/compat"
-RUNTIME_DEFAULT_DIR="$APPDIR/runtime/default"
+APPDIR_LIBC_PREFIX="$APPDIR/opt/libc"
 
 # deploy binaries
 mkdir -p "$APPDIR/bin/" "$APPDIR/usr/bin/" "$APPDIR/lib/"
@@ -82,22 +76,27 @@ cp "$TARGET_BIN" "$DEPLOYED_BIN_PATH"
 ln -sf "../usr/bin/app" "$DEPLOYED_BIN_SYMLINK_PATH"
 
 # read linker path from bin
-LINKER=$(patchelf --print-interpreter "$DEPLOYED_BIN_PATH")
-patchelf --set-interpreter "${LINKER:1}" "$DEPLOYED_BIN_PATH"
+APPDIR_LIBC_LINKER_PATH=$(patchelf --print-interpreter "$DEPLOYED_BIN_PATH")
+APPDIR_LIBC_LINKER_PATH="${APPDIR_LIBC_LINKER_PATH:1}"
+patchelf --set-interpreter "$APPDIR_LIBC_LINKER_PATH" "$DEPLOYED_BIN_PATH"
 
-LD_PATHS=$(create_compat_runtime)
-create_default_runtime
+deploy_libc
+APPDIR_LIBC_VERSION=$(ldd --version | grep GLIBC | rev | cut -d" " -f 1 | rev)
 
+APPDIR_LIBRARY_PATH="$APPDIR/lib/"
 cp "$APPRUN_HOOKS" "$APPDIR/lib/"
-LD_PATHS="$APPDIR/lib:$LD_PATHS"
-LD_PATHS="${LD_PATHS/$APPDIR/\$APPDIR}"
 
 # deploy AppRun
 cp "$APPRUN" "$APPDIR"
+
 echo "APPDIR=\$ORIGIN
-LD_PRELOAD=libapprun_hooks.so
-EXEC_PATH=\$APPDIR/usr/bin/app
-EXEC_ARGS=\$@
-APPRUN_LD_PATHS=lib64/ld-linux-x86-64.so.2;
-LIBC_LIBRARY_PATH=$LD_PATHS
+APPDIR_EXEC_PATH=\$APPDIR/usr/bin/app
+APPDIR_EXEC_ARGS=\$@
+APPDIR_LIBC_PREFIX=$APPDIR_LIBC_PREFIX
+APPDIR_LIBC_VERSION=$APPDIR_LIBC_VERSION
+APPDIR_LIBC_LINKER_PATH=$APPDIR_LIBC_LINKER_PATH
+APPDIR_LIBC_LIBRARY_PATH=$APPDIR_LIBC_LIBRARY_PATH
+APPDIR_LIBRARY_PATH=$APPDIR_LIBRARY_PATH
 " >"$APPDIR/AppRun.env"
+
+sed -i "s|$APPDIR|\$APPDIR|g" "$APPDIR/AppRun.env"
