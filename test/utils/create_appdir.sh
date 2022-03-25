@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 APPDIR="$1"
 if [ -z "$APPDIR" ]; then
