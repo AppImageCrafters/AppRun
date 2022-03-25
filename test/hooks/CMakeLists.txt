@@ -46,6 +46,7 @@ function(configure_exec_hook_test_case Target)
             -DMAPPED_APPDIR_PATH="${MAPPED_APPDIR_PATH}"
             -DHOOKS_LIB_PATH="$<TARGET_FILE:apprun_hooks>"
             -DINNER_TARGET="${APPDIR_MOCK_PATH}/bin/app"
+            -DINNER_SCRIPT_TARGET="${APPDIR_MOCK_PATH}/usr/bin/script"
             -DOUTER_TARGET="$<TARGET_FILE:hooks_outer_target_test>"
     )
     target_link_libraries(${Target} PRIVATE apprun_hooks)
@@ -57,6 +58,9 @@ endfunction()
 
 add_executable(execv_hook_on_inner_target_test inner_target_exec_hooks_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
 configure_exec_hook_test_case(execv_hook_on_inner_target_test)
+
+add_executable(execv_hook_on_inner_script_test inner_script_exec_hooks_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
+configure_exec_hook_test_case(execv_hook_on_inner_script_test)
 
 add_executable(execv_hook_on_outer_target_test outer_target_exec_hooks_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
 configure_exec_hook_test_case(execv_hook_on_outer_target_test)
