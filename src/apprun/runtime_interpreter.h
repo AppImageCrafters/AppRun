@@ -29,8 +29,8 @@
 
 #include <stdbool.h>
 
-#define LD_PATHS_ENV "APPRUN_LD_PATHS"
-#define LD_PATHS_ENV_SEPARATOR ";"
+#define APPDIR_LIBC_LINKER_PATH_ENV "APPDIR_LIBC_LINKER_PATH"
+#define APPDIR_LIBC_LINKER_PATH_ENV_SEPARATOR ":"
 #define COMPAT_RUNTIME_PREFIX "runtime/compat/"
 #define DEFAULT_RUNTIME_PREFIX "runtime/default/"
 
