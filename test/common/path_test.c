@@ -30,7 +30,9 @@
 #include <linux/limits.h>
 
 #include "common/path.h"
+#include "common/appdir_environment.h"
 #include "tests_shared.h"
+
 
 void test_apprun_resolve_absolute_bin_path() {
     char *result = NULL;
@@ -80,12 +82,12 @@ void test_apprun_is_path_child_of_on_non_existent_paths() {
 
 void test_apprun_is_path_child_of_on_mapped_paths() {
     fprintf(stdout, "%s: ", __FUNCTION__);
-    set_private_env(APPRUN_PATH_MAPPINGS, "/mapped.AppDir:"APPDIR_MOCK_PATH";");
+    set_private_env(APPDIR_PATH_MAPPINGS_ENV, "/mapped.AppDir:"APPDIR_MOCK_PATH";");
 
     assert_false(apprun_is_path_child_of("/mapped.AppDir/usr/", APPDIR_MOCK_PATH"/usr/bin/"));
     assert_true(apprun_is_path_child_of("/mapped.AppDir/usr/bin/app", APPDIR_MOCK_PATH));
 
-    unset_private_env(APPRUN_PATH_MAPPINGS);
+    unset_private_env(APPDIR_PATH_MAPPINGS_ENV);
     fprintf(stdout, "OK\n");
 }
 

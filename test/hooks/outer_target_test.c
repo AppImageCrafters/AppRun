@@ -76,7 +76,7 @@ void test_bundle_apprun_cwd_env_not_received() {
 void test_bundle_apprun_path_mappings_env_not_received() {
     fprintf(stdout, "%s: ", __FUNCTION__);
 
-    char *env = getenv("APPRUN_PATH_MAPPINGS");
+    char *env = getenv("APPDIR_PATH_MAPPINGS_ENV");
     assert_true(env == NULL);
 
     fprintf(stdout, "Ok\n");

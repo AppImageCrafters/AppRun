@@ -6,6 +6,7 @@ add_library(
         string_utils.c
         shell_utils.c
         hook_debug.c
+        appdir_environment.h
 )
 
 target_compile_definitions(common_objects PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
