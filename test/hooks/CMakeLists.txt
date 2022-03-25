@@ -34,7 +34,7 @@ set_tests_properties(
 APPDIR=${APPDIR_MOCK_PATH};\
 LD_PRELOAD=$<TARGET_FILE:apprun_hooks>;\
 APPRUN_CWD=${APPDIR_MOCK_PATH};\
-APPRUN_PATH_MAPPINGS=${MAPPED_APPDIR_PATH}:${APPDIR_MOCK_PATH}\;\
+APPDIR_PATH_MAPPINGS=${MAPPED_APPDIR_PATH}:${APPDIR_MOCK_PATH}\;\
 "
 )
 add_dependencies(hooks_inner_target_test apprun_hooks)
