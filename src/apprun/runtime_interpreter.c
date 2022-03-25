@@ -175,8 +175,8 @@ char *require_environment(char *name) {
 }
 
 void setup_runtime() {
-    char *linkers = strdup(getenv(LD_PATHS_ENV));
-    char *ld_relpath = strtok(linkers, LD_PATHS_ENV_SEPARATOR);
+    char *linkers = strdup(getenv(APPDIR_LIBC_LINKER_PATH_ENV));
+    char *ld_relpath = strtok(linkers, APPDIR_LIBC_LINKER_PATH_ENV_SEPARATOR);
     if (ld_relpath != NULL) {
         char *compat_ld_path = resolve_linker_path(COMPAT_RUNTIME_PREFIX, ld_relpath);
         char *default_ld_path = resolve_linker_path(DEFAULT_RUNTIME_PREFIX, ld_relpath);
