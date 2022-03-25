@@ -176,8 +176,23 @@ char *require_environment(char *name) {
     return value;
 }
 
+char *resolve_runtime_path(const char *prefix) {
+    char *appdir = require_environment("APPDIR");
+    int appdir_len = strlen(appdir);
+    int runtime_prefix_len = strlen(prefix);
+    int extra_slash_len = 1;
+
+    int path_len = appdir_len + extra_slash_len + runtime_prefix_len + 1;
+    char *path = calloc(path_len, sizeof(char));
+    memset(path, 0, path_len);
+
+    apprun_concat_path(path, appdir);
+    apprun_concat_path(path, prefix);
+
+    return path;
+}
+
 void setup_runtime() {
-    const char *libc_prefix = require_environment(APPDIR_LIBC_PREFIX_ENV);
     char *linkers = strdup(getenv(APPDIR_LIBC_LINKER_PATH_ENV));
     char *ld_relpath = strtok(linkers, APPDIR_LIBC_LINKER_PATH_ENV_SEPARATOR);
     if (ld_relpath != NULL) {
@@ -190,10 +205,10 @@ void setup_runtime() {
 #endif
         char *runtime_path = NULL;
         if (compare_version_strings(system_ld_version, appdir_ld_version) > 0) {
-            runtime_path = strdup("/");
+            runtime_path = resolve_runtime_path("runtime/default");
             configure_system_libc();
         } else {
-            runtime_path = strdup(libc_prefix);
+            runtime_path = resolve_runtime_path("runtime/compat");
             configure_embed_libc();
         }
 

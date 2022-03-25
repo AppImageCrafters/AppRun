@@ -15,38 +15,62 @@ AppDir/usr/share/*
 
 # AppRun
 AppDir/AppRun
-AppDir/AppRun.env
 
-# hooks lib
+# libapprun_hooks.so
 AppDir/lib/x86_64-linux-gnu/libapprun_hooks.so
 ```
 **_NOTE:_** Library paths can change according to the system architecture.
 
-## Libc deployment
+## Runtimes and libc deployment
 
-The libc and ld-linux binaries will be deployed using a different prefix to allow excluding it at runtime if the system
-has a newer version. Usually `$APPDIR/opt/libc/` is used as prefix.
+To allow running dynamically linked binaries and scrips using the interpreters contained in the bundle we need to deploy
+them into two special directories at `$APPDIR/runtime`: `compat` and `default`. The `compat` runtime will contain libc 
+binaries and links to the embed interpreters. This will be used when the bundle is executed on a system with an older 
+libc. The `default` runtime will contain a symlink to interpreters embed in the bundle including the `ld-linux.so` but
+this will be linked to the one in the system root. This runtime will be used when the system have a newer libc than
+the bundle.
 
+Example runtimes layout:
 ```shell
-AppDir/opt/libc/lib64/ld-linux-x86-64.so.2
-AppDir/opt/libc/lib64/lib/x86_64-linux-gnu/libtinfo.so.6
-AppDir/opt/libc/lib64/lib/x86_64-linux-gnu/libc.so.6
-AppDir/opt/libc/lib64/lib/x86_64-linux-gnu/libdl.so.2
-``` 
+# Compat runtime
+AppDir/runtime/compat/lib64/ld-linux-x86-64.so.2
+AppDir/runtime/compat/lib/x86_64-linux-gnu/libtinfo.so.6
+AppDir/runtime/compat/lib/x86_64-linux-gnu/libc.so.6
+AppDir/runtime/compat/lib/x86_64-linux-gnu/libdl.so.2
+AppDir/runtime/compat/usr/bin/bash # links to: ../../../../usr/bin/bash
 
-## Linker path setup on dynamically linked executables
+# Default runtime
+AppDir/runtime/default/lib64/ld-linux-x86-64.so.2 # links to: /lib64/ld-linux-x86-64.so.2
+AppDir/runtime/compat/usr/bin/bash # links to: ../../../../usr/bin/bash
+```
+
+## Make interpreters paths relative
+
+### Patch PT_INTERP on dynamically linked executables
 
 To allow AppRun to select the right `ld-linux` at runtime we need to make relative the path stored on the `PT_INTERP` 
 tag of all dynamically linked executables. You can use `patchelf` or other similar tool to achieve this.
 
-Here is an example of how to do it in bash:
+Example bash instructions:
 ```shell
 TARGET=AppDir/bin/bash
 LINKER=$(patchelf --print-interpreter "$TARGET")
 patchelf --set-interpreter "${LINKER:1}" "$TARGET" 
 ```
-
 **_NOTE:_** The `"${LINKER:1}"` expression removes the first character of a string which is `/`.
+
+### Patch Shebang on scripts
+
+As there are no warranties that a given interpreter (i.e.: bash) is present on all target systems you must include
+it as part of your bundle in order to allow any script to be executed. Additionally, you need to patch the shebang 
+interpreter path to make it relative to the current work dir.
+
+Example bash instructions:
+```shell
+TARGET=AppDir/bin/script.sh
+sed -i 's|#\![[:space:]]*\/*|#\! |' $TARGET
+```
+**_NOTE:_** The sed expression matches `#! /` and replaces it by `#! `, which makes the interpreter path relative.
 
 ## Environment configuration
 
@@ -67,11 +91,9 @@ and decide which `ld-linux.so` and `libc.so` will be used.
 - `APPDIR_LIBRARY_PATH`: application library dir paths separated by `:`. Must contain the dir path where 
 `libapprun_hooks.so` was deployed. Example: `$APPDIR/lib:$APPDIR/usr/lib`
 
-- `APPDIR_LIBC_PREFIX`: prefix in which the `ld-linux.so` binary was deployed. Example: `$APPDIR/opt/libc`
 - `APPDIR_LIBC_VERSION`: version of the libc bundled.
 - `APPDIR_LIBC_LINKER_PATH`: `ld-linux.so` relative paths separated by `:`. Example: `lib/ld-linux.so.2:lib64/ld-linux-x86-64.so.2`
 - `APPDIR_LIBC_LIBRARY_PATH`: libc library paths contained in the compat runtime separated by `:`.
 
 - `APPDIR_PATH_MAPPINGS`: list of path mappings separated by semicolon, a path mapping is composed by two paths 
 separated by a colon. Example: `/usr/lib/myapp:$APPDIR/usr/lib/myapp;`
-

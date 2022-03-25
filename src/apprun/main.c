@@ -33,7 +33,6 @@
 
 #include "common/string_list.h"
 #include "common/shell_utils.h"
-#include "common/file_utils.h"
 
 #include "runtime_environment.h"
 #include "runtime_interpreter.h"
@@ -153,7 +152,6 @@ char *find_legacy_env_file(char *apprun_path) {
     return NULL;
 }
 
-
 char *build_env_file_path(char *apprun_path, unsigned long i) {
     char env_file_name[] = ".env";
     unsigned long env_file_name_len = 4;
@@ -166,7 +164,6 @@ char *build_env_file_path(char *apprun_path, unsigned long i) {
 
     return possible_path;
 }
-
 
 void launch() {
     char *exec_path = require_environment(APPDIR_EXEC_PATH_ENV);

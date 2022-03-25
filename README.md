@@ -9,7 +9,8 @@ a set of hooks over the libc functions and relative paths on the dynamically lin
 
 To make an application bundle that could be used on different GNU/Linux systems the packager must face different
 challenges which include:
-- absence of forward compatibility in libraries loaded from the system (libc), 
+- absence of forward compatibility in libraries loaded from the system (libc),
+- absolute paths in scripts shebang,
 - application specific environment variables, 
 - and fixed paths in binaries.
 
