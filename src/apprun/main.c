@@ -30,8 +30,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include <strings.h>
-#include <limits.h>
-#include <sys/stat.h>
 
 #include "common/string_list.h"
 #include "common/shell_utils.h"
@@ -40,6 +38,7 @@
 #include "runtime_environment.h"
 #include "runtime_interpreter.h"
 #include "common/path.h"
+#include "common/appdir_environment.h"
 
 #define die(...)                                    \
     do {                                            \
@@ -170,8 +169,8 @@ char *build_env_file_path(char *apprun_path, unsigned long i) {
 
 
 void launch() {
-    char *exec_path = getenv("EXEC_PATH");
-    char *exec_args = getenv("EXEC_ARGS");
+    char *exec_path = require_environment(APPDIR_EXEC_PATH_ENV);
+    char *exec_args = require_environment(APPDIR_EXEC_ARGS_ENV);
 
     char **user_args = apprun_shell_split_arguments(exec_args);
     unsigned user_args_len = apprun_string_list_len(user_args);

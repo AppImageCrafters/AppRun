@@ -87,66 +87,11 @@ void test_compare_glib_version_strings() {
     printf("Ok\n");
 }
 
-void test_resolve_linker_path() {
-    printf("%s: ", __PRETTY_FUNCTION__);
-
-#define EXPECTED_LINKER_PATH "/AppDir/runtime/compat/lib/ld.so"
-    char *res = NULL;
-    setenv("APPDIR", "/AppDir", 1);
-    res = resolve_linker_path("runtime/compat", "lib/ld.so");
-    assert_str_eq(res, EXPECTED_LINKER_PATH);
-    free(res);
-
-    res = resolve_linker_path("runtime/compat/", "lib/ld.so");
-    assert_str_eq(res, EXPECTED_LINKER_PATH);
-    free(res);
-
-    res = resolve_linker_path("runtime/compat", "/lib/ld.so");
-    assert_str_eq(res, EXPECTED_LINKER_PATH);
-    free(res);
-
-    setenv("APPDIR", "/AppDir/", 1);
-    res = resolve_linker_path("runtime/compat", "/lib/ld.so");
-    assert_str_eq(res, EXPECTED_LINKER_PATH);
-    free(res);
-
-    unsetenv("APPDIR");
-    printf("Ok\n");
-}
-
-void test_resolve_runtime_path() {
-    printf("%s: ", __PRETTY_FUNCTION__);
-
-#define EXPECTED_RUNTIME_PATH "/AppDir/runtime/compat"
-    char *res = NULL;
-    setenv("APPDIR", "/AppDir", 1);
-
-    res = resolve_runtime_path("runtime/compat");
-    assert_str_eq(res, EXPECTED_RUNTIME_PATH);
-    free(res);
-
-
-    res = resolve_runtime_path("/runtime/compat");
-    assert_str_eq(res, EXPECTED_RUNTIME_PATH);
-    free(res);
-
-    setenv("APPDIR", "/AppDir/", 1);
-    res = resolve_runtime_path("runtime/compat");
-    assert_str_eq(res, EXPECTED_RUNTIME_PATH);
-    free(res);
-
-    unsetenv("APPDIR");
-    printf("Ok\n");
-}
-
 int main(int argc, char **argv, char *envp[]) {
     test_parse_ld_trace_lib_path();
     test_validate_glibc_version_string();
     test_compare_glib_version_strings();
     test_read_ld_version();
-
-    test_resolve_linker_path();
-    test_resolve_runtime_path();
 
     return 0;
 }
