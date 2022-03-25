@@ -19,9 +19,6 @@ AppDir/AppRun.env
 
 # hooks lib
 AppDir/lib/x86_64-linux-gnu/libapprun_hooks.so
-
-# runtimes dir
-AppDir/runtime
 ```
 **_NOTE:_** Library paths can change according to the system architecture.
 
@@ -31,7 +28,6 @@ The libc and ld-linux binaries will be deployed using a different prefix to allo
 has a newer version. Usually `$APPDIR/opt/libc/` is used as prefix.
 
 ```shell
-# Compat runtime
 AppDir/opt/libc/lib64/ld-linux-x86-64.so.2
 AppDir/opt/libc/lib64/lib/x86_64-linux-gnu/libtinfo.so.6
 AppDir/opt/libc/lib64/lib/x86_64-linux-gnu/libc.so.6
