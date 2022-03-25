@@ -30,6 +30,7 @@ We aim to provide an effective solution for those problems.
 ## Roadmap
 
 - Support libstdc++ runtime switching
+- Implement hooks on `execvl` functions
 
 ## Build Instructions
 
