@@ -1,8 +1,9 @@
 # AppRun
 
-This project provides a framework (along with appimage-builder) to create portable application bundles to be used on 
-GNU/Linux systems. It relies on a set of hooks over the libc functions and relative paths on the dynamically linked 
-executables.
+This project provides a framework to create portable application bundles to be used on GNU/Linux systems. It relies on 
+a set of hooks over the libc functions and relative paths on the dynamically linked executables.
+
+**_NOTE:_** If you're planing to pack your application as an AppImage please use [appimage-builder](https://appimage-builder.readthedocs.io/). 
 
 ## Motivation
 
