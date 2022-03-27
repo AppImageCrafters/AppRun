@@ -115,7 +115,7 @@ void chdir_to_runtime() {
 }
 
 apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const *argv, char *const *envp) {
-    char *appdir = getenv("APPDIR");
+    char *appdir = getenv(APPRUN_ENV_STARTUP_PREFIX"APPDIR");
 
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_HOOK_DEBUG: APPDIR: %s\n", appdir);
