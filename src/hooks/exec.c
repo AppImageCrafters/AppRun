@@ -35,8 +35,6 @@
 #include <stdarg.h>
 
 #include "exec_utils.h"
-#include "environment.h"
-#include "common/path.h"
 #include "redirect_path.h"
 
 typedef ssize_t (*execve_func_t)(const char *filename, char *const argv[], char *const envp[]);
