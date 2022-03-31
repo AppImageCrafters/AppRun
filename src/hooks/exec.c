@@ -41,14 +41,6 @@ typedef ssize_t (*execve_func_t)(const char *filename, char *const argv[], char 
 
 static execve_func_t real_execve = NULL;
 
-typedef ssize_t (*execvp_func_t)(const char *filename, char *const argv[]);
-
-static execvp_func_t real_execvp = NULL;
-
-typedef int (*execv_func_t)(const char *path, char *const argv[]);
-
-static execv_func_t real_execv = NULL;
-
 typedef int (*execvpe_func_t)(const char *file, char *const argv[], char *const envp[]);
 
 static execvpe_func_t real_execvpe = NULL;
@@ -171,7 +163,6 @@ int execve(const char *filename, char *const argv[], char *const envp[]) {
     free(new_filename);
     return ret;
 }
-
 
 int execv(const char *filename, char *const argv[]) {
     char *new_filename = apprun_exec_adjust_path(filename);
