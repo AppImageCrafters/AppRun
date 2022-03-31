@@ -62,5 +62,8 @@ configure_exec_hook_test_case(execv_hook_on_inner_target_test)
 add_executable(execv_hook_on_inner_script_test inner_script_exec_hooks_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
 configure_exec_hook_test_case(execv_hook_on_inner_script_test)
 
+add_executable(inner_target_execlp_hooks_test inner_target_execlp_hooks_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
+configure_exec_hook_test_case(inner_target_execlp_hooks_test)
+
 add_executable(execv_hook_on_outer_target_test outer_target_exec_hooks_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
 configure_exec_hook_test_case(execv_hook_on_outer_target_test)
