@@ -117,6 +117,9 @@ bool apprun_is_path_child_of(const char *path, const char *base) {
 
 void apprun_concat_path(char *dest, const char *path) {
     unsigned long path_len = strlen(path);
+    if (path_len == 0)
+        return;
+
     unsigned long dest_len = strlen(dest);
     unsigned long j = dest_len;
 

@@ -101,6 +101,9 @@ void test_apprun_concat_path() {
     apprun_concat_path(res, "/AppDir");
     assert_str_eq(res, "/AppDir");
 
+    apprun_concat_path(res, "");
+    assert_str_eq(res, "/AppDir");
+
     apprun_concat_path(res, "usr/");
     assert_str_eq(res, "/AppDir/usr/");
 
