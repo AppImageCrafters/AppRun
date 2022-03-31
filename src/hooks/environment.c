@@ -420,3 +420,15 @@ char **apprun_envp_set(const char *key, const char *value, char *const *envp) {
 
     return new_envp;
 }
+
+void apprun_print_envp(char *const *envp) {
+    fprintf(stderr, "  envp: [ \n");
+    if (envp) {
+        for (char *const *itr = envp; *itr != 0; itr++) {
+            fprintf(stderr, "    \"%s\"", *itr);
+            if (*(itr + 1) != NULL)
+                fprintf(stderr, ", \n");
+        }
+    }
+    fprintf(stderr, "\n  ]\n");
+}

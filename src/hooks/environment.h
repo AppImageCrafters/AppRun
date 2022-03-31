@@ -74,4 +74,6 @@ char *apprun_format_envp_entry(const char *key, const char *value);
 
 char **apprun_envp_set(const char *key, const char *value, char *const *envp);
 
+void apprun_print_envp(char *const *envp);
+
 #endif //APPDIR_RUMTIME_ENVIRONMENT_H
