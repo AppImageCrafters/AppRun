@@ -47,10 +47,6 @@ typedef ssize_t (*execvp_func_t)(const char *filename, char *const argv[]);
 
 static execvp_func_t real_execvp = NULL;
 
-typedef int (*execlp_func_t)(const char *filename, const char *args, ...);
-
-static execlp_func_t old_execlp = NULL;
-
 // TODO implement me: execl, execle; but it's annoying work and nothing seems to use them
 // typedef int (*execl_func_t)(const char *path, const char *arg);
 // static execl_func_t old_execl = NULL;
