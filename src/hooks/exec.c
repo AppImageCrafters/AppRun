@@ -130,6 +130,42 @@ int execlp(const char *filename, const char *args, ...) {
     return res;
 }
 
+int execle(const char *path, const char *args, ...) {
+    va_list argv_itr;
+
+    size_t argc = 2; // reserve one for the path and one for NULL termination
+
+    // count args received
+    va_start(argv_itr, args);
+    const char *arg_value = NULL;
+    while ((arg_value = va_arg(argv_itr, const char *)) != NULL)
+        argc++;
+    va_end(argv_itr);
+
+    // fill argv
+    char *argv[argc];
+    va_start(argv_itr, args);
+
+    argv[0] = strdup(args);
+    int offset = 1;
+    while ((arg_value = va_arg(argv_itr, const char *)) != NULL) {
+        argv[offset] = strdup(arg_value);
+        offset++;
+    }
+
+    argv[offset] = NULL;
+    char **envp = va_arg(argv_itr, char **);
+    va_end(argv_itr);
+
+    int res = execve(path, argv, envp);
+
+    // free allocated strings
+    for (int i = 0; i < argc; i++)
+        free(argv[i]);
+
+    return res;
+}
+
 int execve(const char *filename, char *const argv[], char *const envp[]) {
     char *new_filename = apprun_exec_adjust_path(filename);
     apprun_exec_args_t *new_exec_args = apprun_adjusted_exec_args(new_filename, argv, envp);
