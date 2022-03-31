@@ -73,6 +73,7 @@ int execve(const char *filename, char *const argv[], char *const envp[]) {
     real_execve = dlsym(RTLD_NEXT, "execve");
     int ret = real_execve(new_exec_args->file, new_exec_args->args, new_exec_args->envp);
 
+    apprun_restore_workdir_if_needed();
     apprun_exec_args_free(new_exec_args);
     free(new_filename);
     return ret;
@@ -86,6 +87,7 @@ int execv(const char *filename, char *const argv[]) {
     real_execve = dlsym(RTLD_NEXT, "execve");
     int ret = real_execve(new_exec_args->file, new_exec_args->args, new_exec_args->envp);
 
+    apprun_restore_workdir_if_needed();
     apprun_exec_args_free(new_exec_args);
     free(new_filename);
     return ret;
@@ -98,6 +100,7 @@ int execvpe(const char *filename, char *const argv[], char *const envp[]) {
     real_execvpe = dlsym(RTLD_NEXT, "execvpe");
     int ret = real_execvpe(new_exec_args->file, new_exec_args->args, new_exec_args->envp);
 
+    apprun_restore_workdir_if_needed();
     apprun_exec_args_free(new_exec_args);
     free(new_filename);
     return ret;
@@ -110,6 +113,7 @@ int execvp(const char *filename, char *const argv[]) {
     real_execvpe = dlsym(RTLD_NEXT, "execvpe");
     int ret = real_execvpe(new_exec_args->file, new_exec_args->args, new_exec_args->envp);
 
+    apprun_restore_workdir_if_needed();
     apprun_exec_args_free(new_exec_args);
     free(new_filename);
     return ret;

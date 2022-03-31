@@ -43,7 +43,15 @@ apprun_exec_args_t *apprun_duplicate_exec_args(const char *filename, char *const
 
 char **apprun_set_original_workdir_env(char *const *envp);
 
-void chdir_to_runtime();
+/**
+ * Change current workdir to the runtime prefix dir
+ */
+void apprun_chdir_to_runtime();
+
+/**
+ * Restores original working directory if it was changed earlier
+ */
+void apprun_restore_workdir_if_needed();
 
 apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const *argv, char *const *envp);
 

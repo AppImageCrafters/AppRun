@@ -36,6 +36,8 @@
 #include "environment.h"
 
 
+void apprun_print_envp(char *const *envp);
+
 void apprun_exec_args_free(apprun_exec_args_t *args) {
     apprun_string_list_free(args->args);
     apprun_string_list_free(args->envp);
@@ -57,17 +59,7 @@ void apprun_print_exec_args(const char *filename, char *const *argv, char *const
 
     fprintf(stderr, "]\n");
 
-    fprintf(stderr, "  envp: [ \n");
-    if (envp) {
-        for (char *const *itr = envp; *itr != 0; itr++) {
-            fprintf(stderr, "    \"%s\"", *itr);
-            if (*(itr + 1) != NULL)
-                fprintf(stderr, ", \n");
-        }
-    }
-
-
-    fprintf(stderr, "]\n");
+    apprun_print_envp(envp);
 }
 
 
@@ -94,16 +86,28 @@ char **apprun_set_original_workdir_env(char *const *envp) {
     char cwd_path[PATH_MAX] = {0x0};
     getcwd(cwd_path, PATH_MAX);
 
-
     char **new_envp = apprun_envp_set(APPRUN_ENV_ORIGINAL_WORKDIR, cwd_path, envp);
+    setenv(APPRUN_ENV_ORIGINAL_WORKDIR, cwd_path, 1);
 #ifdef DEBUG
-    fprintf(stderr, "APPRUN_HOOK_DEBUG: storing original workdir %s\n", cwd_path);
+    fprintf(stderr, "APPRUN_HOOK_DEBUG: setenv %s=%s\n", APPRUN_ENV_ORIGINAL_WORKDIR, cwd_path);
 #endif
 
     return new_envp;
 }
 
-void chdir_to_runtime() {
+void apprun_restore_workdir_if_needed() {
+    char const *workdir = getenv(APPRUN_ENV_ORIGINAL_WORKDIR);
+    if (workdir != NULL) {
+#ifdef DEBUG
+        fprintf(stderr, "APPRUN_HOOK_DEBUG: restoring original workdir %s\n", workdir);
+        fflush(stderr);
+#endif
+
+        chdir(workdir);
+    }
+}
+
+void apprun_chdir_to_runtime() {
     char const *runtime_path = getenv(APPRUN_ENV_RUNTIME);
     if (runtime_path != NULL) {
         chdir(runtime_path);
@@ -134,7 +138,7 @@ apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const 
         fprintf(stderr, "APPRUN_HOOK_DEBUG: USING BUNDLE RUNTIME\n");
 #endif
         res->envp = apprun_set_original_workdir_env(envp);
-        chdir_to_runtime();
+        apprun_chdir_to_runtime();
     } else {
 #ifdef DEBUG
         fprintf(stderr, "APPRUN_HOOK_DEBUG: USING SYSTEM RUNTIME\n");

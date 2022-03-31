@@ -2,31 +2,18 @@
 
 #include <stdio.h>
 #include <dlfcn.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <linux/limits.h>
 
-#include "environment.h"
+#include "exec_utils.h"
 
 /* Trampoline for the real main() */
 static int (*apprun_main_orig)(int, char **, char **);
 
-void apprun_restore_workdir() {
-    char const *original_pwd = getenv(APPRUN_ENV_ORIGINAL_WORKDIR);
-    if (original_pwd != NULL) {
-#ifdef DEBUG
-        fprintf(stderr, "APPRUN_HOOK_DEBUG: restoring original workdir %s\n", original_pwd);
-        fflush(stderr);
-#endif
-
-        chdir(original_pwd);
-    }
-}
-
 
 /* Wrapper for main() that gets called by __libc_start_main() */
 int apprun_main_hook(int argc, char **argv, char **envp) {
-    apprun_restore_workdir();
+    apprun_restore_workdir_if_needed();
 #ifdef DEBUG
     char exec_path[PATH_MAX] = {0x0};
     realpath("/proc/self/exe", exec_path);
