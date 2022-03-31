@@ -47,10 +47,8 @@ typedef ssize_t (*execvp_func_t)(const char *filename, char *const argv[]);
 
 static execvp_func_t real_execvp = NULL;
 
-// TODO implement me: execl, execle; but it's annoying work and nothing seems to use them
-// typedef int (*execl_func_t)(const char *path, const char *arg);
-// static execl_func_t old_execl = NULL;
-//
+// TODO implement me: execle; but it's annoying work and nothing seems to use them
+
 // typedef int (*execle_func_t)(const char *path, const char *arg, char * const envp[]);
 // static execle_func_t old_execle = NULL;
 
@@ -61,6 +59,41 @@ static execv_func_t real_execv = NULL;
 typedef int (*execvpe_func_t)(const char *file, char *const argv[], char *const envp[]);
 
 static execvpe_func_t real_execvpe = NULL;
+
+int execl(const char *filename, const char *args, ...) {
+    va_list argv_itr;
+
+    size_t argc = 2; // reserve one for the filename and one for NULL termination
+
+    // count args received
+    va_start(argv_itr, args);
+    const char *arg_value = NULL;
+    while ((arg_value = va_arg(argv_itr, const char *)) != NULL)
+        argc++;
+    va_end(argv_itr);
+
+    // fill argv
+    char *argv[argc];
+    va_start(argv_itr, args);
+
+    argv[0] = strdup(args);
+    int offset = 1;
+    while ((arg_value = va_arg(argv_itr, const char *)) != NULL) {
+        argv[offset] = strdup(arg_value);
+        offset++;
+    }
+
+    argv[offset] = NULL;
+    va_end(argv_itr);
+
+    int res = execv(filename, argv);
+
+    // free allocated strings
+    for (int i = 0; i < argc; i++)
+        free(argv[i]);
+
+    return res;
+}
 
 int execlp(const char *filename, const char *args, ...) {
     va_list argv_itr;
