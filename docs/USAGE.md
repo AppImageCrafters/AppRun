@@ -1,17 +1,19 @@
 # AppRun Framework Usage
 
-Instructions to create a portable bundle (AppDir) using the **AppRun Framework**.
+Instructions to create a portable bundle (AppDir) using the **AppRun Framework**. 
 
 ## Project layout
 
 To create a portable bundle first you have to deploy `AppRun`, `libapprun_hooks.so` and your application binaries along
-with its dependencies into a directory with the following layout:
+with its dependencies. Application binaries and resources will be deployed using the AppDir as prefix keeping the same
+system layout. The `AppRun` executable will be deployed to the `AppDir` root. The `libapprun_hooks.so` library will
+be deployed next to the application libraries with the same architecture. 
 
 ```shell
 # Your app binaries and resources
 AppDir/usr/bin/app
-AppDir/usr/lib/*
-AppDir/usr/share/*
+AppDir/usr/lib/x86_64-linux-gnu/ (libraries)
+AppDir/usr/share (resources)
 
 # AppRun
 AppDir/AppRun
@@ -76,10 +78,36 @@ sed -i 's|#\![[:space:]]*\/*|#\! |' $TARGET
 
 Once we have all the binaries in place we proceed to create the `AppRun.env` file. This file must be placed next
 to the `AppRun` binary and must be used to define the environment variables required by the bundled application to
-run properly. It supports using environment variables using the following notation `$VARNAME` also support
-the special bash variable `$@` to forward the execution arguments.
+run properly. Variables declared in this file will be set at startup and will be private to the bundle. 
 
-### AppRun Special Entries
+### Specification
+
+All text MUST be UTF-8 encoded, without BOM. Implementations SHOULD reject files that contain invalid UTF-8 data.
+
+Leading whitespace is ignored for all lines, including commands, blank lines and comments.
+
+Any blank line (possibly containing only whitespace) MUST be ignored.
+
+Any line starting with a hash/pound (“#”) is considered a comment for human readers and is ignored.
+
+Each variable is declared using the following pattern:
+
+`VAR=VAL`
+
+Whitespace on each side of the “=” character SHALL be ignored. Trailing whitespace SHALL be ignored.
+
+A backslash (“\”) as the last character of a variable declaration line indicates that the value continues on the 
+following line. Implementations MUST join the lines without the line endings and treat the backslash character as a 
+single space.
+
+The file MUST NOT contain any lines that are not a variable assignment, not a comment and not blank. Implementations 
+MAY reject files containing non-blank, non-comment lines that do not match a variable declaration.
+
+Values may reference other environment variables as follows: `$VAR`.  Example: `PATH=$APPDIR/bin:$PATH`.
+
+The special bash variable `$@` can be also used as part of the value.
+
+### Required Environment Entries
 
 The following entries are required by AppRun to configure the runtime environment variables of the target application 
 and decide which `ld-linux.so` and `libc.so` will be used. 
@@ -95,5 +123,16 @@ and decide which `ld-linux.so` and `libc.so` will be used.
 - `APPDIR_LIBC_LINKER_PATH`: `ld-linux.so` relative paths separated by `:`. Example: `lib/ld-linux.so.2:lib64/ld-linux-x86-64.so.2`
 - `APPDIR_LIBC_LIBRARY_PATH`: libc library paths contained in the compat runtime separated by `:`.
 
+### Optional Environment Entries
+
 - `APPDIR_PATH_MAPPINGS`: list of path mappings separated by semicolon, a path mapping is composed by two paths 
 separated by a colon. Example: `/usr/lib/myapp:$APPDIR/usr/lib/myapp;`
+
+### Recommended Environment Entries
+
+Besides, the required environment variables you should define those that allow the bundle binaries to resolve their 
+resources at runtime. Here you will find some recommendations:
+
+- `PATH`: executables search path, it's recommended to extend the system definition with the paths to the bundle 
+binaries dirs.
+- `XDG_DATA_DIR`: data dirs, it's recommend to extend the system definition with `$APPDIR/usr/share` and `$APPDIR/usr/local/share`
