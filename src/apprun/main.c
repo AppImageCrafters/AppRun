@@ -106,7 +106,7 @@ char *find_module_env_file(char *apprun_path) {
     const char apprun_env_extension[] = ".env";
     const unsigned long apprun_env_extension_len = strlen(apprun_env_extension);
 
-    const unsigned long possible_path_len = strlen(apprun_path) + apprun_env_extension_len;
+    const unsigned long possible_path_len = strlen(apprun_path) + apprun_env_extension_len + 1;
     char *possible_path = malloc(possible_path_len);
     memset(possible_path, 0, possible_path_len);
 
