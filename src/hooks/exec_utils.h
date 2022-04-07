@@ -80,4 +80,15 @@ char *apprun_shebang_extract_interpreter_path(const char *shebang);
  */
 bool apprun_shebang_requires_external_executable(const char *shebang, const char *appdir);
 
+
+/**
+ * Find whether a given path is belongs to a module dir.
+ *
+ * Iterate APPDIR_MODULE_DIR_ENV entries checking if they are a prefix of the given path.
+ * APPDIR_MODULE_DIR_ENV is expected to be a colon ":" separated list of paths.
+ *
+ * @param path (absolute path)
+ * @return true if the path contained in some module path, false otherwise.
+ */
+bool apprun_is_module_path(const char *path);
 #endif //APPDIR_RUMTIME_SHARED_H
