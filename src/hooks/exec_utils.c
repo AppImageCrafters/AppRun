@@ -34,6 +34,7 @@
 #include "common/path.h"
 #include "exec_utils.h"
 #include "environment.h"
+#include "common/appdir_environment.h"
 
 
 void apprun_print_envp(char *const *envp);
@@ -132,8 +133,8 @@ apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const 
 
     char *shebang = apprun_read_shebang(filename);
     if (appdir != NULL &&
-        apprun_is_path_child_of(filename, appdir) &&
-        !apprun_shebang_requires_external_executable(shebang, appdir)) {
+        !apprun_shebang_requires_external_executable(shebang, appdir) &&
+        (apprun_is_path_child_of(filename, appdir) || apprun_is_module_path(filename))) {
 #ifdef DEBUG
         fprintf(stderr, "APPRUN_HOOK_DEBUG: USING BUNDLE RUNTIME\n");
 #endif
@@ -156,6 +157,30 @@ apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const 
         free(shebang);
 
     return res;
+}
+
+bool apprun_is_module_path(const char *path) {
+    char *module_dirs = getenv(APPDIR_MODULE_DIR_ENV);
+    bool result = false;
+    if (module_dirs != NULL) {
+        char *modules_dir_copy = strdup(module_dirs);
+        char *module_path = strtok(modules_dir_copy, APPDIR_MODULE_DIR_ENV_DELIM);
+
+        /* walk through other module dir paths */
+        while (module_path != NULL) {
+            size_t path_len = strlen(module_path);
+            if (apprun_is_path_child_of(path, module_path)) {
+                result = true;
+                break;
+            }
+
+            module_path = strtok(NULL, APPDIR_MODULE_DIR_ENV_DELIM);
+        }
+
+        free(modules_dir_copy);
+    }
+
+    return result;
 }
 
 bool apprun_shebang_requires_external_executable(const char *shebang, const char *appdir) {

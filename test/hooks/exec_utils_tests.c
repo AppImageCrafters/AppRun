@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "hooks/exec_utils.h"
+#include "common/appdir_environment.h"
 
 START_TEST (test_apprun_read_shebang_with_args)
     {
@@ -79,11 +80,37 @@ START_TEST (test_apprun_executable_requires_external_interp_fail)
     }
 END_TEST
 
+START_TEST (test_apprun_is_module_path_simple)
+    {
+        setenv(APPDIR_MODULE_DIR_ENV, "/tmp/one", 1);
+        ck_assert(apprun_is_module_path("/tmp/one/a") == true);
+        ck_assert(apprun_is_module_path("/tmp/two/a") == false);
+        unsetenv(APPDIR_MODULE_DIR_ENV);
+    }
+END_TEST
+
+START_TEST (test_apprun_is_module_path_multiple)
+    {
+        setenv(APPDIR_MODULE_DIR_ENV, "/tmp/one:/tmp/two", 1);
+        ck_assert(apprun_is_module_path("/tmp/one/a") == true);
+        ck_assert(apprun_is_module_path("/tmp/two/a") == true);
+        ck_assert(apprun_is_module_path("/tmp/three/a") == false);
+        unsetenv(APPDIR_MODULE_DIR_ENV);
+    }
+END_TEST
+
+START_TEST (test_apprun_is_module_path_empty)
+    {
+        ck_assert(apprun_is_module_path("/tmp/three/a") == false);
+    }
+END_TEST
+
 Suite *exec_utils_suite(void) {
     Suite *s;
     TCase *tc_read_shebang;
     TCase *tc_extract_interpreter_path;
     TCase *tc_apprun_executable_requires_external_interp;
+    TCase *tc_apprun_modules;
 
 
     s = suite_create("Exec Utils");
@@ -104,6 +131,12 @@ Suite *exec_utils_suite(void) {
     tcase_add_test(tc_apprun_executable_requires_external_interp, test_apprun_executable_requires_external_interp);
     tcase_add_test(tc_apprun_executable_requires_external_interp, test_apprun_executable_requires_external_interp_fail);
     suite_add_tcase(s, tc_apprun_executable_requires_external_interp);
+
+    tc_apprun_modules = tcase_create("test_apprun_is_module_path");
+    tcase_add_test(tc_apprun_modules, test_apprun_is_module_path_simple);
+    tcase_add_test(tc_apprun_modules, test_apprun_is_module_path_multiple);
+    tcase_add_test(tc_apprun_modules, test_apprun_is_module_path_empty);
+    suite_add_tcase(s, tc_apprun_modules);
 
     return s;
 }
