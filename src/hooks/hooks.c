@@ -43,6 +43,8 @@
 #include <unistd.h>
 
 #include "redirect_path.h"
+#include "hooks.h"
+#include "exec_utils.h"
 
 #define REDIRECT_1_1(RET, NAME) \
 RET \
@@ -285,7 +287,25 @@ REDIRECT_1_2(int, chmod, mode_t)
 
 REDIRECT_1_2(int, lchmod, mode_t)
 
-REDIRECT_1_1(int, chdir)
+int apprun_chdir_called = 0;
+int chdir(const char *path) {
+    /* Handle existing working directory */
+    if (!apprun_chdir_called) {
+         /* Mark as set */
+        apprun_chdir_called = 1;
+        /* If new directory is relative, make it relative to correct directory */
+        apprun_restore_workdir_if_needed();
+    }
+    /* Call */
+    int (*_chdir)(const char *path);
+    char *new_path = NULL;
+    int result;
+    _chdir = (int (*)(const char *path)) dlsym(RTLD_NEXT, "chdir");
+    new_path = apprun_redirect_path(path);
+    result = _chdir(new_path);
+    free(new_path);
+    return result;
+}
 
 REDIRECT_1_3(ssize_t, readlink, char *, size_t)
 
