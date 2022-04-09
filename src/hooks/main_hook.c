@@ -6,6 +6,7 @@
 #include <linux/limits.h>
 
 #include "exec_utils.h"
+#include "hooks.h"
 
 /* Trampoline for the real main() */
 static int (*apprun_main_orig)(int, char **, char **);
@@ -13,7 +14,10 @@ static int (*apprun_main_orig)(int, char **, char **);
 
 /* Wrapper for main() that gets called by __libc_start_main() */
 int apprun_main_hook(int argc, char **argv, char **envp) {
-    apprun_restore_workdir_if_needed();
+    if (!apprun_chdir_called) {
+        apprun_restore_workdir_if_needed();
+        apprun_chdir_called = 1;
+    }
 #ifdef DEBUG
     char exec_path[PATH_MAX] = {0x0};
     realpath("/proc/self/exe", exec_path);
