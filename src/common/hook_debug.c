@@ -46,7 +46,7 @@ char *find_hooked_symbol() {
         perror("backtrace_symbols");
         exit(EXIT_FAILURE);
     }
-    char *apprun_hooks_entry;
+    char *apprun_hooks_entry = NULL;
     for (int j = 0; j < nptrs; j++) {
         if ((strstr(strings[j], "libapprun_hooks.so") != NULL)
             && (strstr(strings[j], "__libc_start_main") == NULL)
@@ -55,7 +55,7 @@ char *find_hooked_symbol() {
         }
     }
 
-    char *symbol_name_being = strstr(apprun_hooks_entry, "(");
+    char *symbol_name_being = apprun_hooks_entry != NULL ? strstr(apprun_hooks_entry, "(") : NULL;
 
     // symbol name lookup is not perfect, in case of failure just return UNKNOWN
     if (symbol_name_being == NULL)
