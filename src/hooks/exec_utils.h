@@ -28,6 +28,7 @@
 #define APPDIR_RUMTIME_SHARED_H
 
 #include <stdbool.h>
+#include <stddef.h>
 
 typedef struct {
     char *file;
