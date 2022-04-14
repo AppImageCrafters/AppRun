@@ -6,7 +6,6 @@
 #include <linux/limits.h>
 
 #include "exec_utils.h"
-#include "hooks.h"
 
 /* Trampoline for the real main() */
 static int (*apprun_main_orig)(int, char **, char **);
@@ -14,10 +13,7 @@ static int (*apprun_main_orig)(int, char **, char **);
 
 /* Update working directory */
 __attribute__((constructor)) static void apprun_update_working_directory() {
-    if (!apprun_chdir_called) {
-        apprun_restore_workdir_if_needed();
-        apprun_chdir_called = 1;
-    }
+    apprun_restore_workdir_if_needed();
 }
 
 
