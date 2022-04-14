@@ -12,12 +12,17 @@
 static int (*apprun_main_orig)(int, char **, char **);
 
 
-/* Wrapper for main() that gets called by __libc_start_main() */
-int apprun_main_hook(int argc, char **argv, char **envp) {
+/* Update working directory */
+__attribute__((constructor)) static void apprun_update_working_directory() {
     if (!apprun_chdir_called) {
         apprun_restore_workdir_if_needed();
         apprun_chdir_called = 1;
     }
+}
+
+
+/* Wrapper for main() that gets called by __libc_start_main() */
+int apprun_main_hook(int argc, char **argv, char **envp) {
 #ifdef DEBUG
     char exec_path[PATH_MAX] = {0x0};
     realpath("/proc/self/exe", exec_path);
