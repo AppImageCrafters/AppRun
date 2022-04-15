@@ -132,9 +132,11 @@ apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const 
     res = apprun_duplicate_exec_args(filename, argv);
 
     char *shebang = apprun_read_shebang(filename);
+    char *force_bundle_runtime = getenv(APPDIR_FORCE_BUNDLE_RUNTIME_ENV);
     if (appdir != NULL &&
         !apprun_shebang_requires_external_executable(shebang, appdir) &&
-        (apprun_is_path_child_of(filename, appdir) || apprun_is_module_path(filename))) {
+        ((force_bundle_runtime != NULL && strlen(force_bundle_runtime) > 0) ||
+        apprun_is_path_child_of(filename, appdir) || apprun_is_module_path(filename))) {
 #ifdef DEBUG
         fprintf(stderr, "APPRUN_HOOK_DEBUG: USING BUNDLE RUNTIME\n");
 #endif
