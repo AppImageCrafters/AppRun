@@ -127,6 +127,7 @@ and decide which `ld-linux.so` and `libc.so` will be used.
 
 - `APPDIR_PATH_MAPPINGS`: list of path mappings separated by semicolon, a path mapping is composed by two paths 
 separated by a colon. Example: `/usr/lib/myapp:$APPDIR/usr/lib/myapp;`
+- `APPDIR_FORCE_BUNDLE_RUNTIME`: By default when executing a program, `libapprun_hooks.so` tries to determine whether the program is part of the AppImage, and if the program isn't, it will reset the various `LD_*` variables so the program will use the host system's libraries. If this environmental variable is set to anon-zero-length string, `libapprun_hooks.so` will assume the program is part of the AppImage and use the AppImage's libraries. This is useful if you're generating executable at runtime that aren't stored in the AppImage's mount point.
 
 ### Recommended Environment Entries
 
