@@ -13,3 +13,11 @@ target_compile_definitions(common_objects PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
 target_include_directories(common_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
 
 set_property(TARGET common_objects PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+add_library(
+    redirect_path_objects OBJECT
+    redirect_path.c
+)
+target_compile_definitions(redirect_path_objects PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
+target_include_directories(redirect_path_objects PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
+set_property(TARGET redirect_path_objects PROPERTY POSITION_INDEPENDENT_CODE ON)

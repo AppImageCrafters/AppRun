@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#include "hooks/redirect_path.h"
+#include "common/redirect_path.h"
 #include "common/appdir_environment.h"
 
 START_TEST (test_redirect_path_full)

@@ -42,7 +42,7 @@
 #include <sys/vfs.h>
 #include <unistd.h>
 
-#include "redirect_path.h"
+#include "common/redirect_path.h"
 
 #define REDIRECT_1_1(RET, NAME) \
 RET \
