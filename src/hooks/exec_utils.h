@@ -54,7 +54,7 @@ void apprun_chdir_to_runtime();
  */
 void apprun_restore_workdir_if_needed();
 
-apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const *argv, char *const *envp);
+apprun_exec_args_t *apprun_adjusted_exec_args(const char *resolved_filename, char *const *argv, char *const *envp);
 
 /**
  * Read shebang from file

@@ -35,6 +35,7 @@
 #include "exec_utils.h"
 #include "environment.h"
 #include "common/appdir_environment.h"
+#include "common/redirect_path.h"
 
 
 void apprun_print_envp(char *const *envp);
@@ -120,21 +121,22 @@ void apprun_chdir_to_runtime() {
 }
 
 apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const *argv, char *const *envp) {
+    char *resolved_filename = apprun_exec_adjust_path(filename);
     char *appdir = getenv(APPRUN_ENV_STARTUP_PREFIX"APPDIR");
 
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_HOOK_DEBUG: APPDIR: %s\n", appdir);
     fprintf(stderr, "APPRUN_HOOK_DEBUG: ORIGINAL EXEC_ARGS\n");
-    apprun_print_exec_args(filename, argv, envp);
+    apprun_print_exec_args(resolved_filename, argv, envp);
 #endif
 
     apprun_exec_args_t *res = NULL;
-    res = apprun_duplicate_exec_args(filename, argv);
+    res = apprun_duplicate_exec_args(resolved_filename, argv);
 
-    char *shebang = apprun_read_shebang(filename);
+    char *shebang = apprun_read_shebang(resolved_filename);
     if (appdir != NULL &&
         !apprun_shebang_requires_external_executable(shebang, appdir) &&
-        (apprun_is_path_child_of(filename, appdir) || apprun_is_module_path(filename))) {
+        (apprun_is_path_child_of(resolved_filename, appdir) || apprun_is_module_path(resolved_filename))) {
 #ifdef DEBUG
         fprintf(stderr, "APPRUN_HOOK_DEBUG: USING BUNDLE RUNTIME\n");
 #endif
@@ -156,6 +158,7 @@ apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const 
     if (shebang != NULL)
         free(shebang);
 
+    free(resolved_filename);
     return res;
 }
 

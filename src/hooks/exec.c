@@ -35,7 +35,6 @@
 #include <stdarg.h>
 
 #include "exec_utils.h"
-#include "redirect_path.h"
 
 typedef ssize_t (*execve_func_t)(const char *filename, char *const argv[], char *const envp[]);
 
@@ -152,53 +151,45 @@ int execle(const char *path, const char *args, ...) {
 }
 
 int execve(const char *filename, char *const argv[], char *const envp[]) {
-    char *new_filename = apprun_exec_adjust_path(filename);
-    apprun_exec_args_t *new_exec_args = apprun_adjusted_exec_args(new_filename, argv, envp);
+    apprun_exec_args_t *new_exec_args = apprun_adjusted_exec_args(filename, argv, envp);
 
     real_execve = dlsym(RTLD_NEXT, "execve");
     int ret = real_execve(new_exec_args->file, new_exec_args->args, new_exec_args->envp);
 
     apprun_restore_workdir_if_needed();
     apprun_exec_args_free(new_exec_args);
-    free(new_filename);
     return ret;
 }
 
 int execv(const char *filename, char *const argv[]) {
-    char *new_filename = apprun_exec_adjust_path(filename);
-    apprun_exec_args_t *new_exec_args = apprun_adjusted_exec_args(new_filename, argv, environ);
+    apprun_exec_args_t *new_exec_args = apprun_adjusted_exec_args(filename, argv, environ);
 
     real_execve = dlsym(RTLD_NEXT, "execve");
     int ret = real_execve(new_exec_args->file, new_exec_args->args, new_exec_args->envp);
 
     apprun_restore_workdir_if_needed();
     apprun_exec_args_free(new_exec_args);
-    free(new_filename);
     return ret;
 }
 
 int execvpe(const char *filename, char *const argv[], char *const envp[]) {
-    char *new_filename = apprun_exec_adjust_path(filename);
-    apprun_exec_args_t *new_exec_args = apprun_adjusted_exec_args(new_filename, argv, envp);
+    apprun_exec_args_t *new_exec_args = apprun_adjusted_exec_args(filename, argv, envp);
 
     real_execvpe = dlsym(RTLD_NEXT, "execvpe");
     int ret = real_execvpe(new_exec_args->file, new_exec_args->args, new_exec_args->envp);
 
     apprun_restore_workdir_if_needed();
     apprun_exec_args_free(new_exec_args);
-    free(new_filename);
     return ret;
 }
 
 int execvp(const char *filename, char *const argv[]) {
-    char *new_filename = apprun_exec_adjust_path(filename);
-    apprun_exec_args_t *new_exec_args = apprun_adjusted_exec_args(new_filename, argv, environ);
+    apprun_exec_args_t *new_exec_args = apprun_adjusted_exec_args(filename, argv, environ);
 
     real_execvpe = dlsym(RTLD_NEXT, "execvpe");
     int ret = real_execvpe(new_exec_args->file, new_exec_args->args, new_exec_args->envp);
 
     apprun_restore_workdir_if_needed();
     apprun_exec_args_free(new_exec_args);
-    free(new_filename);
     return ret;
 }
