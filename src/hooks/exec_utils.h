@@ -92,4 +92,25 @@ bool apprun_shebang_requires_external_executable(const char *shebang, const char
  * @return true if the path contained in some module path, false otherwise.
  */
 bool apprun_is_module_path(const char *path);
+
+/**
+ * Search file in the colon-separated list of directory path names specified in the PATH environment variable.  If this
+ * variable isn't defined, the path list defaults to a list  that  includes  the  directories  returned  by
+ * confstr(_CS_PATH)  (which  typically  returns  the  value "/bin:/usr/bin") and possibly also the current working
+ * directory.
+ *
+ * @param filename
+ * @return On success, returns a pointer to a string contain the resolved file path. If the file is not found a copy of
+ *          the original filename is returned.
+ */
+char* apprun_resolve_file_from_path_env(const char* filename);
+
+/**
+ * Calls apprun_resolve_file_from_path_env if the filename doesn't contain a '/'.
+ *
+ * @param filename
+ * @return See apprun_resolve_file_from_path_env return.
+ */
+char* apprun_resolve_file_from_path_env_if_required(const char* filename);
+
 #endif //APPDIR_RUMTIME_SHARED_H
