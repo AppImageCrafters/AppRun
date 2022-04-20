@@ -159,11 +159,3 @@ char *apprun_redirect_path(const char *pathname) {
     return redirect_path_full(pathname, 0, 0);
 }
 
-char *apprun_exec_adjust_path(const char *filename) {
-    char *bin_path = apprun_resolve_bin_path(filename);
-    char *final_filename = apprun_redirect_path(bin_path);
-    free(bin_path);
-
-    return final_filename;
-}
-

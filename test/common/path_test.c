@@ -34,38 +34,6 @@
 #include "tests_shared.h"
 
 
-void test_apprun_resolve_absolute_bin_path() {
-    char *result = NULL;
-    fprintf(stderr, "%s: ", __FUNCTION__);
-
-    char *orig_path = strdup(getenv("PATH"));
-    setenv("PATH", APPDIR_MOCK_PATH"/usr/bin", 1);
-
-    result = apprun_resolve_bin_path(APPDIR_MOCK_PATH"/bin/app");
-    assert_str_eq(APPDIR_MOCK_PATH"/usr/bin/app", result);
-
-    fprintf(stderr, "Ok\n");
-
-    setenv("PATH", orig_path, 1);
-    free(result);
-    free(orig_path);
-}
-
-void test_apprun_resolve_bin_filename() {
-    char *result = NULL;
-    fprintf(stderr, "%s: ", __FUNCTION__);
-
-    char *orig_path = strdup(getenv("PATH"));
-    setenv("PATH", APPDIR_MOCK_PATH"/usr/bin", 1);
-    result = apprun_resolve_bin_path("app");
-    assert_str_eq(APPDIR_MOCK_PATH"/usr/bin/app", result);
-
-    setenv("PATH", orig_path, 1);
-    fprintf(stderr, "Ok\n");
-    free(result);
-    free(orig_path);
-}
-
 void test_apprun_is_path_child_of_on_existent_paths() {
     fprintf(stdout, "%s: ", __FUNCTION__);
     assert_false(apprun_is_path_child_of(APPDIR_MOCK_PATH"/usr/", APPDIR_MOCK_PATH"/usr/bin/"));
@@ -113,10 +81,7 @@ void test_apprun_concat_path() {
     fprintf(stdout, "OK\n");
 }
 
-int main(int argc, char **argv) {
-    test_apprun_resolve_absolute_bin_path();
-    test_apprun_resolve_bin_filename();
-
+int main(int argc, char** argv) {
     test_apprun_is_path_child_of_on_existent_paths();
     test_apprun_is_path_child_of_on_non_existent_paths();
     test_apprun_is_path_child_of_on_mapped_paths();
