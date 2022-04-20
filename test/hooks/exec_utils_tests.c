@@ -1,6 +1,5 @@
 #include <check.h>
 #include <stdlib.h>
-#include <stdio.h>
 
 #include "hooks/exec_utils.h"
 #include "common/appdir_environment.h"
@@ -105,13 +104,35 @@ START_TEST (test_apprun_is_module_path_empty)
     }
 END_TEST
 
+START_TEST (test_resolve_filename_from_path_sh_on_bin)
+    {
+        char* path_env_orig = strdup(getenv("PATH"));
+        setenv("PATH", "/nowhere-to-be-found:/bin:/usr/bin", 1);
+
+        char* result = apprun_resolve_file_from_path_env("sh");
+        ck_assert_str_eq(result, "/bin/sh");
+
+        setenv("PATH", path_env_orig, 1);
+        free(result);
+        free(path_env_orig);
+    }
+END_TEST
+
+START_TEST (test_resolve_filename_from_path_fail)
+    {
+        char* result = apprun_resolve_file_from_path_env("this-bin-should-not-be-found");
+        ck_assert_str_eq(result, "this-bin-should-not-be-found");
+        free(result);
+    }
+END_TEST
+
 Suite *exec_utils_suite(void) {
     Suite *s;
     TCase *tc_read_shebang;
     TCase *tc_extract_interpreter_path;
     TCase *tc_apprun_executable_requires_external_interp;
     TCase *tc_apprun_modules;
-
+    TCase *tc_resolve_filename_from_path;
 
     s = suite_create("Exec Utils");
 
@@ -137,6 +158,11 @@ Suite *exec_utils_suite(void) {
     tcase_add_test(tc_apprun_modules, test_apprun_is_module_path_multiple);
     tcase_add_test(tc_apprun_modules, test_apprun_is_module_path_empty);
     suite_add_tcase(s, tc_apprun_modules);
+
+    tc_resolve_filename_from_path = tcase_create("tc_resolve_filename_from_path");
+    tcase_add_test(tc_resolve_filename_from_path, test_resolve_filename_from_path_sh_on_bin);
+    tcase_add_test(tc_resolve_filename_from_path, test_resolve_filename_from_path_fail);
+    suite_add_tcase(s, tc_resolve_filename_from_path);
 
     return s;
 }

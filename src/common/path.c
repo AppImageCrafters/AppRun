@@ -31,45 +31,6 @@
 
 #include "path.h"
 
-char *apprun_lookup_next(char *itr, char lookup_char) {
-    while (itr != NULL && *itr != '\0' && *itr != lookup_char)
-        itr++;
-
-    return itr;
-}
-
-char *apprun_resolve_bin_path_from_env(const char *bin, char *path_env) {
-    char *resolved = NULL;
-    unsigned file_name_len = strlen(bin);
-
-    char *itr_begin = path_env;
-    while (itr_begin != NULL && *itr_begin != '\0' && resolved == NULL) {
-        char *itr_end = itr_begin;
-        itr_end = apprun_lookup_next(itr_end, ':');
-
-        if (itr_end != itr_begin) {
-            resolved = calloc(itr_end - itr_begin + file_name_len + 2, sizeof(char));
-            strncpy(resolved, itr_begin, itr_end - itr_begin);
-            resolved[itr_end - itr_begin] = '/';
-            strcat(resolved, bin);
-
-            if (access(resolved, F_OK) != 0) {
-                free(resolved);
-                resolved = NULL;
-            }
-
-            itr_begin = itr_end;
-
-            // skip separator
-            if (*itr_begin != '\0')
-                itr_begin++;
-        }
-    }
-
-    return resolved;
-}
-
-
 bool apprun_is_path_child_of(const char *path, const char *base) {
     char *real_base = realpath(base, NULL);
     char *real_path = realpath(path, NULL);

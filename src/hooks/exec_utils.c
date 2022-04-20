@@ -24,11 +24,14 @@
  *
  **************************************************************************/
 
+#define _GNU_SOURCE
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <linux/limits.h>
 #include <unistd.h>
+#include <common/string_utils.h>
 
 #include "common/string_list.h"
 #include "common/path.h"
@@ -38,9 +41,9 @@
 #include "common/redirect_path.h"
 
 
-void apprun_print_envp(char *const *envp);
+void apprun_print_envp(char* const* envp);
 
-void apprun_exec_args_free(apprun_exec_args_t *args) {
+void apprun_exec_args_free(apprun_exec_args_t* args) {
     apprun_string_list_free(args->args);
     apprun_string_list_free(args->envp);
     free(args->file);
@@ -48,11 +51,11 @@ void apprun_exec_args_free(apprun_exec_args_t *args) {
 }
 
 
-void apprun_print_exec_args(const char *filename, char *const *argv, char *const *envp) {
+void apprun_print_exec_args(const char* filename, char* const* argv, char* const* envp) {
     fprintf(stderr, "  filename: \"%s\"\n", filename);
     fprintf(stderr, "  args: [ ");
     if (argv) {
-        for (char *const *itr = argv; *itr != 0; itr++) {
+        for (char* const* itr = argv; *itr != 0; itr++) {
             fprintf(stderr, "\"%s\"", *itr);
             if (*(itr + 1) != NULL)
                 fprintf(stderr, ", ");
@@ -65,17 +68,17 @@ void apprun_print_exec_args(const char *filename, char *const *argv, char *const
 }
 
 
-apprun_exec_args_t *apprun_duplicate_exec_args(const char *filename, char *const *argv) {
-    apprun_exec_args_t *result;
+apprun_exec_args_t* apprun_duplicate_exec_args(const char* filename, char* const* argv) {
+    apprun_exec_args_t* result;
     result = calloc(1, sizeof(apprun_exec_args_t));
 
     // use original filename
     result->file = strdup(filename);
 
     int array_size = apprun_array_len(argv);
-    result->args = calloc(array_size, sizeof(char *));
-    char *const *src_itr = argv;
-    char **target_itr = result->args;
+    result->args = calloc(array_size, sizeof(char*));
+    char* const* src_itr = argv;
+    char** target_itr = result->args;
 
     // copy arguments
     for (; *src_itr != NULL; src_itr++, target_itr++)
@@ -84,11 +87,11 @@ apprun_exec_args_t *apprun_duplicate_exec_args(const char *filename, char *const
     return result;
 }
 
-char **apprun_set_original_workdir_env(char *const *envp) {
+char** apprun_set_original_workdir_env(char* const* envp) {
     char cwd_path[PATH_MAX] = {0x0};
     getcwd(cwd_path, PATH_MAX);
 
-    char **new_envp = apprun_envp_set(APPRUN_ENV_ORIGINAL_WORKDIR, cwd_path, envp);
+    char** new_envp = apprun_envp_set(APPRUN_ENV_ORIGINAL_WORKDIR, cwd_path, envp);
     setenv(APPRUN_ENV_ORIGINAL_WORKDIR, cwd_path, 1);
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_HOOK_DEBUG: setenv %s=%s\n", APPRUN_ENV_ORIGINAL_WORKDIR, cwd_path);
@@ -98,7 +101,7 @@ char **apprun_set_original_workdir_env(char *const *envp) {
 }
 
 void apprun_restore_workdir_if_needed() {
-    char const *workdir = getenv(APPRUN_ENV_ORIGINAL_WORKDIR);
+    char const* workdir = getenv(APPRUN_ENV_ORIGINAL_WORKDIR);
     if (workdir != NULL) {
 #ifdef DEBUG
         fprintf(stderr, "APPRUN_HOOK_DEBUG: restoring original workdir %s\n", workdir);
@@ -110,7 +113,7 @@ void apprun_restore_workdir_if_needed() {
 }
 
 void apprun_chdir_to_runtime() {
-    char const *runtime_path = getenv(APPRUN_ENV_RUNTIME);
+    char const* runtime_path = getenv(APPRUN_ENV_RUNTIME);
     if (runtime_path != NULL) {
         chdir(runtime_path);
     } else {
@@ -120,9 +123,9 @@ void apprun_chdir_to_runtime() {
     }
 }
 
-apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const *argv, char *const *envp) {
-    char *resolved_filename = apprun_redirect_path(filename);
-    char *appdir = getenv(APPRUN_ENV_STARTUP_PREFIX"APPDIR");
+apprun_exec_args_t* apprun_adjusted_exec_args(const char* filename, char* const* argv, char* const* envp) {
+    char* resolved_filename = apprun_redirect_path(filename);
+    char* appdir = getenv(APPRUN_ENV_STARTUP_PREFIX"APPDIR");
 
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_HOOK_DEBUG: APPDIR: %s\n", appdir);
@@ -130,10 +133,10 @@ apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const 
     apprun_print_exec_args(resolved_filename, argv, envp);
 #endif
 
-    apprun_exec_args_t *res = NULL;
+    apprun_exec_args_t* res = NULL;
     res = apprun_duplicate_exec_args(resolved_filename, argv);
 
-    char *shebang = apprun_read_shebang(resolved_filename);
+    char* shebang = apprun_read_shebang(resolved_filename);
     if (appdir != NULL &&
         !apprun_shebang_requires_external_executable(shebang, appdir) &&
         (apprun_is_path_child_of(resolved_filename, appdir) || apprun_is_module_path(resolved_filename))) {
@@ -162,12 +165,12 @@ apprun_exec_args_t *apprun_adjusted_exec_args(const char *filename, char *const 
     return res;
 }
 
-bool apprun_is_module_path(const char *path) {
-    char *module_dirs = getenv(APPDIR_MODULE_DIR_ENV);
+bool apprun_is_module_path(const char* path) {
+    char* module_dirs = getenv(APPDIR_MODULE_DIR_ENV);
     bool result = false;
     if (module_dirs != NULL) {
-        char *modules_dir_copy = strdup(module_dirs);
-        char *module_path = strtok(modules_dir_copy, APPDIR_MODULE_DIR_ENV_DELIM);
+        char* modules_dir_copy = strdup(module_dirs);
+        char* module_path = strtok(modules_dir_copy, APPDIR_MODULE_DIR_ENV_DELIM);
 
         /* walk through other module dir paths */
         while (module_path != NULL) {
@@ -186,10 +189,10 @@ bool apprun_is_module_path(const char *path) {
     return result;
 }
 
-bool apprun_shebang_requires_external_executable(const char *shebang, const char *appdir) {
+bool apprun_shebang_requires_external_executable(const char* shebang, const char* appdir) {
     bool requires_external_interpreter = false;
     if (shebang != NULL) {
-        char *interp_path = apprun_shebang_extract_interpreter_path(shebang);
+        char* interp_path = apprun_shebang_extract_interpreter_path(shebang);
         if (interp_path != NULL) {
             if (interp_path[0] == '/')
                 requires_external_interpreter = !apprun_is_path_child_of(interp_path, appdir);
@@ -203,7 +206,7 @@ bool apprun_shebang_requires_external_executable(const char *shebang, const char
     return requires_external_interpreter;
 }
 
-char *apprun_parse_shebang(char *buf, size_t br) {
+char* apprun_parse_shebang(char* buf, size_t br) {
     // check presence of '#!'
     if (br < 3 || buf[0] != '#' || buf[1] != '!')
         return NULL;
@@ -224,9 +227,9 @@ char *apprun_parse_shebang(char *buf, size_t br) {
     return NULL;
 }
 
-char *apprun_read_shebang(const char *filename) {
-    char *shebang = NULL;
-    FILE *fd = fopen(filename, "rb");
+char* apprun_read_shebang(const char* filename) {
+    char* shebang = NULL;
+    FILE* fd = fopen(filename, "rb");
 
     if (fd != NULL) {
         char buf[PATH_MAX] = {0x0};
@@ -242,10 +245,52 @@ char *apprun_read_shebang(const char *filename) {
     return shebang;
 }
 
-char *apprun_shebang_extract_interpreter_path(const char *shebang) {
-    char *interpreter_end = strstr(shebang, " ");
+char* apprun_shebang_extract_interpreter_path(const char* shebang) {
+    char* interpreter_end = strstr(shebang, " ");
     if (interpreter_end == NULL)
         return strdup(shebang);
     else
         return strndup(shebang, interpreter_end - shebang);
+}
+
+
+char* apprun_resolve_file_from_path_env(const char* filename) {
+    char search_paths[PATH_MAX] = {0x0};
+    char resolved[PATH_MAX] = {0x0};
+
+    // use PATH env or fallback to confstr(_CS_PATH)
+    char* path_env = getenv("PATH");
+    if (path_env != NULL)
+        strcpy(search_paths, path_env);
+    else
+        confstr(_CS_PATH, search_paths, PATH_MAX);
+
+    unsigned filename_len = strlen(filename);
+
+    char* itr_begin = search_paths;
+    char* itr_end = NULL;
+    while (itr_begin != NULL && *itr_begin != '\0') {
+        itr_end = strchrnul(itr_begin, ':');
+        size_t path_len = itr_end - itr_begin;
+        if (path_len > 0) {
+            strncpy(resolved, itr_begin, path_len);
+            resolved[path_len] = '/';
+            strncpy(resolved + path_len + 1, filename, filename_len);
+            resolved[path_len + filename_len + 1] = '\0';
+
+            if (access(resolved, F_OK) == 0)
+                return strdup(resolved);
+
+            itr_begin = itr_end + 1;
+        }
+    }
+
+    return strdup(filename);
+}
+
+char* apprun_resolve_file_from_path_env_if_required(const char* filename) {
+    if (strchr(filename, '/') == NULL)
+        return apprun_resolve_file_from_path_env(filename);
+
+    return strdup(filename);
 }

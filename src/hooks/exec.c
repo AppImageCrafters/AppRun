@@ -173,23 +173,27 @@ int execv(const char *filename, char *const argv[]) {
 }
 
 int execvpe(const char *filename, char *const argv[], char *const envp[]) {
-    apprun_exec_args_t *new_exec_args = apprun_adjusted_exec_args(filename, argv, envp);
+    char * resolved_filename = apprun_resolve_file_from_path_env_if_required(filename);
+    apprun_exec_args_t *new_exec_args = apprun_adjusted_exec_args(resolved_filename, argv, envp);
 
     real_execvpe = dlsym(RTLD_NEXT, "execvpe");
     int ret = real_execvpe(new_exec_args->file, new_exec_args->args, new_exec_args->envp);
 
     apprun_restore_workdir_if_needed();
     apprun_exec_args_free(new_exec_args);
+    free(resolved_filename);
     return ret;
 }
 
 int execvp(const char *filename, char *const argv[]) {
-    apprun_exec_args_t *new_exec_args = apprun_adjusted_exec_args(filename, argv, environ);
+    char * resolved_filename = apprun_resolve_file_from_path_env_if_required(filename);
+    apprun_exec_args_t *new_exec_args = apprun_adjusted_exec_args(resolved_filename, argv, environ);
 
     real_execvpe = dlsym(RTLD_NEXT, "execvpe");
     int ret = real_execvpe(new_exec_args->file, new_exec_args->args, new_exec_args->envp);
 
     apprun_restore_workdir_if_needed();
     apprun_exec_args_free(new_exec_args);
+    free(resolved_filename);
     return ret;
 }
