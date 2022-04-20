@@ -70,26 +70,6 @@ char *apprun_resolve_bin_path_from_env(const char *bin, char *path_env) {
 }
 
 
-char *apprun_resolve_bin_path(char const *bin) {
-    char *resolved = NULL;
-
-    if (bin == NULL)
-        return NULL;
-
-    resolved = realpath(bin, NULL);
-    if (resolved != NULL)
-        return resolved;
-
-    char *path_env = getenv("PATH");
-    if (path_env != NULL && bin[0] != '/')
-        resolved = apprun_resolve_bin_path_from_env(bin, path_env);
-
-    if (resolved == NULL)
-        resolved = strdup(bin);
-
-    return resolved;
-}
-
 bool apprun_is_path_child_of(const char *path, const char *base) {
     char *real_base = realpath(base, NULL);
     char *real_path = realpath(path, NULL);
