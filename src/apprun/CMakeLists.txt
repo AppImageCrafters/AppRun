@@ -5,6 +5,7 @@ add_library(
         runtime_environment.c
         runtime_environment.h
         runtime_interpreter.c
+        libc_utils.c
 )
 
 target_compile_definitions(apprun_objects PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
