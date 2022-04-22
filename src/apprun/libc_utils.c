@@ -33,8 +33,9 @@
 #include <string.h>
 
 #include <linux/limits.h>
+#include <regex.h>
 
-char* apprun_read_libc_path_from_so_cache() {
+char* apprun_read_glibc_path_from_so_cache() {
     FILE* cache_fd = fopen("/etc/ld.so.cache", "r");
     char libc_path[PATH_MAX] = {0x0};
     bool libc_path_found = false;
@@ -71,5 +72,49 @@ char* apprun_read_libc_path_from_so_cache() {
     if (libc_path_found)
         return strdup(libc_path);
     else
+        return NULL;
+}
+
+char* apprun_read_glibc_version_from_lib(const char* libc_path) {
+
+    char libc_version[PATH_MAX] = {0x0};
+    bool libc_version_found = false;
+
+    regex_t regex;
+    int regex_comp_res = regcomp(&regex, GLIBC_VERSION_STRING_REGEX, REG_EXTENDED);
+    if (regex_comp_res != 0) {
+        fprintf(stderr, "APPRUN_ERROR: regcomp failed with code: %d\n", regex_comp_res);
+        return NULL;
+    }
+
+    FILE* cache_fd = fopen(libc_path, "r");
+    if (cache_fd) {
+        size_t libc_version_min_size = 6;
+        size_t read_idx = 0;
+
+        int c = fgetc(cache_fd);
+        while (c != EOF && !libc_version_found) {
+            libc_version[read_idx++] = (char) c;
+            if (c == '\0') {
+                if (read_idx >= libc_version_min_size && regexec(&regex, libc_version, 0, NULL, 0) == 0) {
+                    libc_version_found = true;
+                }
+            }
+
+            // reset buffer if char is not printable or the buffer is about to overflow
+            if (!isprint(c) || read_idx == PATH_MAX)
+                read_idx = 0;
+
+            c = fgetc(cache_fd);
+        }
+
+        fclose(cache_fd);
+    }
+
+
+    if (libc_version_found) {
+        size_t glibc_prefix_len = 6;
+        return strdup(libc_version + glibc_prefix_len);
+    } else
         return NULL;
 }

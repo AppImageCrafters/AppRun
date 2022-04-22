@@ -24,23 +24,41 @@
  *
  **************************************************************************/
 
-#ifndef APPIMAGEEXECWRAPPER_LIBC_UTILS_H
-#define APPIMAGEEXECWRAPPER_LIBC_UTILS_H
+
+#include <stdlib.h>
+
+#include <apprun/libc_utils.h>
+#include <stdio.h>
+#include <time.h>
+
+void measure_function_time(void (* _function)(), char const* _function_name) {
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
+
+    _function();
+
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    printf("%s took %f seconds to execute \n", _function_name, cpu_time_used);
+}
 
 
-/**
- * Seek for the first occurrence of libc.so.6 path in "/etc/ld.so.cache"
- * @return string libc.so.6 path on success, NULL if nothing is found
- */
-char* apprun_read_glibc_path_from_so_cache();
+void read_using_exec_call() {
+    system(CHECK_RT_PATH);
+}
+
+void read_using_brute_file_parsing() {
+    char* glibc_path = apprun_read_glibc_path_from_so_cache();
+    char* glibc_version = apprun_read_glibc_version_from_lib(glibc_path);
+
+    printf("glibc %s\n", glibc_version);
+    free(glibc_version);
+    free(glibc_path);
+}
 
 
-#define GLIBC_VERSION_STRING_REGEX "glibc [0-9]+\\.[0-9]+(\\.[0-9]+)*"
-
-/**
- * Seek through the libc.so.6 binary file for an occurrence of LIBC_VERSION_STRING_REGEX
- * @return Matched string version on success, otherwise NULL
- */
-char* apprun_read_glibc_version_from_lib(const char* libc_path);
-
-#endif //APPIMAGEEXECWRAPPER_LIBC_UTILS_H
+int main() {
+    measure_function_time(read_using_brute_file_parsing, "read_using_brute_file_parsing");
+    measure_function_time(read_using_exec_call, "read_using_exec_call");
+}

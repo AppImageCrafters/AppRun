@@ -25,3 +25,5 @@ install(
         RUNTIME DESTINATION bin
 )
 add_dependencies(AppRun apprun_hooks)
+
+add_executable(check_rt check_rt.c)

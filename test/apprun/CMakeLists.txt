@@ -1,9 +1,9 @@
 add_executable(
-        runtime_interpreter_test
-        runtime_interpreter_test.c
-        ../common/tests_shared.c
-        $<TARGET_OBJECTS:apprun_objects>
-        $<TARGET_OBJECTS:common_objects>
+    runtime_interpreter_test
+    runtime_interpreter_test.c
+    ../common/tests_shared.c
+    $<TARGET_OBJECTS:apprun_objects>
+    $<TARGET_OBJECTS:common_objects>
 )
 
 target_link_libraries(runtime_interpreter_test dl)
@@ -18,3 +18,8 @@ add_executable(
 )
 target_link_libraries(libc_utils_test PRIVATE ${CHECK_LIBRARIES} pthread)
 add_test(NAME TEST_LIBC_UTILS COMMAND libc_utils_test)
+
+# benchmarking of libc version reading
+add_executable(libc_get_version_bench libc_get_version_bench.c $<TARGET_OBJECTS:apprun_objects> $<TARGET_OBJECTS:common_objects>)
+target_compile_definitions(libc_get_version_bench PRIVATE -DCHECK_RT_PATH="$<TARGET_FILE:check_rt>")
+add_dependencies(libc_get_version_bench check_rt)

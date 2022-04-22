@@ -24,23 +24,16 @@
  *
  **************************************************************************/
 
-#ifndef APPIMAGEEXECWRAPPER_LIBC_UTILS_H
-#define APPIMAGEEXECWRAPPER_LIBC_UTILS_H
+#include <stdio.h>
 
-
-/**
- * Seek for the first occurrence of libc.so.6 path in "/etc/ld.so.cache"
- * @return string libc.so.6 path on success, NULL if nothing is found
- */
-char* apprun_read_glibc_path_from_so_cache();
-
-
-#define GLIBC_VERSION_STRING_REGEX "glibc [0-9]+\\.[0-9]+(\\.[0-9]+)*"
+#include <gnu/libc-version.h>
 
 /**
- * Seek through the libc.so.6 binary file for an occurrence of LIBC_VERSION_STRING_REGEX
- * @return Matched string version on success, otherwise NULL
+ * Utility to check
  */
-char* apprun_read_glibc_version_from_lib(const char* libc_path);
+int main() {
+    char const* glibc_version = gnu_get_libc_version();
+    printf("glibc %s\n", glibc_version);
 
-#endif //APPIMAGEEXECWRAPPER_LIBC_UTILS_H
+    return 0;
+}
