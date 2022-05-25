@@ -11,7 +11,7 @@ add_custom_target(
         mock.AppDir
         COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/utils/create_appdir.sh ${APPDIR_MOCK_PATH} ${PROJECT_BINARY_DIR}
         BYPRODUCTS ${APPDIR_MOCK_PATH}/AppRun
-        DEPENDS AppRun apprun_hooks hooks_inner_target_test
+        DEPENDS AppRun apprun_hooks hooks_inner_target_test check-libc check-libstdc++
 )
 
 # remove mock on make clean
