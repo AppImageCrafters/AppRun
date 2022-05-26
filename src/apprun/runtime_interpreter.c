@@ -43,6 +43,7 @@
 #include "runtime_environment.h"
 #include "common/path.h"
 #include "common/appdir_environment.h"
+#include "common/string_utils.h"
 
 
 char *parse_ld_trace_line_path(const char *line) {
@@ -122,25 +123,6 @@ char *read_ld_version(char *path) {
     }
 
     return strdup(version);
-}
-
-long compare_version_strings(const char *a, const char *b) {
-    if (a == NULL || b == NULL)
-        return a - b;
-
-    long a_vals[3] = {0x0};
-    long b_vals[3] = {0x0};
-
-    sscanf(a, "%ld.%ld.%ld", a_vals, a_vals + 1, a_vals + 2);
-    sscanf(b, "%ld.%ld.%ld", b_vals, b_vals + 1, b_vals + 2);
-
-    for (int i = 0; i < 3; i++) {
-        long diff = a_vals[i] - b_vals[i];
-        if (diff != 0)
-            return diff;
-    }
-
-    return 0;
 }
 
 void configure_embed_libc() {

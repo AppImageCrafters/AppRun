@@ -35,8 +35,6 @@
 
 // libc specific
 
-long compare_version_strings(const char *a, const char *b);
-
 bool is_linker_version_string_valid(char *buff);
 
 char *read_ld_version(char *path);
