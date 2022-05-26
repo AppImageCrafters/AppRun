@@ -7,6 +7,7 @@ if (${CMAKE_BUILD_TYPE} MATCHES Profile)
     set(CMAKE_C_FLAGS "-fprofile-arcs -ftest-coverage")
 endif (${CMAKE_BUILD_TYPE} MATCHES Profile)
 
+include(cmake/get_libconfig.cmake)
 add_subdirectory(src)
 
 if (BUILD_TESTING)
