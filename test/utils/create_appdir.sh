@@ -15,8 +15,8 @@ fi
 
 APPRUN=$(find "$BUILD_DIR/src" -name AppRun | head -n 1)
 APPRUN_HOOKS=$(find "$BUILD_DIR/src" -name libapprun_hooks.so | head -n 1)
-CHECK_LIBC=$(find "$BUILD_DIR/src" -name check-libc | head -n 1)
-CHECK_LIBSTDCPP=$(find "$BUILD_DIR/src" -name check-libstdc++ | head -n 1)
+CHECK_LIBC=$(find "$BUILD_DIR/src" -name check-glibc | head -n 1)
+CHECK_LIBSTDCPP=$(find "$BUILD_DIR/src" -name check-glibstdc++ | head -n 1)
 TARGET_BIN=$(find "$BUILD_DIR/test" -name hooks_inner_target_test | head -n 1)
 
 if [ -z "$APPRUN" ]; then
@@ -30,7 +30,7 @@ if [ -z "$APPRUN_HOOKS" ]; then
 fi
 
 if [ -z "$CHECK_LIBC" ]; then
-  echo "Missing check-libc path"
+  echo "Missing check-glibc path"
   exit 1
 fi
 
@@ -95,7 +95,7 @@ function create_libc_module() {
 version = "1.0";
 check:
 {
-  required_libc = "${APPDIR_LIBC_VERSION}";
+  required_glibc = "$APPDIR_LIBC_VERSION";
 };
 module:
 {
@@ -131,7 +131,7 @@ function create_libstdcpp_module() {
 version = "1.0";
 check:
 {
-  required_libstdcpp = "${APPDIR_LIBSTDCPP_VERSION}";
+  required_glibstdcpp = "${APPDIR_LIBSTDCPP_VERSION}";
 };
 module:
 {
@@ -139,7 +139,7 @@ module:
 };
 EOF
 
-  patch_appdir_path_in_config "$APPDIR/AppRun.config"
+  patch_appdir_path_in_config "$APPDIR/opt/libstdc++/config"
 }
 
 APPDIR_DEFAULT_RUNTIME="$APPDIR"
@@ -177,7 +177,7 @@ cp "$APPRUN_HOOKS" "$APPDIR/lib/"
 # deploy AppRun
 cp "$APPRUN" "$APPDIR"
 
-cat >$APPDIR/AppRun.config <<EOF
+cat >"$APPDIR/AppRun.config" <<EOF
 version = "1.0";
 runtime:
 {
