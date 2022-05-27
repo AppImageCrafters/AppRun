@@ -1,7 +1,10 @@
-add_executable(check-glibc check-glibc.c)
+add_library(module_common OBJECT common.c)
+
+add_executable(check-glibc check-glibc.c $<TARGET_OBJECTS:module_common>)
 target_link_libraries(check-glibc PRIVATE libconfig common_objects)
 
-add_executable(check-glibstdc++ check-glibstdc++.cpp)
+add_executable(check-glibstdc++ check-glibstdc++.cpp $<TARGET_OBJECTS:module_common>)
+target_link_libraries(check-glibstdc++ PRIVATE libconfig common_objects)
 target_compile_options(check-glibstdc++ PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=c++11>)
 
 # check-glibstdc++ was written using the least amount of c++ in order to ensure backward compatibility with Centos 6

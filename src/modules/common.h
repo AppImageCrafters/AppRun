@@ -1,0 +1,7 @@
+#ifndef APPIMAGEEXECWRAPPER_COMMON_H
+#define APPIMAGEEXECWRAPPER_COMMON_H
+
+
+char* resolve_module_config_path();
+
+#endif //APPIMAGEEXECWRAPPER_COMMON_H

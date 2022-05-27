@@ -23,14 +23,16 @@ check:
 EOF
 }
 
+source $(dirname $0)/common.sh
+
 ###############
 ## TEST CASES #
 ###############
 
 printf "Check on system glibc higher than required, expected ZERO as return value"
 setup_test_case "$TEST_DIR/test-check-glibc-with-lower-requirement" "1.0.0"
-"$TEST_DIR/test-check-glibc-with-lower-requirement/check" && echo " PASS"
+assert_success "$TEST_DIR/test-check-glibc-with-lower-requirement/check"
 
 printf "Check on system glibc lower than required, expected NON ZERO as return value"
 setup_test_case "$TEST_DIR/test-check-glibc-with-lower-requirement" "9999.0.0"
-! "$TEST_DIR/test-check-glibc-with-lower-requirement/check" && echo " PASS"
+assert_fail "$TEST_DIR/test-check-glibc-with-lower-requirement/check"
