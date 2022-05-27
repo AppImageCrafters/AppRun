@@ -2,32 +2,13 @@
 #include <libconfig.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 #include <gnu/libc-version.h>
 
 #include "common/string_utils.h"
+#include "common.h"
 
-char* resolve_config_path() {
-    char* path = malloc(FILENAME_MAX * sizeof(char));
-    if (realpath("/proc/self/exe", path) == NULL) {
-        fprintf(stderr, "ERROR:check-libc: Unable to find binary location");
-        exit(EXIT_FAILURE);
-    }
-
-    // replace binary name by 'config'
-    char* dir_slash_idx = strrchr(path, '/');
-    *dir_slash_idx = 0;
-    strcat(dir_slash_idx, "/config");
-    if (access(path, F_OK) != 0) {
-        fprintf(stderr, "ERROR:check-libc: Unable to find the config file at: %s", path);
-        exit(EXIT_FAILURE);
-    }
-
-    return path;
-}
-
-char* read_required_glibc_version_from_config(char* config_path) {
+char* read_required_glibstdcpp_version_from_config(char* config_path) {
     config_t cfg;
     const char* str;
 
@@ -53,8 +34,8 @@ char* read_required_glibc_version_from_config(char* config_path) {
 }
 
 int main() {
-    char* config_path = resolve_config_path();
-    const char* required_glibc_version = read_required_glibc_version_from_config(config_path);
+    char* config_path = resolve_module_config_path();
+    const char* required_glibc_version = read_required_glibstdcpp_version_from_config(config_path);
     const char* system_glibc_version = gnu_get_libc_version();
 
     // the libc module must be used if the system version is lesser than the required
