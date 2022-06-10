@@ -34,8 +34,6 @@
 #include <limits.h>
 #include <gnu/libc-version.h>
 
-#include "common/file_utils.h"
-#include "common/string_list.h"
 #include "common/shell_utils.h"
 #include "hooks/environment.h"
 

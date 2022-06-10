@@ -1,7 +1,6 @@
 add_library(
         common_objects OBJECT
-        file_utils.c
-        string_list.c
+    string_list.c
         path.c
         string_utils.c
         shell_utils.c
