@@ -37,8 +37,6 @@
 
 bool is_linker_version_string_valid(char *buff);
 
-char *read_ld_version(char *path);
-
 char *parse_ld_trace_line_path(const char *line);
 
 void setup_runtime();

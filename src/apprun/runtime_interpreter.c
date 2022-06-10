@@ -100,29 +100,6 @@ char *try_read_ld_version_string(FILE *fp) {
     return NULL;
 }
 
-char *read_ld_version(char *path) {
-    char version[254] = {0x0};
-    FILE *fp = fopen(path, "r");
-    if (fp) {
-        int itr;
-        while ((itr = fgetc(fp)) != EOF) {
-            if (itr == 'l') {
-                char *new_version = try_read_ld_version_string(fp);
-                if (new_version != NULL) {
-                    if (compare_version_strings(new_version, version) > 0)
-                        strcpy(version, new_version);
-
-                    free(new_version);
-                }
-            }
-        }
-
-        fclose(fp);
-    }
-
-    return strdup(version);
-}
-
 void configure_embed_libc() {
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_DEBUG: using appdir libc\n");

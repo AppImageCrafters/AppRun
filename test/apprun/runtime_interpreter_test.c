@@ -58,16 +58,6 @@ void test_validate_glibc_version_string() {
     printf("Ok\n");
 }
 
-void test_read_ld_version() {
-    printf("%s: ", __PRETTY_FUNCTION__);
-    char *version = read_ld_version("/lib64/ld-linux-x86-64.so.2");
-    const char *expected_version = gnu_get_libc_version();
-    assert_str_eq(version, expected_version);
-    free(version);
-
-    printf("Ok\n");
-}
-
 void test_compare_glib_version_strings() {
     printf("%s: ", __PRETTY_FUNCTION__);
 
@@ -92,7 +82,6 @@ int main(int argc, char **argv, char *envp[]) {
     test_parse_ld_trace_lib_path();
     test_validate_glibc_version_string();
     test_compare_glib_version_strings();
-    test_read_ld_version();
 
     return 0;
 }
