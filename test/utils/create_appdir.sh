@@ -7,7 +7,12 @@ if [ -z "$APPDIR" ]; then
   echo "Missing AppDir path"
   exit 1
 fi
-BUILD_DIR="$2"
+MAPPED_APPDIR="$2"
+if [ -z "$APPDIR" ]; then
+  echo "Missing MAPPED_APPDIR path"
+  exit 1
+fi
+BUILD_DIR="$3"
 if [ -z "$BUILD_DIR" ]; then
   echo "Missing BUILD_DIR path"
   exit 1
@@ -99,7 +104,11 @@ check:
 };
 module:
 {
-  library_path = ( "${APPDIR_LIBC_LIBRARY_PATH}" );
+  runtime_dir = "$APPDIR/opt/libc";
+  library_paths = [ "${APPDIR_LIBC_LIBRARY_PATH}" ];
+  environment = {
+      CUSTOM_ENV_1 = "glibc";
+    };
 };
 EOF
   patch_appdir_path_in_config "$APPDIR/opt/libc/config"
@@ -135,7 +144,10 @@ check:
 };
 module:
 {
-  library_path = ( "${target_dir}" );
+  library_path = [ "${target_dir}" ];
+  environment = {
+    CUSTOM_ENV = "glibstc++";
+  };
 };
 EOF
 
@@ -181,10 +193,15 @@ cat >"$APPDIR/AppRun.config" <<EOF
 version = "1.0";
 runtime:
 {
-  exec = ( "\$APPDIR/usr/bin/script", "\$@" );
-  linkers = ( "$APPDIR_LIBC_LINKER_PATH" );
-  library_path = ( "${APPDIR_LIBRARY_PATH}" );
-  path_mappings = ( ("/bin", "\$APPDIR/bin") );
+  exec = [ "\$APPDIR/usr/bin/script", "\$@" ];
+  linkers = [ "$APPDIR_LIBC_LINKER_PATH" ];
+  library_paths = [ "${APPDIR_LIBRARY_PATH}" ];
+  path_mappings = [ "$MAPPED_APPDIR", "\$APPDIR" ];
+  environment = {
+      CUSTOM_ENV = "custom environment variable value";
+      LD_PRELOAD = "libapprun_hooks.so:$LD_PRELOAD";
+  };
+  modules_dir = "\$APPDIR/opt";
 };
 EOF
 

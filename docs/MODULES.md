@@ -38,7 +38,7 @@ other components such as the check binary. It will have the following structure:
 - `check`: optional group, may contain data required by the check app.
 - `module`: mandatory group, module runtime settings
   
-  - `library_path`: optional string list, module library paths
+  - `library_paths`: optional string list, module library paths
   - `path_mappings`: optional string pair list, path mapping instructions
   - `environment`: optional map, environment variables
   - `runtime_dir`: optional string, working directory to be set on execve instructions (reserved for the glibc module)
@@ -58,7 +58,7 @@ check:
 module:
 {
   # library paths to be set
-  library_path = ( "${APPDIR}/opt/module_id/lib", "${APPDIR}/opt/module_id/usr/lib");
+  library_paths = ( "${APPDIR}/opt/module_id/lib", "${APPDIR}/opt/module_id/usr/lib");
   
   # path_mappings to be set
   path_mappings = ( ( "/bin/app", "${APPDIR}/opt/module_id/bin/app") );

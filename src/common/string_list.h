@@ -27,6 +27,11 @@
 #ifndef APPRUN_STRING_LIST_H
 #define APPRUN_STRING_LIST_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdbool.h>
 
 char *apprun_prefix_str(const char *prefix, const char *str);
@@ -46,5 +51,10 @@ void apprun_string_list_copy(char *const *source, char **target);
 char **apprun_string_list_dup(char *const *list);
 
 char *apprun_string_list_join(char *const *string_list, char *split);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //APPRUN_STRING_LIST_H

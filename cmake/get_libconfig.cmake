@@ -24,4 +24,8 @@ include_directories(${install_dir}/include)
 add_library(libconfig STATIC IMPORTED)
 set_property(TARGET libconfig PROPERTY IMPORTED_LOCATION ${install_dir}/lib/libconfig.a)
 
+add_library(libconfig++ STATIC IMPORTED)
+set_property(TARGET libconfig++ PROPERTY IMPORTED_LOCATION ${install_dir}/lib/libconfig++.a)
+
 add_dependencies(libconfig libconfig.git)
+add_dependencies(libconfig++ libconfig.git)
