@@ -31,7 +31,6 @@
 #include <string>
 #include <map>
 #include <libconfig.h++>
-#include <filesystem>
 
 #define APPRUN_CONFIG_FILE_NAME "AppRun.config"
 
@@ -69,7 +68,7 @@ AppRunSettings* load_config_file(const std::string& config_path);
  * @param settings
  * @param module_dir
  */
-void setup_module(AppRunSettings* settings, const std::filesystem::directory_entry& module_dir);
+void setup_module(AppRunSettings* settings, const std::string& module_dir);
 
 
 /**

@@ -148,15 +148,19 @@ void import_module_environment(AppRunSettings* const settings, const libconfig::
     }
 }
 
-void setup_module(AppRunSettings* settings, const std::filesystem::directory_entry& module_dir) {
-    std::cout << "Checking module " << module_dir.path() << std::endl;
-
+void setup_module(AppRunSettings* settings, const std::string& module_dir) {
     // verify if the system has the required feature
-    auto module_check_path = module_dir.path() / "check";
+    auto module_check_path = module_dir + "/check";
+
+    // ignore folders without check binary
+    if (access(module_check_path.c_str(), F_OK) != 0)
+        return;
+
+    std::cout << "Checking module " << module_dir << std::endl;
     if (system(module_check_path.c_str()) != EXIT_SUCCESS) {
-        std::cout << "Enabling module " << module_dir.path() << std::endl;
+        std::cout << "Enabling module " << module_dir << std::endl;
         // enable module
-        auto module_config_path = module_dir.path() / "config";
+        auto module_config_path = module_dir + "/config";
 
         libconfig::Config module_config;
         try {

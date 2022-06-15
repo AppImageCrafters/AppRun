@@ -25,13 +25,16 @@
  **************************************************************************/
 
 
-#include <filesystem>
 #include <libconfig.h++>
 #include <common/appdir_environment.h>
+#include <dirent.h>
+#include <cstring>
 
 #include "common/shell_utils.h"
 
 #include "apprun.h"
+
+void enable_required_modules(AppRunSettings* settings);
 
 int main(int argc, char* argv[]) {
     std::string origin_path = resolve_origin();
@@ -39,11 +42,8 @@ int main(int argc, char* argv[]) {
     std::string config_path = origin_path + "/" + APPRUN_CONFIG_FILE_NAME;
     auto* settings = load_config_file(config_path);
 
-    // load modules if required
     if (!settings->modules_dir.empty()) {
-        std::string module_path = apprun_shell_expand_variables(settings->modules_dir.c_str(), argv);
-        for (const auto& entry : std::filesystem::directory_iterator(module_path))
-            setup_module(settings, entry);
+        enable_required_modules(settings);
     }
 
     const std::string& ld_library_path_value = generate_ld_library_path_value(settings);
@@ -61,4 +61,23 @@ int main(int argc, char* argv[]) {
     }
 
     return launch(settings, argv);
+}
+
+void enable_required_modules(AppRunSettings* settings) {
+    struct dirent* entry = nullptr;
+    DIR* dir = nullptr;
+
+    char* modules_dir_path = apprun_shell_expand_variables(settings->modules_dir.c_str(), nullptr);
+    dir = opendir(modules_dir_path);
+
+    if (dir != nullptr) {
+        while ((entry = readdir(dir))) {
+            std::string module_path = strdup(modules_dir_path);
+            module_path += '/';
+            module_path += entry->d_name;
+            setup_module(settings, module_path);
+        }
+    }
+
+    closedir(dir);
 }
