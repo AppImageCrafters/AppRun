@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.11)
 include(ExternalProject)
 
-
 # Get the libconfig library
 externalproject_add(
     libconfig.git
@@ -14,6 +13,7 @@ externalproject_add(
     -DBUILD_EXAMPLES=Off
     -DBUILD_TESTS=Off
     -DBUILD_SHARED_LIBS=Off
+    -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_TOOLCHAIN_FILE}
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
 )
 
