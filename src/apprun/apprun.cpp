@@ -188,6 +188,12 @@ void setup_module(AppRunSettings* settings, const std::string& module_dir) {
 
 
 AppRunSettings* load_config_file(const std::string& config_path) {
+    // ignore folders without check binary
+    if (access(config_path.c_str(), F_OK) != 0) {
+        std::cerr << "Missing config file: " << config_path << "\n";
+        exit(EXIT_FAILURE);
+    }
+
     auto* settings = new AppRunSettings();
 
     // load config file
