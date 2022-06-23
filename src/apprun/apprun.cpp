@@ -247,6 +247,9 @@ AppRunSettings* load_config_file(const std::string& config_path) {
         }
     }
 
+    // set default runtime dir
+    settings->runtime_dir = strdup(getenv("APPDIR"));
+
     return settings;
 }
 
