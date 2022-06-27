@@ -57,7 +57,8 @@ int main(int argc, char* argv[]) {
         const std::string& name = entry.first;
         const std::string& value = entry.second;
         std::string orig_value = getenv(name.c_str()) != nullptr ? getenv(name.c_str()) : std::string();
-        apprun_set_private_env(name, value, orig_value, value);
+        char * expanded_value = apprun_shell_expand_variables(value.c_str(), argv);
+        apprun_set_private_env(name, expanded_value, orig_value, expanded_value);
     }
 
     return launch(settings, argv);
