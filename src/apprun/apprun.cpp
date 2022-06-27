@@ -58,6 +58,9 @@ int launch(AppRunSettings* settings, char** argv) {
 
         // set the runtime dir as working directory
         chdir(runtime_dir_value);
+#ifdef DEBUG
+        fprintf(stderr, "APPRUN_DEBUG: changing working directory to %s\n", runtime_dir_value);
+#endif
     }
 
     auto exec_argv_len = settings->exec.size();
