@@ -93,7 +93,9 @@ char *apprun_argv_to_env(char *const *string_list) {
     memset(str, 0, str_size + 1);
 
     for (int i = 0; i < string_list_len; i++) {
+        strcat(str, "\"");
         strcat(str, string_list[i]);
+        strcat(str, "\"");
         if (i + 1 < string_list_len)
             strcat(str, " ");
     }
