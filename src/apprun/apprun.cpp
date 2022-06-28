@@ -27,12 +27,12 @@
 #include <cstdlib>
 #include <cstring>
 #include <climits>
+#include <unistd.h>
+#include <iostream>
 
 #include <hooks/environment.h>
 #include <common/shell_utils.h>
-
-#include <unistd.h>
-#include <iostream>
+#include <common/string_list.h>
 
 
 #include "apprun.h"
@@ -63,13 +63,36 @@ int launch(AppRunSettings* settings, char** argv) {
 #endif
     }
 
+    // format execution line
+    char args_line[PATH_MAX] = {0x0};
     auto exec_argv_len = settings->exec.size();
+    for (int i = 0; i < exec_argv_len; i++) {
+        const char* arg = settings->exec[i].c_str();
+        char* arg_expanded = apprun_shell_expand_variables(arg, argv);
+        if (i > 0)
+            strcat(args_line, " ");
+
+        strcat(args_line, arg_expanded);
+    }
+
+    // split execution line into arguments for execv
+    char** user_args = apprun_shell_split_arguments(args_line);
+    int user_args_len = apprun_string_list_len(reinterpret_cast<char* const*>(user_args));
+
     char** exec_argv = static_cast<char**>(malloc(sizeof(char*) * exec_argv_len + 1));
-    for (int i = 0; i < exec_argv_len; i++)
-        exec_argv[i] = apprun_shell_expand_variables(settings->exec[i].c_str(), argv);
+    int exec_argc = 0;
+
+    // copy the user arguments
+    for (int i = 0; i < user_args_len; i++) {
+        char* arg = user_args[i];
+        if (strlen(arg) > 0) {
+            exec_argv[exec_argc] = arg;
+            exec_argc++;
+        }
+    }
 
     // add 0 termination
-    exec_argv[exec_argv_len] = nullptr;
+    exec_argv[exec_argc] = nullptr;
 
 #ifdef DEBUG
     fprintf(stderr, "APPRUN_DEBUG: executing ");
@@ -99,7 +122,7 @@ std::string generate_path_mappings_env(AppRunSettings* settings) {
 
 std::string generate_ld_library_path_value(AppRunSettings* settings) {
     std::string result;
-    for (const auto& itr : settings->library_paths) {
+    for (const auto& itr: settings->library_paths) {
         std::string value = apprun_shell_expand_variables(itr.c_str(), nullptr);
         if (!result.empty())
             result += ":";
