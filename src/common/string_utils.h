@@ -40,4 +40,17 @@ bool apprun_string_is_all_blanks(const char *str);
 
 char *apprun_string_trim(char *str);
 
+/**
+ * Compare version strings in the format X.X.X
+ * Version parts will be split and rested one at the time.
+ * If result differs from 0 it's returned.
+ * If the last part diff is 0 then 0 is returned.
+ *
+ * Returns:
+ *  - 0: if versions are equal.
+ *  - positive value if a is greater than b
+ *  - negative value if a is lower than b
+ * */
+long compare_version_strings(const char *a, const char *b);
+
 #endif //APPIMAGEEXECWRAPPER_STRING_UTILS_H

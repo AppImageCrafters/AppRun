@@ -28,10 +28,20 @@
 #ifndef APPRUN_PATH_H
 #define APPRUN_PATH_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdbool.h>
 
 bool apprun_is_path_child_of(const char *path, const char *base);
 
 void apprun_concat_path(char *dest, const char *path);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //APPRUN_PATH_H

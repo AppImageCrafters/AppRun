@@ -33,6 +33,8 @@ jobs:
           mkdir -p ${{runner.workspace}}/dist
           cp src/apprun/AppRun ${{runner.workspace}}/dist/AppRun-$BUILD_TYPE-$TARGET_ARCH
           cp src/hooks/libapprun_hooks.so ${{runner.workspace}}/dist/libapprun_hooks-$BUILD_TYPE-$TARGET_ARCH.so
+          cp src/modules/check-glibc ${{runner.workspace}}/dist/check-glibc-$BUILD_TYPE-$TARGET_ARCH
+          cp src/modules/check-glibstdc++ ${{runner.workspace}}/dist/check-glibstdc++-$BUILD_TYPE-$TARGET_ARCH
 
       - name: Upload Artifacts ${{ env.TARGET_ARCH }}
         uses: actions/upload-artifact@v2.1.4

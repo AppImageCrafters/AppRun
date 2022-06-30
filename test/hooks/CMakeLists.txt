@@ -11,9 +11,6 @@ target_link_libraries(environment_test apprun_hooks)
 add_test(NAME TEST_ENVIRONMENT COMMAND environment_test)
 
 
-string(RANDOM LENGTH 6 MAPPED_APPDIR_PATH_HASH)
-set(MAPPED_APPDIR_PATH "/AppDir-${MAPPED_APPDIR_PATH_HASH}")
-
 # outer target
 add_executable(hooks_outer_target_test outer_target_test.c ../common/tests_shared.c $<TARGET_OBJECTS:common_objects>)
 target_compile_definitions(

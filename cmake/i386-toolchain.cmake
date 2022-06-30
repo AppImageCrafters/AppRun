@@ -1,21 +1,23 @@
-# this one is important
-SET(CMAKE_SYSTEM_NAME Linux)
-#this one not so much
-SET(CMAKE_SYSTEM_VERSION 1)
+set(CMAKE_SYSTEM_NAME Linux)
+set(CMAKE_SYSTEM_PROCESSOR i386)
 
-# specify the cross compiler
-SET(CMAKE_C_COMPILER /usr/bin/gcc)
-set(CMAKE_C_COMPILER_ARG1 "-m32")
-SET(CMAKE_CXX_COMPILER /usr/bin/g++)
-set(CMAKE_CXX_COMPILER_ARG1 "-m32")
+set(CMAKE_C_FLAGS "-m32")
+set(CMAKE_CXX_FLAGS "-m32")
 
-# where is the target environment
-SET(CMAKE_FIND_ROOT_PATH /usr/lib/i386-linux-gnu)
-set(CMAKE_IGNORE_PATH /usr/lib/x86_64-linux-gnu/ /usr/lib/x86_64-linux-gnu/lib/)
+# CMAKE_SHARED_LINKER_FLAGS, CMAKE_STATIC_LINKER_FLAGS etc. must not be set, but CMAKE_EXE_LINKER_FLAGS is necessary
+set(CMAKE_EXE_LINKER_FLAGS "-m32")
 
-# search for programs in the build host directories
-SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(DEPENDENCIES_CFLAGS "-m32")
+set(DEPENDENCIES_CPPFLAGS "-m32")
+set(DEPENDENCIES_LDFLAGS "-m32")
 
-# for libraries and headers in the target directories
-SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+# host = target system
+# build = build system
+# both must be specified
+set(EXTRA_CONFIGURE_FLAGS "--host=i686-pc-linux-gnu" "--build=x86_64-pc-linux-gnu")
+
+# may help with some rare issues
+set(CMAKE_PREFIX_PATH /usr/lib/i386-linux-gnu)
+
+# makes sure that at least on Ubuntu pkg-config will search for the :i386 packages
+set(ENV{PKG_CONFIG_PATH} /usr/lib/i386-linux-gnu/pkgconfig/)
