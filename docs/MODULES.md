@@ -3,7 +3,7 @@ Modules
 
 A module is a part of the bundle that will only be used at runtime if the host system doesn't provide a certain feature.
 Each module will include a "check" app (or script). This will be executed by the AppRun to verify if the system has the 
-required feature. The module will be used only this check fails.
+required feature. The module will be used only if this check fails.
 
 Modules provide a way of configuring the bundle at runtime. This is required to switch between the system and bundled 
 libraries depending on the system configuration. The simplest example is glibc, applications need to always use the
@@ -14,7 +14,7 @@ Specification
 -------------
 
 An AppDir may contain given set of modules at `$APPDIR/opt/`. Each module will contain the following components:
-- 
+
 - "check" app
 - "config" file
 - binaries and resources to be optionally used at runtime
@@ -61,7 +61,7 @@ module:
   library_paths = ( "${APPDIR}/opt/module_id/lib", "${APPDIR}/opt/module_id/usr/lib");
   
   # path_mappings to be set
-  path_mappings = ( ( "/bin/app", "${APPDIR}/opt/module_id/bin/app") );
+  path_mappings = [ "/bin/app:${APPDIR}/opt/module_id/bin/app" ] ;
 
   # additional environment variables to be set 
   environment:

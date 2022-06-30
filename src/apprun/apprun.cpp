@@ -108,12 +108,9 @@ int launch(AppRunSettings* settings, char** argv) {
 std::string generate_path_mappings_env(AppRunSettings* settings) {
     std::string result;
     size_t path_mappings_len = settings->path_mappings.size();
-    for (int i = 0; i < path_mappings_len / 2; i++) {
-        std::string orig = apprun_shell_expand_variables(settings->path_mappings[i * 2].c_str(), nullptr);
-        std::string dest = apprun_shell_expand_variables(settings->path_mappings[i * 2 + 1].c_str(), nullptr);
-        result.append(orig)
-                .append(":")
-                .append(dest)
+    for (int i = 0; i < path_mappings_len; i++) {
+        std::string value = apprun_shell_expand_variables(settings->path_mappings[i].c_str(), nullptr);
+        result.append(value)
                 .append(";");
     }
 

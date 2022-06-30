@@ -196,7 +196,7 @@ runtime:
   exec = [ "\$APPDIR/usr/bin/script", "\$@" ];
   linkers = [ "$APPDIR_LIBC_LINKER_PATH" ];
   library_paths = [ "${APPDIR_LIBRARY_PATH}" ];
-  path_mappings = [ "$MAPPED_APPDIR", "\$APPDIR" ];
+  path_mappings = [ "$MAPPED_APPDIR:\$APPDIR" ];
   environment = {
       CUSTOM_ENV = "custom environment variable value";
       LD_PRELOAD = "libapprun_hooks.so:$LD_PRELOAD";
