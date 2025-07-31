@@ -17,7 +17,7 @@ jobs:
       TARGET_ARCH: ${{ matrix.TARGET_ARCH }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Build ${{ matrix.BUILD_TYPE }} ${{ matrix.TARGET_ARCH }}
         run: tooling/build-in-docker.sh ${{ env.BUILD_TYPE }}
@@ -35,7 +35,7 @@ jobs:
           cp src/hooks/libapprun_hooks.so ${{runner.workspace}}/dist/libapprun_hooks-$BUILD_TYPE-$TARGET_ARCH.so
 
       - name: Upload Artifacts ${{ env.TARGET_ARCH }}
-        uses: actions/upload-artifact@v2.1.4
+        uses: actions/upload-artifact@v4
         with:
           name: artifacts
           path: ${{runner.workspace}}/dist/*
@@ -45,7 +45,7 @@ jobs:
     needs: build
     steps:
       - name: Download artifacts from build job
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: artifacts
 
