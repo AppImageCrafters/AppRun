@@ -204,7 +204,7 @@ void setup_runtime() {
         fprintf(stderr, "APPRUN_DEBUG: system ld(%s), appdir ld(%s) \n", system_ld_version, appdir_ld_version);
 #endif
         char *runtime_path = NULL;
-        if (compare_version_strings(system_ld_version, appdir_ld_version) > 0) {
+        if (compare_version_strings(system_ld_version, appdir_ld_version) >= 0) {
             runtime_path = resolve_runtime_path("runtime/default");
             configure_system_libc();
         } else {
