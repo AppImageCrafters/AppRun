@@ -1,0 +1,49 @@
+# This is a reusable workflow. It is NOT triggered directly by Git events.
+# It is called by other workflows to perform the build and test steps.
+name: "Build and run tests"
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false # Ensure all matrix jobs run, even if one fails
+      matrix:
+        TARGET_ARCH: [ i386, x86_64, gnueabihf, aarch64 ]
+        BUILD_TYPE: [ Debug, Release ]
+    env:
+      BUILD_TYPE: ${{ matrix.BUILD_TYPE }}
+      TARGET_ARCH: ${{ matrix.TARGET_ARCH }}
+
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v7
+
+      - name: Build ${{ matrix.BUILD_TYPE }} for ${{ matrix.TARGET_ARCH }}
+        run: ./tooling/build-in-docker.sh ${{ matrix.BUILD_TYPE }}
+
+      - name: Test ${{ matrix.BUILD_TYPE }} for ${{ matrix.TARGET_ARCH }}
+        if: ${{ matrix.TARGET_ARCH == 'x86_64' || matrix.TARGET_ARCH == 'i386' }}
+        run: ./tooling/test-in-docker.sh ${{ matrix.BUILD_TYPE }}
+
+      - name: Rename artifacts
+        run: |
+          cd "cmake-build-${{ matrix.BUILD_TYPE }}-${{ matrix.TARGET_ARCH }}/src/"
+          sudo mv "apprun/AppRun" "apprun/AppRun-${{ matrix.BUILD_TYPE }}-${{ matrix.TARGET_ARCH }}"
+          sudo mv "hooks/libapprun_hooks.so" "hooks/libapprun_hooks-${{ matrix.BUILD_TYPE }}-${{ matrix.TARGET_ARCH }}.so"
+
+      - name: Upload AppRun artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: "AppRun-${{ matrix.BUILD_TYPE }}-${{ matrix.TARGET_ARCH }}"
+          path: "cmake-build-${{ matrix.BUILD_TYPE }}-${{ matrix.TARGET_ARCH }}/src/apprun/AppRun-${{ matrix.BUILD_TYPE }}-${{ matrix.TARGET_ARCH }}"
+          retention-days: 7
+
+      - name: Upload libapprun_hooks artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: "libapprun_hooks-${{ matrix.BUILD_TYPE }}-${{ matrix.TARGET_ARCH }}.so"
+          path: "cmake-build-${{ matrix.BUILD_TYPE }}-${{ matrix.TARGET_ARCH }}/src/hooks/libapprun_hooks-${{ matrix.BUILD_TYPE }}-${{ matrix.TARGET_ARCH }}.so"
+          retention-days: 7

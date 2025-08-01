@@ -1,56 +1,30 @@
-name: "tagged-release"
+name: "Tagged Release"
 
 on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        TARGET_ARCH: [ i386, x86_64, gnueabihf, aarch64 ]
-        BUILD_TYPE: [ Debug, Release ]
-    env:
-      BUILD_TYPE: ${{ matrix.BUILD_TYPE }}
-      TARGET_ARCH: ${{ matrix.TARGET_ARCH }}
-
-    steps:
-      - uses: actions/checkout@4
-
-      - name: Build ${{ matrix.BUILD_TYPE }} ${{ matrix.TARGET_ARCH }}
-        run: tooling/build-in-docker.sh ${{ env.BUILD_TYPE }}
-
-      - name: Test ${{ matrix.BUILD_TYPE }} ${{ matrix.TARGET_ARCH }}
-        if: ${{ env.TARGET_ARCH == 'x86_64' || env.TARGET_ARCH == 'i386' }}
-        run: tooling/test-in-docker.sh ${{ env.BUILD_TYPE }}
-
-      - name: Prepare artifacts
-        shell: bash
-        working-directory: cmake-build-${{ env.BUILD_TYPE }}-${{ env.TARGET_ARCH }}
-        run: |
-          mkdir -p ${{runner.workspace}}/dist
-          cp src/apprun/AppRun ${{runner.workspace}}/dist/AppRun-$BUILD_TYPE-$TARGET_ARCH
-          cp src/hooks/libapprun_hooks.so ${{runner.workspace}}/dist/libapprun_hooks-$BUILD_TYPE-$TARGET_ARCH.so
-
-      - name: Upload Artifacts ${{ env.TARGET_ARCH }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: artifacts
-          path: ${{runner.workspace}}/dist/*
+    name: "Run Build and Test Matrix"
+    uses: ./.github/workflows/build.yml
 
   publish:
+    name: "Publish Tagged Release"
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Download artifacts from build job
-        uses: actions/download-artifact@v4
+      - name: Download all build artifacts from build job
+        uses: actions/download-artifact@v7
         with:
-          name: artifacts
+          pattern: "*"
+          path: release-assets
+          merge-multiple: true
 
-      - uses: "marvinpinto/action-automatic-releases@latest"
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          files: release-assets/*
           prerelease: false
-          files: ./*
