@@ -2,7 +2,7 @@
 language: c
 compiler: gcc
 os: linux
-dist: xenial
+dist: resolute
 sudo: required
 
 matrix:
@@ -31,9 +31,9 @@ matrix:
 install:
   - 'if [ "$SETUP_FOREING_ARCH_REPOSITORY" == "True" ]; then
       sudo dpkg --add-architecture $TARGET_DEB_ARCH;
-      echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports xenial main restricted multiverse universe" | sudo tee /etc/apt/sources.list.d/ubuntu-ports.list;
-      echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports xenial-updates main restricted multiverse universe" | sudo tee /etc/apt/sources.list.d/ubuntu-ports.list;
-      echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports xenial-security main restricted multiverse universe" | sudo tee /etc/apt/sources.list.d/ubuntu-ports.list;
+      echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports resolute main restricted multiverse universe" | sudo tee /etc/apt/sources.list.d/ubuntu-ports.list;
+      echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports resolute-updates main restricted multiverse universe" | sudo tee /etc/apt/sources.list.d/ubuntu-ports.list;
+      echo "deb [arch=$TARGET_DEB_ARCH] http://ports.ubuntu.com/ubuntu-ports resolute-security main restricted multiverse universe" | sudo tee /etc/apt/sources.list.d/ubuntu-ports.list;
       sudo apt-get update -y;
       sudo apt-get install -y crossbuild-essential-$TARGET_DEB_ARCH;
     fi'
